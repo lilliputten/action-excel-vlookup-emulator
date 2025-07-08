@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
-import { AppNavBar } from '@/components/AppNavBar';
+import { Emulator } from '@/pages/Emulator';
 import { Test } from '@/pages/Test';
 
 import { TailwindIndicator } from './blocks/TailwindIndicator';
@@ -9,6 +9,7 @@ import { TailwindIndicator } from './blocks/TailwindIndicator';
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<Emulator />} />
       <Route path="/test" element={<Test />} />
     </Routes>
   );
@@ -17,7 +18,7 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AppNavBar />
+      {/* <AppNavBar /> */}
       <AppRoutes />
       <ToastContainer />
       <TailwindIndicator />

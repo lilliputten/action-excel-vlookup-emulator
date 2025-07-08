@@ -1,37 +1,15 @@
 import React from 'react';
 
+import './Test.css';
+
+import { versionInfo } from '@/config/env';
 import reactLogo from '@/assets/react.svg';
 
 import viteLogo from '/vite.svg';
 
-import './Test.css';
-
-import { versionInfo } from '@/config/env';
-import { getAPIConfigData } from '@/api/methods/getAPIConfigData';
-
 export function Test() {
   const [count, setCount] = React.useState(0);
-  const [result, setResult] = React.useState('');
-
-  React.useEffect(() => {
-    getAPIConfigData()
-      .then((data) => {
-        const dataStr = JSON.stringify(data, null, 2);
-        /* console.log('[Test:Effect] fetch: result', {
-         *   data,
-         * });
-         */
-        setResult(dataStr);
-        return data;
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error('[Test:Effect] fetch: caught error', {
-          error,
-        });
-        setResult(String(error));
-      });
-  }, []);
+  const [result, _setResult] = React.useState('');
 
   return (
     <div className="relative flex flex-col gap-4 overflow-auto p-4">
@@ -47,7 +25,6 @@ export function Test() {
 
       <h2 className="text-bold text-2xl">API request result:</h2>
       <div className="relative flex flex-col gap-4 p-4 text-xs opacity-50">
-        <pre>client test: 9</pre>
         <pre>versionInfo: {versionInfo}</pre>
         <pre>result: {result}</pre>
       </div>
