@@ -3,9 +3,14 @@
 
 :root {
   /* Define colors */
-  --backgroundColor: #ccc; /* #242424; */
-  --paperColor: #fff;
+
+  --backgroundColor: #eee;
   --textColor: #222;
+
+  /* --backgroundColor: #444; */
+  /* --textColor: #ccc; */
+
+  --paperColor: #fff;
   --primaryColor: #48f;
   --secondaryColor: #fb1;
   --appDestructiveColor: #f55;
@@ -16,7 +21,7 @@
   font-weight: 400;
 
   /* Set font size to approx fit 20 lines in the list */
-  font-size: max(14px, 1.62vh);
+  font-size: 12px; /* max(13px, 1.62vh); */
 
   color-scheme: light dark;
   color: var(--textColor);
@@ -30,12 +35,12 @@
 
 body,
 #root {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-  overflow: hidden;
+  /* position: fixed; */
+  /* left: 0; */
+  /* right: 0; */
+  /* bottom: 0; */
+  /* top: 0; */
+  /* overflow: hidden; */
 }
 
 body {

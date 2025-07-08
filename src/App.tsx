@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
-import { Test } from '@/pages/Test';
 import { Emulator } from '@/pages/Emulator';
+import { Test } from '@/pages/Test';
 
 import { TailwindIndicator } from './blocks/TailwindIndicator';
 
