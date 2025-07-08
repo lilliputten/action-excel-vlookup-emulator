@@ -1,3 +1,5 @@
+// @ts-check
+
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
@@ -17,6 +19,18 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  /*
+   * css: {
+   *   preprocessorOptions: {
+   *     scss: {
+   *       // quietDeps: true,
+   *       api: 'modern-compiler',
+   *       silenceDeprecations: ['import', 'global-builtin'],
+   *       additionalData: `@import 'tailwindcss/theme' layer(theme); @import 'tailwindcss/utilities' layer(utilities);`,
+   *     },
+   *   },
+   * },
+   */
   build: {
     // Place all assets (JS, CSS, images) in the `static` folder
     assetsDir: 'static',

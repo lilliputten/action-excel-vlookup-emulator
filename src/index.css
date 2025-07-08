@@ -1,12 +1,11 @@
-@import 'tailwindcss';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
 
 :root {
   /* Define colors */
-  --backgroundColor: #242424;
+  --backgroundColor: #ccc; /* #242424; */
+  --paperColor: #fff;
+  --textColor: #222;
   --primaryColor: #48f;
   --secondaryColor: #fb1;
   --appDestructiveColor: #f55;
@@ -17,10 +16,10 @@
   font-weight: 400;
 
   /* Set font size to approx fit 20 lines in the list */
-  /* font-size: max(14px, 1.62vh); */
+  font-size: max(14px, 1.62vh);
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--textColor);
   background-color: var(--backgroundColor);
 
   font-synthesis: none;
@@ -67,7 +66,7 @@ body {
 }
 
 .input-primary {
-  @apply border-1 ring-(--primaryColor) border-blue-500 focus:outline-none focus:ring;
+  @apply border-1 border-blue-500 ring-(--primaryColor) focus:ring focus:outline-none;
 }
 
 /* Tailwind buttons
@@ -101,8 +100,6 @@ body {
 .btn-icon {
   @apply justify-center px-1;
   min-width: var(--formSize); /* Try to make it square */
-}
-.btn-plain {
 }
 .btn-plain:hover {
   @apply bg-blue-400/20;

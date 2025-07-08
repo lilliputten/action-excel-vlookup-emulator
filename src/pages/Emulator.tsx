@@ -7,7 +7,7 @@ import reactLogo from '@/assets/react.svg';
 
 import viteLogo from '/vite.svg';
 
-export function Test() {
+export function Emulator() {
   const [count, setCount] = React.useState(0);
   const [result, _setResult] = React.useState('');
 
@@ -21,7 +21,7 @@ export function Test() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1 className="text-bold text-5xl">Vite + React</h1>
+      <h1 className="text-bold text-5xl">Emulator</h1>
 
       <h2 className="text-bold text-2xl">API request result:</h2>
       <div className="relative flex flex-col gap-4 p-4 text-xs opacity-50">
