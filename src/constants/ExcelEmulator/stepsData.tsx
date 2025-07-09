@@ -1,4 +1,9 @@
-import { inputCellName, sourceCellName } from '@/constants/ExcelEmulator/table';
+import {
+  inputCellName,
+  lookupRangeFirstCellName,
+  lookupRangeLastCellName,
+  sourceCellName,
+} from '@/constants/ExcelEmulator/table';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { TCellName } from '@/types/ExcelEmulator';
 import { TReactNode } from '@/types/react';
@@ -45,11 +50,17 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     hintContent: 'Добавьте точку с запятой',
     hintClassName: 'whitespace-nowrap',
   },
-  [ProgressSteps.StepSelectTargetRange]: {
+  [ProgressSteps.StepSelectLookupRangeStart]: {
     text: 'Выделите диапазон для поиска',
-    // hintCellName: inputCellName,
-    // hintContent: 'Добавьте точку с запятой',
-    // hintClassName: 'whitespace-nowrap',
+    hintCellName: lookupRangeFirstCellName,
+    hintContent: 'Начните выделение с этой ячейки',
+    hintClassName: 'whitespace-nowrap',
+  },
+  [ProgressSteps.StepSelectLookupRangeFinish]: {
+    text: 'Завершите выделение диапазона для поиска',
+    hintCellName: lookupRangeLastCellName,
+    hintContent: 'Закончите выделение здесь',
+    hintClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepDone]: {
     text: 'Все задачи выполнены!',

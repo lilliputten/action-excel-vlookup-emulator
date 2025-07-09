@@ -6,7 +6,7 @@ const stepsCount = progressStepsSequence.length;
 
 type TSetProgressStepAction = React.Dispatch<React.SetStateAction<ProgressSteps>>;
 
-interface TProgressContext {
+export interface TProgressContext {
   // Core data
   step: ProgressSteps;
   stepIndex: number;
@@ -68,7 +68,7 @@ export const useCreateProgressContext = () => {
   // Properties...
   const isFirstStep = React.useMemo(() => stepIndex <= 0, [stepIndex]);
   const isLastStep = React.useMemo(() => stepIndex >= stepsCount - 1, [stepIndex]);
-  const context = React.useMemo<TProgressContext>(
+  const progressContext = React.useMemo<TProgressContext>(
     () =>
       ({
         // Core data
@@ -110,7 +110,7 @@ export const useCreateProgressContext = () => {
       disallowNextStep,
     ],
   );
-  return context;
+  return progressContext;
 };
 
 interface TProgressContextProviderProps {
@@ -119,9 +119,9 @@ interface TProgressContextProviderProps {
 
 export const ProgressContextProvider = (props: TProgressContextProviderProps) => {
   const { children } = props;
-  const context = useCreateProgressContext();
+  const progressContext = useCreateProgressContext();
   return (
-    <ProgressContext.Provider value={context}>
+    <ProgressContext.Provider value={progressContext}>
       {/* Nested components */}
       {children}
     </ProgressContext.Provider>
@@ -129,9 +129,9 @@ export const ProgressContextProvider = (props: TProgressContextProviderProps) =>
 };
 
 export function useProgressContext() {
-  const context = React.useContext(ProgressContext);
-  if (!context) {
+  const progressContext = React.useContext(ProgressContext);
+  if (!progressContext) {
     throw new Error('Use ProgressContext with a provider!');
   }
-  return context;
+  return progressContext;
 }
