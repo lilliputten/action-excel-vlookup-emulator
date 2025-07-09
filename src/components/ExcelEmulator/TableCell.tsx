@@ -61,6 +61,7 @@ export function TableCell(props: TTableCellProps) {
       data-col-index={colIndex}
       className={cn(
         isDev && '__TableCell', // DEBUG
+        'relative',
         'px-1 py-[2px]',
         isAuxTableCell && 'border border-solid border-gray-300',
         isMainTableCell && 'border border-solid border-black',
@@ -81,7 +82,7 @@ export function TableCell(props: TTableCellProps) {
       onClick={onClick}
     >
       {content}
-      {/* cellKey === inputCellKey && <ToolTip /> */}
+      {cellKey === inputCellKey && <ToolTip />}
     </div>
   );
 }

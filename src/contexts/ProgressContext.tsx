@@ -31,7 +31,7 @@ interface TProgressContext {
 const ProgressContext = React.createContext<TProgressContext>({} as TProgressContext);
 
 export const useCreateProgressContext = () => {
-  const [step, setStep] = React.useState(ProgressSteps.Start);
+  const [step, setStep] = React.useState<ProgressSteps>(ProgressSteps.Start);
   const stepIndex = React.useMemo(() => progressStepsSequence.indexOf(step), [step]);
 
   const setFirstStep = React.useCallback(() => setStep(progressStepsSequence[0]), []);
@@ -41,7 +41,8 @@ export const useCreateProgressContext = () => {
       setStep((step) => {
         const idx = progressStepsSequence.indexOf(step);
         if (idx !== -1 && idx < stepsCount - 1) {
-          return progressStepsSequence[idx + 1];
+          step = progressStepsSequence[idx + 1];
+          // console.log('[ProgressContext:setNextStep]', step);
         }
         return step;
       }),
@@ -52,7 +53,8 @@ export const useCreateProgressContext = () => {
       setStep((step) => {
         const idx = progressStepsSequence.indexOf(step);
         if (idx !== -1 && idx > 0) {
-          return progressStepsSequence[idx - 1];
+          step = progressStepsSequence[idx - 1];
+          // console.log('[ProgressContext:setPrevStep]', step);
         }
         return step;
       }),
