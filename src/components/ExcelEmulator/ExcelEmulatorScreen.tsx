@@ -3,11 +3,11 @@ import { cn } from '@/lib';
 
 import { Table } from './Table';
 
-export function ExcelPage() {
+export function ExcelEmulatorScreen() {
   return (
     <div
       className={cn(
-        isDev && '__ExcelPage', // DEBUG
+        isDev && '__ExcelEmulator', // DEBUG
       )}
     >
       <Table />

@@ -1,13 +1,13 @@
 import React from 'react';
 
-import './Test.css';
+import './TestPage.css';
 
 import { versionInfo } from '@/config/env';
 import reactLogo from '@/assets/react.svg';
 
 import viteLogo from '/vite.svg';
 
-export function Test() {
+export function TestPage() {
   const [count, setCount] = React.useState(0);
   const [result, _setResult] = React.useState('');
 
