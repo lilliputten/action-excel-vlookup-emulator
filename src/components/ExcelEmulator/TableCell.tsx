@@ -5,10 +5,10 @@ import { cellSpecs, genericColSpecs, mainColSpecs, mainRowSpecs } from './consta
 import { checkIfAuxTableCell } from './helpers/checkIfAuxTableCell';
 import { checkIfMainTableCell } from './helpers/checkIfMainTableCell';
 import { getCellKey } from './helpers/getCellKey';
-import { getColName } from './helpers/getColName';
 import { getTableCellContent } from './helpers/getTableCellContent';
 import { TOptionalColSpec } from './TColSpec';
 import { TTableCellProps } from './types/propTypes';
+import { getColName } from './utils/getColName';
 
 export function TableCell(props: TTableCellProps) {
   const { children, onClick, className, id, rowIndex, colIndex, spanCount } = props;

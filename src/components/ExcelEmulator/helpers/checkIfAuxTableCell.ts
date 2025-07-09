@@ -1,15 +1,15 @@
 import {
   auxTableFirstCol,
+  auxTableFirstRow,
   auxTableLastCol,
-  mainTableFirstRow,
-  mainTableLastRow,
+  auxTableLastRow,
 } from '../constants/table';
 
 export function checkIfAuxTableCell(rowIndex: number, colIndex: number) {
   const isMainTableCell =
     colIndex >= auxTableFirstCol &&
     colIndex <= auxTableLastCol &&
-    rowIndex >= mainTableFirstRow &&
-    rowIndex <= mainTableLastRow;
+    rowIndex >= auxTableFirstRow &&
+    rowIndex <= auxTableLastRow;
   return isMainTableCell;
 }
