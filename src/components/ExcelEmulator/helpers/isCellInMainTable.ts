@@ -5,7 +5,7 @@ import {
   mainTableLastRow,
 } from '@/constants/ExcelEmulator/table';
 
-export function checkIfMainTableCell(rowIndex: number, colIndex: number) {
+export function isCellInMainTable(rowIndex: number, colIndex: number) {
   const isMainTableCell =
     colIndex >= mainTableFirstCol &&
     colIndex <= mainTableLastCol &&

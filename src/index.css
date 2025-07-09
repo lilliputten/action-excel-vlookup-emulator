@@ -142,15 +142,16 @@ body {
 }
 
 .animated-background {
-  animation: animated-background 3s infinite;
+  background-color: rgba(65 129 255 / 0%);
+  animation: animated-background 2s infinite;
 }
 
 @keyframes animated-background {
   0%,
   100% {
-    background-color: var(--color-blue-100);
+    background-color: rgba(65 129 255 / 0%);
   }
   50% {
-    background-color: var(--color-blue-300);
+    background-color: rgba(65 129 255 / 20%);
   }
 }

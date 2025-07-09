@@ -8,40 +8,43 @@ import {
   mainRowSpecs,
 } from '@/constants/ExcelEmulator/specs';
 import {
-  auxTableFirstCol,
-  auxTableFirstRow,
   colsCount,
   mainTableFirstCol,
   mainTableFirstRow,
+  targetTableFirstCol,
+  targetTableFirstRow,
 } from '@/constants/ExcelEmulator/table';
+import { useProgressContext } from '@/contexts/ProgressContext';
+import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
 import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
-import { checkIfAuxTableCell } from './helpers/checkIfAuxTableCell';
-import { checkIfMainTableCell } from './helpers/checkIfMainTableCell';
 import { getTableCellContent } from './helpers/getTableCellContent';
+import { isCellInLookupTable } from './helpers/isCellInLookupTable';
+import { isCellInMainTable } from './helpers/isCellInMainTable';
+import { isCellInTargetTable } from './helpers/isCellInTargetTable';
 import { TOptionalColSpec } from './TColSpec';
 import { ToolTip } from './ToolTip';
 
 function isInnerTableCol(rowIndex: number, colIndex: number) {
-  const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
-  const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
+  const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
+  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
   if (isMainTableCell && colIndex !== mainTableFirstCol) {
     return true;
   }
-  if (isAuxTableCell && colIndex !== auxTableFirstCol) {
+  if (isAuxTableCell && colIndex !== targetTableFirstCol) {
     return true;
   }
   return false;
 }
 
 function isInnerTableRow(rowIndex: number, colIndex: number) {
-  const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
-  const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
+  const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
+  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
   if (isMainTableCell && rowIndex !== mainTableFirstRow) {
     return true;
   }
-  if (isAuxTableCell && rowIndex !== auxTableFirstRow) {
+  if (isAuxTableCell && rowIndex !== targetTableFirstRow) {
     return true;
   }
   return false;
@@ -49,20 +52,24 @@ function isInnerTableRow(rowIndex: number, colIndex: number) {
 
 export function TableCell(props: TTableCellProps) {
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
+  const { step } = useProgressContext();
+  const isStepSelectTargetRange = step === ProgressSteps.StepSelectTargetRange;
   const { hintCellName, hintCelClassName } = useStepData();
   const colName = getColName(colIndex);
-  const cellKey = getCellName(rowIndex, colIndex);
-  const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
-  const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
+  const cellName = getCellName(rowIndex, colIndex);
+  const showLookup = isStepSelectTargetRange && isCellInLookupTable(rowIndex, colIndex);
+  const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
+  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
   const mainRowSpec: TOptionalColSpec = isMainTableCell ? mainRowSpecs[rowIndex] : undefined;
   const genericColSpec: TOptionalColSpec = genericColSpecs[colName];
   const mainColSpec: TOptionalColSpec = isMainTableCell ? mainColSpecs[colName] : undefined;
-  const cellSpec: TOptionalColSpec = cellSpecs[cellKey];
+  const cellSpec: TOptionalColSpec = cellSpecs[cellName];
   const content = children || getTableCellContent(rowIndex, colIndex);
-  const hasHint = cellKey === hintCellName;
+  const hasHint = cellName === hintCellName;
   return (
     <div
       id={id}
+      data-cell-name={cellName}
       data-col-index={colIndex}
       data-row-index={rowIndex}
       className={cn(
@@ -71,6 +78,7 @@ export function TableCell(props: TTableCellProps) {
         'px-1 py-[2px]',
         'cursor-default bg-white',
         'before:pointer-events-none before:absolute before:top-0 before:right-0 before:bottom-0 before:left-0 before:z-[5] before:content-[""]',
+        showLookup && 'animated-background',
         isAuxTableCell && 'border border-solid border-gray-300',
         isMainTableCell && 'border border-solid border-black',
         isMainTableCell && 'whitespace-nowrap',

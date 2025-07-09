@@ -34,7 +34,6 @@ export function TableInputCell(props: TTableCellProps) {
       setNextStep();
     }
     if (isStepEquationSemicolon && text.endsWith(';')) {
-      node.value = equationBegin;
       setNextStep();
     }
   };
