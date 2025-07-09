@@ -1,4 +1,5 @@
-import { TColSpec } from '../TColSpec';
+import { TColSpec } from '@/components/ExcelEmulator/TColSpec';
+
 import { inputCellKey, mainTableColsCount } from './table';
 
 export const genericColSpecs: Record<string, TColSpec> = {

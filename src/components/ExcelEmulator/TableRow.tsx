@@ -1,9 +1,10 @@
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
+import { cellSpecs } from '@/constants/ExcelEmulator/specs';
+import { colsCount, idDelim, inputCellKey, sourceCellKey } from '@/constants/ExcelEmulator/table';
 import { cn } from '@/lib';
+import { TTableRowProps } from '@/types/ExcelEmulator/cellPropTypes';
 
-import { cellSpecs } from './constants/specs';
-import { colsCount, idDelim, inputCellKey, sourceCellKey } from './constants/table';
 import { getCellKey } from './helpers/getCellKey';
 import { TableCell } from './TableCell';
 import { TableHintCell } from './TableHintCell';
@@ -11,7 +12,6 @@ import { TableInputCell } from './TableInputCell';
 import { TableSideRulerCell } from './TableSideRulerCell';
 import { TableSourceCell } from './TableSourceCell';
 import { TableTopRulerCell } from './TableTopRulerCell';
-import { TTableRowProps } from './types/propTypes';
 
 export function TableRow(props: TTableRowProps) {
   const { className, rowIndex } = props;

@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { isDev } from '@/config';
+import { inputCellFieldId } from '@/constants/ExcelEmulator';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
+import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
-import { inputCellFieldId } from './constants/table';
 import { TableCell } from './TableCell';
-import { TTableCellProps } from './types/propTypes';
 
 const equationBegin = '=ВПР(';
 

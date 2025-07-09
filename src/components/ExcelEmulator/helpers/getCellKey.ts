@@ -1,6 +1,5 @@
 import { getColName } from '@/lib/ExcelEmulator';
-
-import { idDelim } from '../constants/table';
+import { idDelim } from '@/constants/ExcelEmulator/table';
 
 export function getCellKey(rowIndex: number, colIndex?: number) {
   const colName = colIndex != undefined ? getColName(colIndex) : '';

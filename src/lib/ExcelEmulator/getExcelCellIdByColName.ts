@@ -1,4 +1,4 @@
-import { idDelim } from '@/components/ExcelEmulator/constants/table';
+import { idDelim } from '@/constants/ExcelEmulator/table';
 
 export function getExcelCellIdByColName(colName: string) {
   const parts = colName.split(idDelim);

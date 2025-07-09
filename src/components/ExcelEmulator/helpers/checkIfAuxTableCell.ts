@@ -3,7 +3,7 @@ import {
   auxTableFirstRow,
   auxTableLastCol,
   auxTableLastRow,
-} from '../constants/table';
+} from '@/constants/ExcelEmulator/table';
 
 export function checkIfAuxTableCell(rowIndex: number, colIndex: number) {
   const isMainTableCell =

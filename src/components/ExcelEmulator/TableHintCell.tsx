@@ -1,9 +1,9 @@
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import { cn } from '@/lib';
+import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
 import { TableCell } from './TableCell';
-import { TTableCellProps } from './types/propTypes';
 
 export function TableHintCell(props: TTableCellProps) {
   const { className, colIndex, ...rest } = props;

@@ -1,7 +1,7 @@
 import { isDev } from '@/config';
+import { gridTemplateColumns, idDelim, rowsCount } from '@/constants/ExcelEmulator/table';
 import { cn } from '@/lib';
 
-import { gridTemplateColumns, idDelim, rowsCount } from './constants/table';
 import { getCellKey } from './helpers/getCellKey';
 import { TableRow } from './TableRow';
 

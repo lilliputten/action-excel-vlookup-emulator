@@ -1,10 +1,10 @@
 import { getColName } from '@/lib/ExcelEmulator';
 import { isDev } from '@/config';
+import { rulerCellClassNames } from '@/constants/ExcelEmulator/table';
 import { cn } from '@/lib';
+import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
-import { rulerCellClassNames } from './constants/table';
 import { TableCell } from './TableCell';
-import { TTableCellProps } from './types/propTypes';
 
 export function TableTopRulerCell(props: TTableCellProps) {
   const { className, colIndex, ...rest } = props;

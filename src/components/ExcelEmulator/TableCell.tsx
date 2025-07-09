@@ -1,23 +1,28 @@
 import { getColName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
-import { cn } from '@/lib';
-
-import { cellSpecs, genericColSpecs, mainColSpecs, mainRowSpecs } from './constants/specs';
+import {
+  cellSpecs,
+  genericColSpecs,
+  mainColSpecs,
+  mainRowSpecs,
+} from '@/constants/ExcelEmulator/specs';
 import {
   auxTableFirstCol,
   auxTableFirstRow,
   colsCount,
   mainTableFirstCol,
   mainTableFirstRow,
-} from './constants/table';
+} from '@/constants/ExcelEmulator/table';
+import { cn } from '@/lib';
+import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
+
 import { checkIfAuxTableCell } from './helpers/checkIfAuxTableCell';
 import { checkIfMainTableCell } from './helpers/checkIfMainTableCell';
 import { getCellKey } from './helpers/getCellKey';
 import { getTableCellContent } from './helpers/getTableCellContent';
 import { TOptionalColSpec } from './TColSpec';
 import { ToolTip } from './ToolTip';
-import { TTableCellProps } from './types/propTypes';
 
 function isInnerTableCol(rowIndex: number, colIndex: number) {
   const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);

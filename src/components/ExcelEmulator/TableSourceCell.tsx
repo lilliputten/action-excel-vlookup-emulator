@@ -1,12 +1,12 @@
 import { getExcelCellIdByColName } from '@/lib/ExcelEmulator/getExcelCellIdByColName';
 import { isDev } from '@/config';
+import { inputCellFieldId, sourceCellKey } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
+import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
-import { inputCellFieldId, sourceCellKey } from './constants/table';
 import { TableCell } from './TableCell';
-import { TTableCellProps } from './types/propTypes';
 
 export function TableSourceCell(props: TTableCellProps) {
   const { className, colIndex, ...rest } = props;

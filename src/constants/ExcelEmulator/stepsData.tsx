@@ -1,4 +1,4 @@
-import { inputCellKey, sourceCellKey } from '@/components/ExcelEmulator/constants/table';
+import { inputCellKey, sourceCellKey } from '@/constants/ExcelEmulator/table';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { TReactNode } from '@/types/react';
 
