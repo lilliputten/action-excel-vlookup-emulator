@@ -35,15 +35,18 @@ export function TableRow(props: TTableRowProps) {
       colIndex += spanCount - 1;
     }
   }
-  return (
-    <tr
-      id={id}
-      data-row-index={rowIndex}
-      className={cn(
-        isDev && '__TableRow', // DEBUG
-      )}
-    >
-      {cols}
-    </tr>
-  );
+  return <>{cols}</>;
+  /*
+   * return (
+   *   <tr
+   *     id={id}
+   *     data-row-index={rowIndex}
+   *     className={cn(
+   *       isDev && '__TableRow', // DEBUG
+   *     )}
+   *   >
+   *     {cols}
+   *   </tr>
+   * );
+   */
 }

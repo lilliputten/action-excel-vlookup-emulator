@@ -19,8 +19,12 @@ export const auxTableFirstCol = 10;
 export const auxTableLastCol = 10;
 export const auxTableColsCount = auxTableLastCol - auxTableFirstCol + 1;
 
+export const gridTemplateColumns = Array.from(Array(colsCount))
+  .map((_none, no) => (no ? '1fr' : 'min-content'))
+  .join(' ');
+
 // Column number 10, row 3
 export const inputCellKey = `${auxTableFirstRow}_${getColName(auxTableFirstCol)}`;
 
 export const rulerCellClassNames =
-  'bg-gray-500 px-2 text-center border border-solid border-white text-white cursor-default';
+  'bg-gray-500 px-2 text-center border border-solid border-white text-white cursor-default border-t-0 border-l-0';

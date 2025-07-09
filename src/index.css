@@ -155,3 +155,7 @@ body {
   /* TODO: It's required to implement synchronized animations (probably via css vars) */
   animation: bgColorShift 4s infinite;
 }
+
+/* .border-t-0 { */
+/*   background-color: rgba(0 100 0 / 20%); */
+/* } */

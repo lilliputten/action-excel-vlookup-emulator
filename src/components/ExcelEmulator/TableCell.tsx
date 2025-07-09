@@ -2,13 +2,46 @@ import { isDev } from '@/config';
 import { cn } from '@/lib';
 
 import { cellSpecs, genericColSpecs, mainColSpecs, mainRowSpecs } from './constants/specs';
+import {
+  auxTableFirstCol,
+  auxTableFirstRow,
+  colsCount,
+  inputCellKey,
+  mainTableFirstCol,
+  mainTableFirstRow,
+} from './constants/table';
 import { checkIfAuxTableCell } from './helpers/checkIfAuxTableCell';
 import { checkIfMainTableCell } from './helpers/checkIfMainTableCell';
 import { getCellKey } from './helpers/getCellKey';
 import { getTableCellContent } from './helpers/getTableCellContent';
 import { TOptionalColSpec } from './TColSpec';
+import { ToolTip } from './ToolTip';
 import { TTableCellProps } from './types/propTypes';
 import { getColName } from './utils/getColName';
+
+function isInnerTableCol(rowIndex: number, colIndex: number) {
+  const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
+  const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
+  if (isMainTableCell && colIndex !== mainTableFirstCol) {
+    return true;
+  }
+  if (isAuxTableCell && colIndex !== auxTableFirstCol) {
+    return true;
+  }
+  return false;
+}
+
+function isInnerTableRow(rowIndex: number, colIndex: number) {
+  const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
+  const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
+  if (isMainTableCell && rowIndex !== mainTableFirstRow) {
+    return true;
+  }
+  if (isAuxTableCell && rowIndex !== auxTableFirstRow) {
+    return true;
+  }
+  return false;
+}
 
 export function TableCell(props: TTableCellProps) {
   const { children, onClick, className, id, rowIndex, colIndex, spanCount } = props;
@@ -22,17 +55,19 @@ export function TableCell(props: TTableCellProps) {
   const cellSpec: TOptionalColSpec = cellSpecs[cellKey];
   const content = children || getTableCellContent(rowIndex, colIndex);
   return (
-    <td
+    <div
       id={id}
       data-row-index={rowIndex}
       data-col-index={colIndex}
       className={cn(
         isDev && '__TableCell', // DEBUG
-        'px-1',
+        'px-1 py-[2px]',
         isAuxTableCell && 'border border-solid border-gray-300',
         isMainTableCell && 'border border-solid border-black',
         isMainTableCell && 'whitespace-nowrap',
         isMainTableCell ? 'text-black' : 'text-gray-500',
+        isInnerTableRow(rowIndex, colIndex) && 'border-t-0',
+        isInnerTableCol(rowIndex, colIndex) && 'border-l-0',
         'bg-white',
         mainRowSpec?.className,
         genericColSpec?.className,
@@ -40,11 +75,13 @@ export function TableCell(props: TTableCellProps) {
         cellSpec?.className,
         className,
       )}
-      colSpan={spanCount}
-      width={cellSpec?.width || genericColSpec?.width || mainColSpec?.width}
+      style={{
+        gridColumn: spanCount && `span ${spanCount} / span ${colsCount}`,
+      }}
       onClick={onClick}
     >
       {content}
-    </td>
+      {/* cellKey === inputCellKey && <ToolTip /> */}
+    </div>
   );
 }

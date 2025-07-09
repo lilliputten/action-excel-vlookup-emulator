@@ -1,7 +1,7 @@
 import { TReactNode } from '@/types/react';
 
 export interface TColSpec {
-  width?: string | number;
+  // width?: string | number;
   colSpan?: number;
   className?: string;
   content?: TReactNode;

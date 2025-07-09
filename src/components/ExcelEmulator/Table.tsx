@@ -3,7 +3,7 @@ import React from 'react';
 import { isDev } from '@/config';
 import { cn } from '@/lib';
 
-import { idDelim, rowsCount } from './constants/table';
+import { gridTemplateColumns, idDelim, rowsCount } from './constants/table';
 import { getCellKey } from './helpers/getCellKey';
 import { useProgressContext } from './ProgressContext';
 import { TableRow } from './TableRow';
@@ -18,6 +18,7 @@ export function Table() {
       isFirstStep,
       isLastStep,
       stepIndex,
+      gridTemplateColumns,
     });
   }, [step, setStep, isFirstStep, isLastStep, stepIndex]);
 
@@ -28,15 +29,19 @@ export function Table() {
   });
 
   return (
-    <table
+    <div
       className={cn(
         isDev && '__Table', // DEBUG
-        'border-collapse',
+        'grid',
+        // 'border-collapse',
         // 'table-fixed',
       )}
-      style={{ borderSpacing: 0 }}
+      style={{
+        gridTemplateColumns,
+        // borderSpacing: 0,
+      }}
     >
-      <tbody>{rows}</tbody>
-    </table>
+      {rows}
+    </div>
   );
 }
