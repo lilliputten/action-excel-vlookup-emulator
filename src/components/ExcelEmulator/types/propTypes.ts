@@ -14,4 +14,5 @@ export interface TTableCellProps extends TPropsWithClassName, TBasicCellProps {
   spanCount?: number;
   onClick?: React.EventHandler<React.MouseEvent<HTMLTableCellElement>>;
   children?: TReactNode;
+  style?: React.CSSProperties;
 }

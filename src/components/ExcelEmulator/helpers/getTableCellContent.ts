@@ -1,8 +1,9 @@
+import { getColName } from '@/lib/ExcelEmulator';
+
 import { colsData } from '../constants/colsData';
 import { cellSpecs } from '../constants/specs';
 import { mainTableFirstRow } from '../constants/table';
 import { TOptionalColSpec } from '../TColSpec';
-import { getColName } from '../utils/getColName';
 import { checkIfAuxTableCell } from './checkIfAuxTableCell';
 import { checkIfMainTableCell } from './checkIfMainTableCell';
 import { getCellKey } from './getCellKey';

@@ -49,6 +49,6 @@ export const cellSpecs: Record<string, TColSpec> = {
   },
   [inputCellKey]: {
     className: 'border-3 border-solid border-blue-500',
-    content: 'X',
+    // content: 'X',
   },
 };

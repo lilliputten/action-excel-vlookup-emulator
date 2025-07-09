@@ -1,25 +1,15 @@
-import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { cn } from '@/lib';
 
 export function ProgressNav() {
-  const { setNextStep, setPrevStep, isFirstStep, isLastStep } = useProgressContext();
+  const { stepIndex, setNextStep, setPrevStep, isFirstStep, isLastStep, allowedNextStep } =
+    useProgressContext();
 
-  /* // DEBUG
-   * React.useEffect(() => {
-   *   console.log('[ProgressNav:ProgressContext]', {
-   *     // step,
-   *     isFirstStep,
-   *     isLastStep,
-   *     // stepIndex,
-   *   });
-   * }, [step, isFirstStep, isLastStep, stepIndex]);
-   */
-
-  const content = 'Шаг 1: Начните вводить формулу в ячейку';
+  const { text, textClassName } = useStepData();
 
   return (
     <div
@@ -28,7 +18,7 @@ export function ProgressNav() {
         'fixed',
         'bottom-4',
         'w-full',
-        // 'inset-x-0 mx-auto',
+        'h-[3em]',
         'flex items-stretch justify-center gap-2',
       )}
     >
@@ -57,12 +47,15 @@ export function ProgressNav() {
           'flex items-center justify-center',
           'bg-blue-500 text-white',
           'rounded-3xl shadow-lg/30',
-          'px-4 py-0',
+          'px-6 py-0',
           'truncate',
+          textClassName,
         )}
-        title={content}
+        title={text}
       >
-        <div className="truncate">{content}</div>
+        <div className="truncate">
+          <span className="pr-1 font-bold opacity-50">Шаг {stepIndex + 1}:</span> {text}
+        </div>
       </div>
       {!isLastStep && (
         <div
@@ -75,7 +68,7 @@ export function ProgressNav() {
             'cursor-pointer',
             'hover:opacity-80',
             'p-2',
-            isLastStep && 'disabled pointer-events-none bg-gray-400 opacity-50',
+            !allowedNextStep && 'disabled pointer-events-none bg-gray-400 opacity-50',
           )}
           title="Следующий шаг"
           onClick={setNextStep}
