@@ -1,15 +1,16 @@
 import { TColSpec } from '@/components/ExcelEmulator/TColSpec';
+import { TCellName, TColName } from '@/types/ExcelEmulator';
 
-import { inputCellKey, mainTableColsCount } from './table';
+import { mainTableColsCount } from './table';
 
-export const genericColSpecs: Record<string, TColSpec> = {
+export const genericColSpecs: Record<TColName, TColSpec> = {
   I: { className: 'min-w-[50px]' },
   J: { className: 'min-w-[100px]' },
   K: { className: 'min-w-[50px]' },
   L: { className: 'min-w-[50px]' },
 };
 
-export const mainColSpecs: Record<string, TColSpec> = {
+export const mainColSpecs: Record<TColName, TColSpec> = {
   C: { className: 'text-right' },
   D: { className: 'text-right' },
   G: { className: 'text-right' },
@@ -23,33 +24,34 @@ export const mainRowSpecs: Record<number, TColSpec> = {
   18: { className: 'font-bold' },
 };
 
-export const cellSpecs: Record<string, TColSpec> = {
-  '2_A': {
+export const cellSpecs: Record<TCellName, TColSpec> = {
+  A2: {
     colSpan: mainTableColsCount,
     className: 'text-black text-xl text-center font-bold',
     content: 'Акт сверки',
   },
-  '3_A': { colSpan: 4, content: 'По данным ООО "Весна", руб.' },
-  '3_E': { colSpan: 4, content: 'По данным ООО"Ирис", руб.' },
-  '5_A': { colSpan: 2, content: 'Сальдо начальное' },
-  '5_E': { colSpan: 2, content: 'Сальдо начальное' },
-  '17_A': { colSpan: 2, content: 'Обороты за период' },
-  '17_E': { colSpan: 2, content: 'Обороты за период' },
-  '18_A': { colSpan: 2, content: 'Сальдо конечное' },
-  '18_E': { colSpan: 2, content: 'Сальдо конечное' },
-  '20_A': { colSpan: mainTableColsCount, content: 'По данным ООО "В"' },
-  '21_A': {
+  A3: { colSpan: 4, content: 'По данным ООО "Весна", руб.' },
+  E3: { colSpan: 4, content: 'По данным ООО"Ирис", руб.' },
+  A5: { colSpan: 2, content: 'Сальдо начальное' },
+  E5: { colSpan: 2, content: 'Сальдо начальное' },
+  A17: { colSpan: 2, content: 'Обороты за период' },
+  E17: { colSpan: 2, content: 'Обороты за период' },
+  A18: { colSpan: 2, content: 'Сальдо конечное' },
+  E18: { colSpan: 2, content: 'Сальдо конечное' },
+  A20: { colSpan: mainTableColsCount, content: 'По данным ООО "В"' },
+  A21: {
     colSpan: mainTableColsCount,
     className: 'font-bold',
     content: 'на 30.09.2021 задолженность в пользу ООО "Весна" 11 677,00 руб.',
   },
-  '22_A': {
+  A22: {
     colSpan: mainTableColsCount,
     className: 'font-bold',
     content: '(Одиннадцать тысяч шестьсот семьдесят семь рублей 00 копеек)',
   },
-  [inputCellKey]: {
-    className: 'border-3 border-solid border-blue-500',
-    // content: 'X',
-  },
+  /* // UNUSED: It's styled in `TableInputCell`
+   * [inputCellName]: {
+   *   className: 'border-3 border-solid border-blue-500',
+   * },
+   */
 };

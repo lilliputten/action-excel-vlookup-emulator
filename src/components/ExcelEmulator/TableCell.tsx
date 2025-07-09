@@ -1,4 +1,4 @@
-import { getColName } from '@/lib/ExcelEmulator';
+import { getCellName, getColName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import {
@@ -19,7 +19,6 @@ import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
 import { checkIfAuxTableCell } from './helpers/checkIfAuxTableCell';
 import { checkIfMainTableCell } from './helpers/checkIfMainTableCell';
-import { getCellKey } from './helpers/getCellKey';
 import { getTableCellContent } from './helpers/getTableCellContent';
 import { TOptionalColSpec } from './TColSpec';
 import { ToolTip } from './ToolTip';
@@ -50,9 +49,9 @@ function isInnerTableRow(rowIndex: number, colIndex: number) {
 
 export function TableCell(props: TTableCellProps) {
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
-  const { hintCellKey, hintCelClassName } = useStepData();
+  const { hintCellName, hintCelClassName } = useStepData();
   const colName = getColName(colIndex);
-  const cellKey = getCellKey(rowIndex, colIndex);
+  const cellKey = getCellName(rowIndex, colIndex);
   const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
   const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
   const mainRowSpec: TOptionalColSpec = isMainTableCell ? mainRowSpecs[rowIndex] : undefined;
@@ -60,17 +59,18 @@ export function TableCell(props: TTableCellProps) {
   const mainColSpec: TOptionalColSpec = isMainTableCell ? mainColSpecs[colName] : undefined;
   const cellSpec: TOptionalColSpec = cellSpecs[cellKey];
   const content = children || getTableCellContent(rowIndex, colIndex);
-  const hasHint = cellKey === hintCellKey;
+  const hasHint = cellKey === hintCellName;
   return (
     <div
       id={id}
-      data-row-index={rowIndex}
       data-col-index={colIndex}
+      data-row-index={rowIndex}
       className={cn(
         isDev && '__TableCell', // DEBUG
         'relative',
         'px-1 py-[2px]',
         'cursor-default bg-white',
+        'before:pointer-events-none before:absolute before:top-0 before:right-0 before:bottom-0 before:left-0 before:z-[5] before:content-[""]',
         isAuxTableCell && 'border border-solid border-gray-300',
         isMainTableCell && 'border border-solid border-black',
         isMainTableCell && 'whitespace-nowrap',

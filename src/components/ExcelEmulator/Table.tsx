@@ -1,8 +1,8 @@
+import { getCellName } from '@/lib/ExcelEmulator';
 import { isDev } from '@/config';
 import { gridTemplateColumns, idDelim, rowsCount } from '@/constants/ExcelEmulator/table';
 import { cn } from '@/lib';
 
-import { getCellKey } from './helpers/getCellKey';
 import { TableRow } from './TableRow';
 
 export function Table() {
@@ -21,7 +21,7 @@ export function Table() {
    */
 
   const rows = Array.from(Array(rowsCount)).map((_none, rowIndex) => {
-    const rowKey = getCellKey(rowIndex);
+    const rowKey = getCellName(rowIndex);
     const nodeKey = ['row', rowKey].map(String).join(idDelim);
     return <TableRow id={nodeKey} key={nodeKey} rowIndex={rowIndex} />;
   });

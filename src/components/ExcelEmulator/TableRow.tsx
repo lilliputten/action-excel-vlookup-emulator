@@ -1,11 +1,11 @@
+import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import { cellSpecs } from '@/constants/ExcelEmulator/specs';
-import { colsCount, idDelim, inputCellKey, sourceCellKey } from '@/constants/ExcelEmulator/table';
+import { colsCount, idDelim, inputCellName, sourceCellName } from '@/constants/ExcelEmulator/table';
 import { cn } from '@/lib';
 import { TTableRowProps } from '@/types/ExcelEmulator/cellPropTypes';
 
-import { getCellKey } from './helpers/getCellKey';
 import { TableCell } from './TableCell';
 import { TableHintCell } from './TableHintCell';
 import { TableInputCell } from './TableInputCell';
@@ -16,9 +16,9 @@ import { TableTopRulerCell } from './TableTopRulerCell';
 export function TableRow(props: TTableRowProps) {
   const { className, rowIndex } = props;
   const cols: React.JSX.Element[] = [];
-  const { hintCellKey } = useStepData();
+  const { hintCellName } = useStepData();
   for (let colIndex = 0; colIndex < colsCount; colIndex++) {
-    const cellKey = getCellKey(rowIndex, colIndex);
+    const cellKey = getCellName(rowIndex, colIndex);
     const spanCount = cellSpecs[cellKey]?.colSpan;
     const nodeKey = ['cell', cellKey].map(String).join(idDelim);
     let Cell = TableCell;
@@ -26,11 +26,11 @@ export function TableRow(props: TTableRowProps) {
       Cell = TableTopRulerCell;
     } else if (!colIndex) {
       Cell = TableSideRulerCell;
-    } else if (cellKey === inputCellKey) {
+    } else if (cellKey === inputCellName) {
       Cell = TableInputCell;
-    } else if (cellKey === sourceCellKey) {
+    } else if (cellKey === sourceCellName) {
       Cell = TableSourceCell;
-    } else if (cellKey === hintCellKey) {
+    } else if (cellKey === hintCellName) {
       Cell = TableHintCell;
     }
     cols.push(

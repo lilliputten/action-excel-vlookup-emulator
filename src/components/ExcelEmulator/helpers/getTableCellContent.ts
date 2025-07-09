@@ -1,14 +1,13 @@
-import { getColName } from '@/lib/ExcelEmulator';
+import { getCellName, getColName } from '@/lib/ExcelEmulator';
 import { cellSpecs, colsData, mainTableFirstRow } from '@/constants/ExcelEmulator';
 
 import { TOptionalColSpec } from '../TColSpec';
 import { checkIfAuxTableCell } from './checkIfAuxTableCell';
 import { checkIfMainTableCell } from './checkIfMainTableCell';
-import { getCellKey } from './getCellKey';
 
 export function getTableCellContent(rowIndex: number, colIndex: number) {
   const colName = getColName(colIndex);
-  const cellKey = getCellKey(rowIndex, colIndex);
+  const cellKey = getCellName(rowIndex, colIndex);
   const isMainTableCell = checkIfMainTableCell(rowIndex, colIndex);
   const isAuxTableCell = checkIfAuxTableCell(rowIndex, colIndex);
   // const mainColSpec: TOptionalColSpec = isMainTableCell ? mainColSpecs[colName] : undefined;

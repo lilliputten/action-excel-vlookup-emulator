@@ -1,14 +1,12 @@
-import { inputCellKey, sourceCellKey } from '@/constants/ExcelEmulator/table';
+import { inputCellName, sourceCellName } from '@/constants/ExcelEmulator/table';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
+import { TCellName } from '@/types/ExcelEmulator';
 import { TReactNode } from '@/types/react';
-
-// type THitCellAction = 'click' | undefined;
 
 interface TStepsDataItem {
   text: string;
   textClassName?: string;
-  hintCellKey?: string;
-  // hintCellAction?: THitCellAction;
+  hintCellName?: TCellName;
   hintCelClassName?: string;
   hintContent?: TReactNode;
   hintClassName?: string;
@@ -17,7 +15,7 @@ interface TStepsDataItem {
 export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepStart]: {
     text: 'Выберите ячейку для ввода',
-    hintCellKey: inputCellKey,
+    hintCellName: inputCellName,
     hintContent: 'Выберите эту ячейку',
     // hintClassName: 'w-[200%]',
     hintClassName: 'whitespace-nowrap',
@@ -25,7 +23,7 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   },
   [ProgressSteps.StepEquationStart]: {
     text: 'Начните вводить формулу в ячейку',
-    hintCellKey: inputCellKey,
+    hintCellName: inputCellName,
     hintContent: (
       <>
         Введите начало формулы:{' '}
@@ -36,11 +34,22 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   },
   [ProgressSteps.StepSelectSourceColunn]: {
     text: 'Выберите исходную колонку',
-    hintCellKey: sourceCellKey, // '6_B',
-    // hintCellAction: 'click',
+    hintCellName: sourceCellName, // 'B6',
     hintContent: 'Кликните на этой ячейке',
     hintClassName: 'whitespace-nowrap',
     hintCelClassName: 'animated-background',
+  },
+  [ProgressSteps.StepEquationSemicolon]: {
+    text: 'Продолжите редактирование формулы',
+    hintCellName: inputCellName,
+    hintContent: 'Добавьте точку с запятой',
+    hintClassName: 'whitespace-nowrap',
+  },
+  [ProgressSteps.StepSelectTargetRange]: {
+    text: 'Выделите диапазон для поиска',
+    // hintCellName: inputCellName,
+    // hintContent: 'Добавьте точку с запятой',
+    // hintClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepDone]: {
     text: 'Все задачи выполнены!',

@@ -1,5 +1,7 @@
+import { TColName } from '@/types/ExcelEmulator';
+
 /** Rows' cells data per column */
-export const colsData: Record<string, (string | undefined | null)[]> = {
+export const colsData: Record<TColName, (string | undefined | null)[]> = {
   A: [
     '',
     'Дата',

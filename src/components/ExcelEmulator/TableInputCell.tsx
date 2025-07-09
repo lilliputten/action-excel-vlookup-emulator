@@ -16,6 +16,7 @@ export function TableInputCell(props: TTableCellProps) {
   const { step, setNextStep } = useProgressContext();
   const isStepStart = step === ProgressSteps.StepStart;
   const isStepEquationStart = step === ProgressSteps.StepEquationStart;
+  const isStepEquationSemicolon = step === ProgressSteps.StepEquationSemicolon;
   const handleClick = (ev: React.MouseEvent<HTMLInputElement>) => {
     const node = ev.currentTarget;
     const text = node.value.trim().toUpperCase();
@@ -29,6 +30,10 @@ export function TableInputCell(props: TTableCellProps) {
     const text = node.value.trim().toUpperCase();
     console.log('[TableInputCell:handleInput]', text);
     if (isStepEquationStart && (isDev ? !!text : text.startsWith(equationBegin))) {
+      node.value = equationBegin;
+      setNextStep();
+    }
+    if (isStepEquationSemicolon && text.endsWith(';')) {
       node.value = equationBegin;
       setNextStep();
     }

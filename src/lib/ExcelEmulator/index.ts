@@ -1,2 +1,2 @@
+export * from './getCellName';
 export * from './getColName';
-export * from './getExcelCellIdByColName';

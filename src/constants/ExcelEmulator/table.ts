@@ -1,4 +1,5 @@
 import { getColName } from '@/lib/ExcelEmulator';
+import { TCellName } from '@/types/ExcelEmulator';
 
 export const colsCount = 13;
 export const rowsCount = 25;
@@ -24,12 +25,12 @@ export const gridTemplateColumns = Array.from(Array(colsCount))
   .join(' ');
 
 // Column number 10, row 3
-export const inputCellKey = `${auxTableFirstRow}_${getColName(auxTableFirstCol)}`;
+export const inputCellName: TCellName = getColName(auxTableFirstCol) + auxTableFirstRow;
 export const inputCellFieldId = 'InputCellField';
 
 // Column number 2, row 3
 export const sourceCol = 2;
-export const sourceCellKey = `${auxTableFirstRow}_${getColName(sourceCol)}`;
+export const sourceCellName: TCellName = getColName(sourceCol) + auxTableFirstRow;
 
 export const rulerCellClassNames =
   'bg-gray-500 px-2 text-center border border-solid border-white text-white cursor-default border-t-0 border-l-0';
