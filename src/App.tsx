@@ -1,16 +1,15 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
-import { Emulator } from '@/pages/Emulator';
-import { Test } from '@/pages/Test';
+import { ExcelEmulatorPage } from '@/pages/ExcelEmulatorPage';
 
 import { TailwindIndicator } from './blocks/TailwindIndicator';
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Emulator />} />
-      <Route path="/test" element={<Test />} />
+      <Route path="/" element={<ExcelEmulatorPage />} />
+      {/* <Route path="/test" element={<Test />} /> */}
     </Routes>
   );
 }

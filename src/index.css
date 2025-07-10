@@ -59,7 +59,7 @@ body {
  * @see https://v1.tailwindcss.com/components/forms
  */
 .input {
-  @apply appearance-none rounded border px-3 py-1 leading-tight shadow;
+  /* @apply appearance-none rounded border px-3 py-1 leading-tight shadow; */
   height: var(--formSize);
 }
 .input.inactive,
@@ -141,17 +141,17 @@ body {
   }
 }
 
-@keyframes bgColorShift {
-  0%,
-  100% {
-    background-color: rgba(99, 99, 99, 0);
-  }
-  50% {
-    background-color: rgba(99, 99, 99, 0.2);
-  }
+.animated-background {
+  background-color: rgba(65 129 255 / 5%);
+  animation: animated-background 2s infinite;
 }
 
-.animate-bgColorShift {
-  /* TODO: It's required to implement synchronized animations (probably via css vars) */
-  animation: bgColorShift 4s infinite;
+@keyframes animated-background {
+  0%,
+  100% {
+    background-color: rgba(65 129 255 / 10%);
+  }
+  50% {
+    background-color: rgba(65 129 255 / 30%);
+  }
 }
