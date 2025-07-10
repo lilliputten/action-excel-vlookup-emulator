@@ -9,7 +9,7 @@ The applicaiton is implemented via React, Vite, TS, and Tailwind, and deployed t
 
 ## Build info (auto-generated)
 
-- Project info: v.0.0.1 / 2025.07.09 02:19:14 +0300
+- Project info: v.0.0.2 / 2025.07.10 14:34:33 +0300
 
 ## Resources
 
