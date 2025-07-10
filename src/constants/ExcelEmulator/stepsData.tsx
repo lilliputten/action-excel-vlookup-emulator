@@ -11,16 +11,28 @@ import { TReactNode } from '@/types/react';
 interface TStepsDataItem {
   text: string;
   textClassName?: string;
+  // Input
+  checkInput?: boolean | string;
+  // Click
+  clickCellName?: TCellName;
+  clickCellClassName?: string;
+  clickWrongCellMessage?: string;
+  clickCorrectCellMessage?: string;
+  // Selection
+  selectionStartCellName?: TCellName;
+  selectionStartCellClassName?: string;
+  selectionFinishCellName?: TCellName;
+  selectionFinishCellClassName?: string;
   // Hint tooltip celll
   hintCellName?: TCellName;
   hintCellClassName?: string;
   hintContent?: TReactNode;
   hintClassName?: string;
   // Finish cell (for range selection)
-  finishCellName?: TCellName;
-  finishCellClassName?: string;
-  finishContent?: TReactNode;
-  finishClassName?: string;
+  // finishCellName?: TCellName;
+  // finishCellClassName?: string;
+  // finishContent?: TReactNode;
+  // finishClassName?: string;
 }
 
 export const equationBegin = '=ВПР(';
@@ -38,20 +50,23 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepEquationStart]: {
     text: 'Начните вводить формулу в ячейку',
     hintCellName: inputCellName,
-    hintContent: (
-      <>
-        Введите начало формулы:{' '}
-        <code className="rounded-md border border-white/20 bg-white/10 px-1">{equationBegin}</code>
-      </>
-    ),
+    hintContent: 'Введите начало формулы',
+    // hintContent: (
+    //   <>
+    //     Введите начало формулы:{' '}
+    //     <code className="rounded-md border border-white/20 bg-white/10 px-1">{equationBegin}</code>
+    //   </>
+    // ),
     hintClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepSelectSourceColunn]: {
     text: 'Выберите исходную колонку',
-    hintCellName: sourceCellName, // 'B6',
-    hintContent: 'Кликните на этой ячейке, чтобы выбрать её в качестве исходной',
-    hintClassName: 'text-wrap w-[140px]',
-    hintCellClassName: 'animated-background',
+    clickCellName: sourceCellName, // 'B6',
+    clickWrongCellMessage: 'Выбрана неверная исходная ячейка',
+    clickCorrectCellMessage: 'Выбрана исходная ячейка',
+    // hintContent: 'Кликните на этой ячейке, чтобы выбрать её в качестве исходной',
+    // hintClassName: 'text-wrap w-[140px]',
+    // hintCellClassName: 'animated-background',
   },
   [ProgressSteps.StepEquationSemicolon]: {
     text: 'Продолжите редактирование формулы',
@@ -59,16 +74,21 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     hintContent: 'Добавьте точку с запятой',
     hintClassName: 'whitespace-nowrap',
   },
-  [ProgressSteps.StepSelectLookupRangeStart]: {
-    text: 'Выделите диапазон для поиска',
-    hintCellName: lookupRangeFirstCellName,
-    hintCellClassName: 'before:bg-blue-500/40',
-    hintContent: 'Начните выделение диапазона просмотра с этой ячейки',
-    hintClassName: 'whitespace-nowrap',
-    finishCellName: lookupRangeLastCellName,
-    finishCellClassName: 'before:bg-green-500/40',
-    finishContent: 'Закончите выделение здесь',
-    finishClassName: 'whitespace-nowrap',
+  [ProgressSteps.StepSelectLookupRange]: {
+    text: 'Выделите или введите диапазон для поиска',
+    checkInput: true,
+    selectionStartCellName: lookupRangeFirstCellName,
+    selectionStartCellClassName: 'before:bg-blue-500/40',
+    // hintCellName: lookupRangeFirstCellName,
+    // hintCellClassName: 'before:bg-blue-500/40',
+    // hintContent: 'Начните выделение диапазона просмотра с этой ячейки',
+    // hintClassName: 'whitespace-nowrap',
+    selectionFinishCellName: lookupRangeLastCellName,
+    selectionFinishCellClassName: 'before:bg-green-500/40',
+    // finishCellName: lookupRangeLastCellName,
+    // finishCellClassName: 'before:bg-green-500/40',
+    // finishContent: 'Закончите выделение здесь',
+    // finishClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepEquationFinish]: {
     text: 'Закончите ввод формулы',

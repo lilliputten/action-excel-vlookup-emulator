@@ -155,3 +155,29 @@ body {
     background-color: rgba(65 129 255 / 30%);
   }
 }
+
+@keyframes wrong-cell-clicked-animation {
+  0% {
+    border-color: var(--toastify-color-error);
+  }
+  100% {
+    border-color: transparent;
+  }
+}
+div[data-clicked='wrong']:before {
+  border: 2px solid transparent;
+  animation: wrong-cell-clicked-animation 1s ease-out;
+}
+
+@keyframes correct-cell-clicked-animation {
+  0% {
+    border-color: var(--toastify-color-success);
+  }
+  100% {
+    border-color: transparent;
+  }
+}
+div[data-clicked='correct']:before {
+  border: 2px solid transparent;
+  animation: correct-cell-clicked-animation 1s ease-out;
+}

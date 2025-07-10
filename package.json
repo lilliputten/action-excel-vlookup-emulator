@@ -1,6 +1,6 @@
 {
   "name": "action-excel-vlookup-emulator",
-  "description": "Action Excel VLOOKUP Emulator Vite React Vercel hosted application",
+  "description": "Action - Excel VLOOKUP Emulator - Vite React application (Vercel hosted)",
   "type": "module",
   "main": "src/main.tsx",
   "version": "0.0.2",

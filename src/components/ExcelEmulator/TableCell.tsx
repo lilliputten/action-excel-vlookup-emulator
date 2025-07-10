@@ -1,7 +1,10 @@
+import React from 'react';
+import { toast } from 'react-toastify';
+
 import { getCellName, getColName } from '@/lib/ExcelEmulator';
 import { useIsCellInSelection } from '@/hooks/ExcelEmulator/useIsCellInSelection';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
-import { isDev } from '@/config';
+import { defaultToastOptions, isDev } from '@/config';
 import {
   cellSpecs,
   genericColSpecs,
@@ -53,14 +56,30 @@ function isInnerTableRow(rowIndex: number, colIndex: number) {
 }
 
 export function TableCell(props: TTableCellProps) {
+  const nodeRef = React.useRef<HTMLDivElement>(null);
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
   const { step } = useProgressContext();
   const showLookupCells =
-    step > ProgressSteps.StepSelectLookupRangeStart && isCellInLookupTable(rowIndex, colIndex);
+    step > ProgressSteps.StepSelectLookupRange && isCellInLookupTable(rowIndex, colIndex);
   const { selecting: isSelecting, correct: selectionIsCorrect } = useSelectionContext();
   const isCellInSelection = useIsCellInSelection(rowIndex, colIndex);
-  // const isStepSelectLookupRangeStart = step === ProgressSteps.StepSelectLookupRangeStart;
-  const { hintCellName, hintCellClassName, finishCellName, finishCellClassName } = useStepData();
+  // const isStepSelectLookupRangeStart = step === ProgressSteps.StepSelectLookupRange;
+  const {
+    hintCellName,
+    hintCellClassName,
+    // finishCellName,
+    // finishCellClassName,
+    // Click
+    clickCellName,
+    clickCellClassName,
+    clickWrongCellMessage,
+    clickCorrectCellMessage,
+    // Selection
+    selectionStartCellName,
+    selectionStartCellClassName,
+    selectionFinishCellName,
+    selectionFinishCellClassName,
+  } = useStepData();
   // const tooltipCellName = isSelecting && finishCellName ? finishCellName : hintCellName;
   // const tooltipClassName = isSelecting && finishCellName ? finishCellClassName : hintCellClassName;
   const colName = getColName(colIndex);
@@ -73,11 +92,36 @@ export function TableCell(props: TTableCellProps) {
   const cellSpec: TOptionalColSpec = cellSpecs[cellName];
   const content = children || getTableCellContent(rowIndex, colIndex);
   const hasHint = cellName === hintCellName;
-  const hasFinish = isSelecting && cellName === finishCellName;
-  const hasTooltip = hasFinish || (hasHint && (!finishCellName || !isSelecting));
+  const isSelectionFinish = isSelecting && cellName === selectionFinishCellName;
+  const isSelectionStart = isSelecting && cellName === selectionStartCellName;
+  const isExpectedClickCell = clickCellName && cellName === clickCellName;
+  const handleClick = (ev: React.MouseEvent<HTMLTableCellElement>) => {
+    if (clickCellName) {
+      const node = nodeRef.current;
+      if (node) {
+        // Add & remove accent
+        node.dataset.clicked = isExpectedClickCell ? 'correct' : 'wrong';
+        setTimeout(() => delete node.dataset.clicked, 1000);
+      }
+      if (!isExpectedClickCell) {
+        if (clickWrongCellMessage) {
+          toast.error(clickWrongCellMessage, defaultToastOptions);
+        }
+        return;
+      } else {
+        if (clickCorrectCellMessage) {
+          toast.success(clickCorrectCellMessage, defaultToastOptions);
+        }
+      }
+    }
+    if (onClick) {
+      onClick(ev);
+    }
+  };
   // TODO: Show current selection
   return (
     <div
+      ref={nodeRef}
       id={id}
       data-cell-name={cellName}
       data-col-index={colIndex}
@@ -101,17 +145,19 @@ export function TableCell(props: TTableCellProps) {
         mainColSpec?.className,
         cellSpec?.className,
         hasHint && hintCellClassName,
-        hasFinish && finishCellClassName,
+        isExpectedClickCell && clickCellClassName,
+        isSelectionFinish && selectionFinishCellClassName,
+        isSelectionStart && selectionStartCellClassName,
         className,
       )}
       style={{
         ...style,
         gridColumn: spanCount && `span ${spanCount} / span ${colsCount}`,
       }}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {content}
-      {hasTooltip && <ToolTip />}
+      {hasHint && <ToolTip />}
     </div>
   );
 }

@@ -15,7 +15,7 @@ export const mainTableColsCount = mainTableLastCol - mainTableFirstCol + 1;
 
 // Tagret table
 export const targetTableFirstRow = mainTableFirstRow + 3;
-export const targetTableLastRow = mainTableLastRow;
+export const targetTableLastRow = mainTableLastRow - 2;
 export const targetTableFirstCol = 10;
 export const targetTableLastCol = 10;
 export const targetTableColsCount = targetTableLastCol - targetTableFirstCol + 1;

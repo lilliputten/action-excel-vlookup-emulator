@@ -1,8 +1,9 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
 import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
-import { isDev } from '@/config';
+import { defaultToastOptions, isDev } from '@/config';
 import {
   gridTemplateColumns,
   idDelim,
@@ -35,11 +36,11 @@ export function Table() {
     setSelectionFinish,
   } = selectionContext;
 
-  const { hintCellName, finishCellName } = useStepData();
+  const { selectionStartCellName, selectionFinishCellName } = useStepData();
 
   React.useEffect(() => {
     if (finished && correct) {
-      const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRangeStart;
+      const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRange;
       if (isSelectLookupRange) {
         const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
         inputCellField?.focus();
@@ -64,36 +65,37 @@ export function Table() {
   // Handle range selection
   React.useEffect(() => {
     const node = nodeRef.current;
-    const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRangeStart;
+    const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRange;
     if (isSelectLookupRange && node) {
       const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
       let selecting = false;
-      let isFinishCell = false;
+      let isCorrectStartCell = false;
+      let isCorrectCells = false;
       const handleStart = (ev: MouseEvent) => {
         const cellNode = ev.target as HTMLDivElement;
         const cellName = cellNode.dataset.cellName;
-        const isHintCell = cellName === hintCellName;
-        if (isHintCell) {
-          if (inputCellField) {
-            if (!inputCellField.value.trim().endsWith(';')) {
-              inputCellField.value += ';';
-            }
-            inputCellField.value += cellName + ':' + cellName;
+        isCorrectStartCell = cellName === selectionStartCellName;
+        // if (isHintCell) {
+        if (inputCellField) {
+          if (!inputCellField.value.trim().endsWith(';')) {
+            inputCellField.value += ';';
           }
-          selecting = true;
-          setFinished(false);
-          setSelecting(selecting);
-          setSelectionStart(cellNode);
-          setSelectionFinish(cellNode);
+          inputCellField.value += cellName + ':' + cellName;
         }
+        selecting = true;
+        setFinished(false);
+        setSelecting(selecting);
+        setSelectionStart(cellNode);
+        setSelectionFinish(cellNode);
+        // }
       };
       const handleMouseMove = (ev: MouseEvent) => {
         if (selecting) {
           const cellNode = ev.target as HTMLDivElement;
           const cellName = cellNode.dataset.cellName;
-          isFinishCell = cellName === finishCellName;
+          isCorrectCells = isCorrectStartCell && cellName === selectionFinishCellName;
           setSelectionFinish(cellNode);
-          setCorrect(isFinishCell);
+          setCorrect(isCorrectCells);
           if (inputCellField) {
             inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);
           }
@@ -116,11 +118,12 @@ export function Table() {
       const handleDone = () => {
         if (selecting) {
           // console.log('[Table:Effect:isSelectLookupRange] mouseup');
-          if (isFinishCell) {
+          if (isCorrectCells) {
             selecting = false;
             setSelecting(selecting);
             setFinished(true);
           } else {
+            toast.error('Выделен неверный диапазон', defaultToastOptions);
             handleCancel();
           }
         }
@@ -142,8 +145,8 @@ export function Table() {
     setSelecting,
     setSelectionStart,
     setSelectionFinish,
-    hintCellName,
-    finishCellName,
+    selectionStartCellName,
+    selectionFinishCellName,
     setCorrect,
     setFinished,
   ]);

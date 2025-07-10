@@ -27,8 +27,8 @@ export function TableSourceCell(props: TTableCellProps) {
       className={cn(
         isDev && '__TableSourceCell', // DEBUG
         // 'border-2 border-solid border-blue-500',
-        isChecked &&
-          'before:border-[2px] before:border-dashed before:border-pink-500 before:bg-pink-500/20',
+        isChecked && 'before:bg-green-500/20',
+        // isChecked && 'before:border-[2px] before:border-dashed before:border-pink-500',
         className,
       )}
       onClick={isWaitingForClick ? handleClick : undefined}

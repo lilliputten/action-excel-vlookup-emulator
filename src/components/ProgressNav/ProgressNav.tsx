@@ -16,6 +16,7 @@ export function ProgressNav() {
       className={cn(
         isDev && '__ProgressNav', // DEBUG
         'fixed',
+        'select-none',
         'bottom-4',
         'w-full',
         'h-[3em]',
