@@ -3,11 +3,13 @@ import React from 'react';
 export interface TSelectionContext {
   // Data
   selecting: boolean;
+  correct: boolean;
   finished: boolean;
   selectionStart?: HTMLDivElement;
   selectionFinish?: HTMLDivElement;
   // Setters
   setSelecting: React.Dispatch<React.SetStateAction<boolean>>;
+  setCorrect: React.Dispatch<React.SetStateAction<boolean>>;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectionStart: React.Dispatch<React.SetStateAction<HTMLDivElement | undefined>>;
   setSelectionFinish: React.Dispatch<React.SetStateAction<HTMLDivElement | undefined>>;
@@ -18,6 +20,7 @@ const SelectionContext = React.createContext<TSelectionContext>({} as TSelection
 export const useCreateSelectionContext = () => {
   const [selecting, setSelecting] = React.useState(false);
   const [finished, setFinished] = React.useState(false);
+  const [correct, setCorrect] = React.useState(false);
   const [selectionStart, setSelectionStart] = React.useState<HTMLDivElement | undefined>();
   const [selectionFinish, setSelectionFinish] = React.useState<HTMLDivElement | undefined>();
 
@@ -26,11 +29,13 @@ export const useCreateSelectionContext = () => {
       ({
         // Data
         selecting,
+        correct,
         finished,
         selectionStart,
         selectionFinish,
         // Setters
         setSelecting,
+        setCorrect,
         setFinished,
         setSelectionStart,
         setSelectionFinish,
@@ -38,11 +43,13 @@ export const useCreateSelectionContext = () => {
     [
       // Data
       selecting,
+      correct,
       finished,
       selectionStart,
       selectionFinish,
       // Setters
       setSelecting,
+      setCorrect,
       setFinished,
       setSelectionStart,
       setSelectionFinish,

@@ -11,20 +11,29 @@ import { TReactNode } from '@/types/react';
 interface TStepsDataItem {
   text: string;
   textClassName?: string;
+  // Hint tooltip celll
   hintCellName?: TCellName;
-  hintCelClassName?: string;
+  hintCellClassName?: string;
   hintContent?: TReactNode;
   hintClassName?: string;
+  // Finish cell (for range selection)
+  finishCellName?: TCellName;
+  finishCellClassName?: string;
+  finishContent?: TReactNode;
+  finishClassName?: string;
 }
+
+export const equationBegin = '=ВПР(';
+export const equationEnd = ';3;0)';
 
 export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepStart]: {
     text: 'Выберите ячейку для ввода',
     hintCellName: inputCellName,
-    hintContent: 'Выберите эту ячейку',
+    hintContent: 'Начните вводить формулу в эту ячейку',
     // hintClassName: 'w-[200%]',
     hintClassName: 'whitespace-nowrap',
-    hintCelClassName: 'animated-background',
+    hintCellClassName: 'animated-background',
   },
   [ProgressSteps.StepEquationStart]: {
     text: 'Начните вводить формулу в ячейку',
@@ -32,7 +41,7 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     hintContent: (
       <>
         Введите начало формулы:{' '}
-        <code className="rounded-md border border-white/20 bg-white/10 px-1">=ВПР(</code>
+        <code className="rounded-md border border-white/20 bg-white/10 px-1">{equationBegin}</code>
       </>
     ),
     hintClassName: 'whitespace-nowrap',
@@ -40,9 +49,9 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepSelectSourceColunn]: {
     text: 'Выберите исходную колонку',
     hintCellName: sourceCellName, // 'B6',
-    hintContent: 'Кликните на этой ячейке',
-    hintClassName: 'whitespace-nowrap',
-    hintCelClassName: 'animated-background',
+    hintContent: 'Кликните на этой ячейке, чтобы выбрать её в качестве исходной',
+    hintClassName: 'text-wrap w-[140px]',
+    hintCellClassName: 'animated-background',
   },
   [ProgressSteps.StepEquationSemicolon]: {
     text: 'Продолжите редактирование формулы',
@@ -53,14 +62,30 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepSelectLookupRangeStart]: {
     text: 'Выделите диапазон для поиска',
     hintCellName: lookupRangeFirstCellName,
-    hintContent: 'Начните выделение с этой ячейки',
+    hintCellClassName: 'before:bg-blue-500/40',
+    hintContent: 'Начните выделение диапазона просмотра с этой ячейки',
     hintClassName: 'whitespace-nowrap',
+    finishCellName: lookupRangeLastCellName,
+    finishCellClassName: 'before:bg-green-500/40',
+    finishContent: 'Закончите выделение здесь',
+    finishClassName: 'whitespace-nowrap',
   },
-  [ProgressSteps.StepSelectLookupRangeFinish]: {
-    text: 'Завершите выделение диапазона для поиска',
-    hintCellName: lookupRangeLastCellName,
-    hintContent: 'Закончите выделение здесь',
-    hintClassName: 'whitespace-nowrap',
+  [ProgressSteps.StepEquationFinish]: {
+    text: 'Закончите ввод формулы',
+    hintCellName: inputCellName,
+    hintClassName: 'w-[140%]',
+    hintContent: (
+      <>
+        Добавьте номер столбца, нулевое значение интервального просмотра и закрывающую скобку:{' '}
+        <code className="rounded-md border border-white/20 bg-white/10 px-1">{equationEnd}</code>
+      </>
+    ),
+  },
+  [ProgressSteps.StepExtendResults]: {
+    text: 'Растяните ячейку с результатами',
+    hintCellName: inputCellName,
+    hintClassName: 'w-[140%]',
+    hintContent: 'Растяиите эту ячейку вниз, чтобы увидеть все результаты (В РАБОТЕ)',
   },
   [ProgressSteps.StepDone]: {
     text: 'Все задачи выполнены!',

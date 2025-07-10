@@ -6,22 +6,25 @@ export enum ProgressSteps {
   StepSelectSourceColunn,
   StepEquationSemicolon,
   StepSelectLookupRangeStart,
-  StepSelectLookupRangeFinish,
+  StepEquationFinish,
+  StepExtendResults,
   StepDone,
 }
 
 /** Progress steps order */
 export const progressStepsSequence = [
-  // The order of steps
   ProgressSteps.StepStart,
   ProgressSteps.StepEquationStart,
   ProgressSteps.StepSelectSourceColunn,
   ProgressSteps.StepEquationSemicolon,
   ProgressSteps.StepSelectLookupRangeStart,
-  ProgressSteps.StepSelectLookupRangeFinish,
+  ProgressSteps.StepEquationFinish,
+  ProgressSteps.StepExtendResults,
   ProgressSteps.StepDone,
 ];
 
-export const initalProgressStep = isDev
-  ? ProgressSteps.StepSelectLookupRangeStart // DEBUG
-  : ProgressSteps.StepStart;
+const __useDebug = false;
+export const initalProgressStep =
+  __useDebug && isDev
+    ? ProgressSteps.StepSelectLookupRangeStart // DEBUG
+    : ProgressSteps.StepStart;

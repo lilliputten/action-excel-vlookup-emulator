@@ -149,9 +149,9 @@ body {
 @keyframes animated-background {
   0%,
   100% {
-    background-color: rgba(65 129 255 / 5%);
+    background-color: rgba(65 129 255 / 10%);
   }
   50% {
-    background-color: rgba(65 129 255 / 20%);
+    background-color: rgba(65 129 255 / 30%);
   }
 }

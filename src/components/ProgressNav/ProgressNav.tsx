@@ -27,7 +27,7 @@ export function ProgressNav() {
           className={cn(
             isDev && '__ProgressNav_PrevStep', // DEBUG
             'flex items-center justify-center',
-            'bg-teal-500 text-white',
+            'bg-violet-500 text-white',
             'rounded-full shadow-lg/30',
             'transition',
             'cursor-pointer',
@@ -62,7 +62,7 @@ export function ProgressNav() {
           className={cn(
             isDev && '__ProgressNav_NextStep', // DEBUG
             'flex items-center justify-center',
-            'bg-teal-500 text-white',
+            'bg-violet-500 text-white',
             'rounded-full shadow-lg/30',
             'transition',
             'cursor-pointer',

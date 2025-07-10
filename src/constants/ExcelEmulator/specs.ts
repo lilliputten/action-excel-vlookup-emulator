@@ -5,7 +5,7 @@ import { mainTableColsCount } from './table';
 
 export const genericColSpecs: Record<TColName, TColSpec> = {
   I: { className: 'min-w-[50px]' },
-  J: { className: 'min-w-[100px]' },
+  J: { className: 'min-w-[160px]' },
   K: { className: 'min-w-[50px]' },
   L: { className: 'min-w-[50px]' },
 };

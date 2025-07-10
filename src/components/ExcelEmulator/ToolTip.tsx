@@ -1,5 +1,6 @@
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
+import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 import { TPropsWithClassName } from '@/types/react';
 
@@ -7,7 +8,11 @@ type TToolTipProps = TPropsWithClassName;
 
 export function ToolTip(props: TToolTipProps) {
   const { className } = props;
-  const { hintContent, hintClassName } = useStepData();
+  const { hintContent, hintClassName, finishContent, finishClassName } = useStepData();
+  const { selecting } = useSelectionContext();
+
+  const tooltipContent = selecting && finishContent ? finishContent : hintContent;
+  const tooltipClassName = selecting && finishContent ? finishClassName : hintClassName;
 
   if (!hintContent) {
     return null;
@@ -29,10 +34,10 @@ export function ToolTip(props: TToolTipProps) {
         'z-[10]',
         // 'w-[200%]', // Extension style
         className,
-        hintClassName,
+        tooltipClassName,
       )}
     >
-      {hintContent}
+      {tooltipContent}
     </div>
   );
 }

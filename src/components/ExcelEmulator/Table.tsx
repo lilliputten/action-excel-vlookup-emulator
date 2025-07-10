@@ -1,133 +1,151 @@
 import React from 'react';
 
 import { getCellName } from '@/lib/ExcelEmulator';
+import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
-import { gridTemplateColumns, idDelim, rowsCount } from '@/constants/ExcelEmulator/table';
-import { TProgressContext, useProgressContext } from '@/contexts/ProgressContext';
+import {
+  gridTemplateColumns,
+  idDelim,
+  inputCellFieldId,
+  rowsCount,
+} from '@/constants/ExcelEmulator/table';
+import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 
 import { TableRow } from './TableRow';
 
-interface TMemo {
-  step?: TProgressContext['step'];
-  // selecting?: boolean;
-}
-
 export function Table() {
   const nodeRef = React.useRef<HTMLDivElement>(null);
 
-  const [localSelecting, setLocalSelecting] = React.useState(false);
-
   const progressContext = useProgressContext();
-  const { step, setNextStep, setPrevStep } = progressContext;
-  const isSelectLookupRange =
-    step === ProgressSteps.StepSelectLookupRangeStart ||
-    step === ProgressSteps.StepSelectLookupRangeFinish;
+  const { step, setNextStep } = progressContext;
 
   const selectionContext = useSelectionContext();
-  const { setSelecting, setFinished, setSelectionStart, setSelectionFinish } = selectionContext;
+  const {
+    finished,
+    correct,
+    selectionStart,
+    selectionFinish,
+    setSelecting,
+    setFinished,
+    setCorrect,
+    setSelectionStart,
+    setSelectionFinish,
+  } = selectionContext;
 
-  const memo = React.useMemo<TMemo>(() => ({}), []);
+  const { hintCellName, finishCellName } = useStepData();
 
   React.useEffect(() => {
-    memo.step = step;
-  }, [memo, step]);
-
-  // React.useEffect(() => {
-  //   memo.selecting = localSelecting;
-  //   setSelecting(localSelecting);
-  // }, [memo, setSelecting, localSelecting]);
-
-  React.useEffect(() => {
-    console.log('[] updated selectionContext', {
-      setSelecting,
-      setSelectionStart,
-      setSelectionFinish,
-    });
-  }, [setSelecting, setSelectionStart, setSelectionFinish]);
+    if (finished && correct) {
+      const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRangeStart;
+      if (isSelectLookupRange) {
+        const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
+        inputCellField?.focus();
+        setFinished(false);
+        setCorrect(false);
+        setSelecting(false);
+        setNextStep();
+      }
+    }
+  }, [
+    step,
+    finished,
+    correct,
+    selectionStart,
+    selectionFinish,
+    setNextStep,
+    setFinished,
+    setCorrect,
+    setSelecting,
+  ]);
 
   // Handle range selection
   React.useEffect(() => {
     const node = nodeRef.current;
+    const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRangeStart;
     if (isSelectLookupRange && node) {
+      const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
       let selecting = false;
-      console.log('[Table:Effect:isSelectLookupRange]', {
-        isSelectLookupRange,
-        node,
-      });
-      const onMouseDown = (ev: MouseEvent) => {
+      let isFinishCell = false;
+      const handleStart = (ev: MouseEvent) => {
         const cellNode = ev.target as HTMLDivElement;
-        console.log('[Table:Effect:isSelectLookupRange] mousedown', {
-          step: memo.step,
-          cellNode,
-        });
-        selecting = true;
-        setLocalSelecting(selecting);
-        setSelecting(selecting);
-        setSelectionStart(cellNode);
-        setSelectionFinish(undefined);
-        if (memo.step === ProgressSteps.StepSelectLookupRangeStart) {
-          setNextStep();
-        }
-      };
-      const onMouseMove = (ev: MouseEvent) => {
-        if (selecting) {
-          const cellNode = ev.target as HTMLDivElement;
-          console.log('[Table:Effect:isSelectLookupRange] mousemove', {
-            cellNode,
-          });
+        const cellName = cellNode.dataset.cellName;
+        const isHintCell = cellName === hintCellName;
+        if (isHintCell) {
+          if (inputCellField) {
+            if (!inputCellField.value.trim().endsWith(';')) {
+              inputCellField.value += ';';
+            }
+            inputCellField.value += cellName + ':' + cellName;
+          }
+          selecting = true;
+          setFinished(false);
+          setSelecting(selecting);
+          setSelectionStart(cellNode);
           setSelectionFinish(cellNode);
         }
       };
-      const onMouseUp = (ev: MouseEvent) => {
+      const handleMouseMove = (ev: MouseEvent) => {
         if (selecting) {
-          console.log('[Table:Effect:isSelectLookupRange] mouseup', {
-            ev,
-          });
-          selecting = false;
-          setLocalSelecting(selecting);
-          setSelecting(selecting);
-          // TODO: Finish selection?
-          if (memo.step === ProgressSteps.StepSelectLookupRangeFinish) {
-            setPrevStep();
+          const cellNode = ev.target as HTMLDivElement;
+          const cellName = cellNode.dataset.cellName;
+          isFinishCell = cellName === finishCellName;
+          setSelectionFinish(cellNode);
+          setCorrect(isFinishCell);
+          if (inputCellField) {
+            inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);
           }
         }
       };
-      const onMouseOut = () => {
+      /** Cancel selection */
+      const handleCancel = () => {
         if (selecting) {
-          console.log('[Table:Effect:isSelectLookupRange] mouseout');
+          // console.log('[Table:Effect:isSelectLookupRange] mouseout');
           selecting = false;
-          setLocalSelecting(selecting);
           setSelecting(selecting);
           setSelectionStart(undefined);
           setSelectionFinish(undefined);
-          if (memo.step === ProgressSteps.StepSelectLookupRangeFinish) {
-            setPrevStep();
+          if (inputCellField) {
+            inputCellField.value = inputCellField.value.replace(/;.*?$/, ';');
           }
         }
       };
-      node.addEventListener('mousedown', onMouseDown);
-      node.addEventListener('mousemove', onMouseMove);
-      node.addEventListener('mouseup', onMouseUp);
-      document.addEventListener('mouseleave', onMouseOut);
+      /** Finish selection */
+      const handleDone = () => {
+        if (selecting) {
+          // console.log('[Table:Effect:isSelectLookupRange] mouseup');
+          if (isFinishCell) {
+            selecting = false;
+            setSelecting(selecting);
+            setFinished(true);
+          } else {
+            handleCancel();
+          }
+        }
+      };
+      node.addEventListener('mousedown', handleStart);
+      node.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleDone);
+      document.addEventListener('mouseleave', handleCancel);
       return () => {
-        node.removeEventListener('mousedown', onMouseDown);
-        node.removeEventListener('mousemove', onMouseMove);
-        node.removeEventListener('mouseup', onMouseUp);
-        document.removeEventListener('mouseleave', onMouseOut);
+        node.removeEventListener('mousedown', handleStart);
+        node.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleDone);
+        document.removeEventListener('mouseleave', handleCancel);
       };
     }
   }, [
-    isSelectLookupRange,
+    step,
     nodeRef,
-    memo,
-    setNextStep,
-    setPrevStep,
     setSelecting,
     setSelectionStart,
     setSelectionFinish,
+    hintCellName,
+    finishCellName,
+    setCorrect,
+    setFinished,
   ]);
 
   const rows = React.useMemo(() => {

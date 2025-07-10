@@ -7,22 +7,16 @@ import { TableCell } from './TableCell';
 
 export function TableHintCell(props: TTableCellProps) {
   const { className, colIndex, ...rest } = props;
-  const { hintCelClassName } = useStepData();
-  // const { setNextStep } = useProgressContext();
-  // const isWaitForClick = hintCellAction === 'click';
+  const { hintCellClassName } = useStepData();
   return (
     <TableCell
       {...rest}
       colIndex={colIndex}
       className={cn(
         isDev && '__TableHintCell', // DEBUG
-        // 'border-2 border-solid border-pink-500',
-        // isWaitForClick &&
-        //   'before:absolute before:top-0 before:right-0 before:bottom-0 before:left-0 before:border before:border-dashed before:border-blue-500 before:content-[""]',
-        hintCelClassName,
+        hintCellClassName,
         className,
       )}
-      // onClick={isWaitForClick ? setNextStep : undefined}
     />
   );
 }

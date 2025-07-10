@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { getCellName, getColName } from '@/lib/ExcelEmulator';
+import { useIsCellInSelection } from '@/hooks/ExcelEmulator/useIsCellInSelection';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import {
@@ -18,6 +17,7 @@ import {
 } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
+import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
@@ -55,13 +55,16 @@ function isInnerTableRow(rowIndex: number, colIndex: number) {
 export function TableCell(props: TTableCellProps) {
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
   const { step } = useProgressContext();
-  const isStepSelectLookupRangeStart =
-    step === ProgressSteps.StepSelectLookupRangeStart ||
-    step === ProgressSteps.StepSelectLookupRangeFinish;
-  const { hintCellName, hintCelClassName } = useStepData();
+  const showLookupCells =
+    step > ProgressSteps.StepSelectLookupRangeStart && isCellInLookupTable(rowIndex, colIndex);
+  const { selecting: isSelecting, correct: selectionIsCorrect } = useSelectionContext();
+  const isCellInSelection = useIsCellInSelection(rowIndex, colIndex);
+  // const isStepSelectLookupRangeStart = step === ProgressSteps.StepSelectLookupRangeStart;
+  const { hintCellName, hintCellClassName, finishCellName, finishCellClassName } = useStepData();
+  // const tooltipCellName = isSelecting && finishCellName ? finishCellName : hintCellName;
+  // const tooltipClassName = isSelecting && finishCellName ? finishCellClassName : hintCellClassName;
   const colName = getColName(colIndex);
   const cellName = getCellName(rowIndex, colIndex);
-  const showLookup = isStepSelectLookupRangeStart && isCellInLookupTable(rowIndex, colIndex);
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
   const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
   const mainRowSpec: TOptionalColSpec = isMainTableCell ? mainRowSpecs[rowIndex] : undefined;
@@ -70,6 +73,8 @@ export function TableCell(props: TTableCellProps) {
   const cellSpec: TOptionalColSpec = cellSpecs[cellName];
   const content = children || getTableCellContent(rowIndex, colIndex);
   const hasHint = cellName === hintCellName;
+  const hasFinish = isSelecting && cellName === finishCellName;
+  const hasTooltip = hasFinish || (hasHint && (!finishCellName || !isSelecting));
   // TODO: Show current selection
   return (
     <div
@@ -83,7 +88,8 @@ export function TableCell(props: TTableCellProps) {
         'px-1 py-[2px]',
         'cursor-default bg-white',
         'before:pointer-events-none before:absolute before:top-0 before:right-0 before:bottom-0 before:left-0 before:z-[5] before:content-[""]',
-        showLookup && 'bg-green-500/10',
+        showLookupCells && 'bg-green-500/10',
+        isCellInSelection && (selectionIsCorrect ? 'bg-green-500/30' : 'bg-blue-500/10'),
         isAuxTableCell && 'border border-solid border-gray-300',
         isMainTableCell && 'border border-solid border-black',
         isMainTableCell && 'whitespace-nowrap',
@@ -94,7 +100,8 @@ export function TableCell(props: TTableCellProps) {
         genericColSpec?.className,
         mainColSpec?.className,
         cellSpec?.className,
-        hasHint && hintCelClassName,
+        hasHint && hintCellClassName,
+        hasFinish && finishCellClassName,
         className,
       )}
       style={{
@@ -104,7 +111,7 @@ export function TableCell(props: TTableCellProps) {
       onClick={onClick}
     >
       {content}
-      {hasHint && <ToolTip />}
+      {hasTooltip && <ToolTip />}
     </div>
   );
 }
