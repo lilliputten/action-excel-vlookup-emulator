@@ -19,7 +19,6 @@ Issue #3: Implemented progress steps 1-7.
 - Added selection context and mouse movement control in the Table node.
 - Completed lookup range selection.
 
-
 - [Compare](https://github.com/lilliputten/action-excel-vlookup-emulator/compare/v.0.0.1...v.0.0.2)
 
 ## [v.0.0.1](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.1) - 2025.07.09

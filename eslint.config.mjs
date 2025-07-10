@@ -11,7 +11,6 @@ import { readGitignoreFiles } from 'eslint-gitignore';
 import prettierPlugin from 'eslint-plugin-prettier';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
-// import tailwindcssPlugin from 'eslint-plugin-tailwindcss';
 import pluginYml from 'eslint-plugin-yml';
 import globals from 'globals';
 import * as tseslint from 'typescript-eslint';
@@ -76,13 +75,10 @@ export default [
   {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
     plugins: {
-      // tailwindcss: tailwindcssPlugin,
       'react-hooks': fixupPluginRules(pluginReactHooks),
     },
     rules: {
       // ...defaultJsRules,
-      // ...tailwindcssPlugin.configs.recommended.rules,
-      // 'tailwindcss/no-custom-classname': ['warn', { callees: ['twMerge'] }],
       ...pluginReactHooks.configs.recommended.rules,
       ...commonJsRules,
     },
