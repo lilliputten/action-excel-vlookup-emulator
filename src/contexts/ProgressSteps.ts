@@ -1,10 +1,12 @@
 import { isDev } from '@/config';
 import {
   editedLookupRangeName,
+  equationBegin,
   expectedColumnNumber,
   expectedIntervalValue,
   lookupRangeName,
   sourceCellName,
+  substrCellName,
 } from '@/constants/ExcelEmulator';
 
 export enum ProgressSteps {
@@ -17,41 +19,32 @@ export enum ProgressSteps {
   StepAddColumnNumber,
   StepAddInterval,
   StepFinishEquation,
-  StepExtendResults,
+  StepExtendRawResults,
+  StepAddSubstrColumn,
+  StepExtendFinalResults,
   StepDone,
 }
+export const progressStepsCount = Math.floor(Object.keys(ProgressSteps).length);
 
-/** Progress steps order */
-export const progressStepsSequence = [
-  ProgressSteps.StepStart,
-  ProgressSteps.StepEquationStart,
-  ProgressSteps.StepSelectSourceColumn,
-  ProgressSteps.StepEquationSemicolon,
-  ProgressSteps.StepSelectLookupRange,
-  ProgressSteps.StepEditLookupRange,
-  ProgressSteps.StepAddColumnNumber,
-  ProgressSteps.StepAddInterval,
-  ProgressSteps.StepFinishEquation,
-  ProgressSteps.StepExtendResults,
-  ProgressSteps.StepDone,
-];
-
+/** Default (failback/test) values on start of each step */
 export const defaultStepsValues: string[] = [
-  ``,
-  ``,
-  `=ВПР(`,
-  `=ВПР(${sourceCellName}`,
-  `=ВПР(${sourceCellName};`,
-  `=ВПР(${sourceCellName};${lookupRangeName}`,
-  `=ВПР(${sourceCellName};${editedLookupRangeName}`,
-  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber}`,
-  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue}`,
-  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`,
-  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`,
+  ``, // StepStart
+  ``, // StepEquationStart
+  `${equationBegin}`, // StepSelectSourceColumn
+  `${equationBegin}${sourceCellName}`, // StepEquationSemicolon
+  `${equationBegin}${sourceCellName};`, // StepSelectLookupRange
+  `${equationBegin}${sourceCellName};${lookupRangeName}`, // StepEditLookupRange
+  `${equationBegin}${sourceCellName};${editedLookupRangeName}`, // StepAddColumnNumber
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber}`, // StepAddInterval
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue}`, // StepFinishEquation
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`, // StepExtendRawResults
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`, // StepAddSubstrColumn
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepExtendFinalResults
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepDone
 ];
 
 const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepAddColumnNumber // DEBUG
+    ? ProgressSteps.StepExtendRawResults // DEBUG
     : ProgressSteps.StepStart;

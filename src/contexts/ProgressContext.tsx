@@ -1,15 +1,12 @@
 import React from 'react';
 
-import { initalProgressStep, ProgressSteps, progressStepsSequence } from './ProgressSteps';
-
-const stepsCount = progressStepsSequence.length;
+import { initalProgressStep, ProgressSteps, progressStepsCount } from './ProgressSteps';
 
 type TSetProgressStepAction = React.Dispatch<React.SetStateAction<ProgressSteps>>;
 
 export interface TProgressContext {
   // Core data
   step: ProgressSteps;
-  stepIndex: number;
   stepsCount: number;
   // Derived properties
   isFirstStep: boolean;
@@ -39,16 +36,14 @@ export const useCreateProgressContext = () => {
     // TODO: Check conditions
     goggleAllowedNextStep(false);
   }, [step]);
-  const stepIndex = React.useMemo(() => progressStepsSequence.indexOf(step), [step]);
 
-  const setFirstStep = React.useCallback(() => setStep(progressStepsSequence[0]), []);
-  const setLastStep = React.useCallback(() => setStep(progressStepsSequence[stepsCount - 1]), []);
+  const setFirstStep = React.useCallback(() => setStep(0), []);
+  const setLastStep = React.useCallback(() => setStep(progressStepsCount - 1), []);
   const setNextStep = React.useCallback(
     () =>
       setStep((step) => {
-        const idx = progressStepsSequence.indexOf(step);
-        if (idx !== -1 && idx < stepsCount - 1) {
-          return progressStepsSequence[idx + 1];
+        if (step < progressStepsCount - 1) {
+          return step + 1;
         }
         return step;
       }),
@@ -57,24 +52,22 @@ export const useCreateProgressContext = () => {
   const setPrevStep = React.useCallback(
     () =>
       setStep((step) => {
-        const idx = progressStepsSequence.indexOf(step);
-        if (idx !== -1 && idx > 0) {
-          return progressStepsSequence[idx - 1];
+        if (step > 0) {
+          return step - 1;
         }
         return step;
       }),
     [],
   );
   // Properties...
-  const isFirstStep = React.useMemo(() => stepIndex <= 0, [stepIndex]);
-  const isLastStep = React.useMemo(() => stepIndex >= stepsCount - 1, [stepIndex]);
+  const isFirstStep = React.useMemo(() => step <= 0, [step]);
+  const isLastStep = React.useMemo(() => step >= progressStepsCount - 1, [step]);
   const progressContext = React.useMemo<TProgressContext>(
     () =>
       ({
         // Core data
         step,
-        stepIndex,
-        stepsCount,
+        stepsCount: progressStepsCount,
         // Derived properties
         isFirstStep,
         isLastStep,
@@ -93,7 +86,6 @@ export const useCreateProgressContext = () => {
     [
       // Core data
       step,
-      stepIndex,
       // Derived properties
       isFirstStep,
       isLastStep,

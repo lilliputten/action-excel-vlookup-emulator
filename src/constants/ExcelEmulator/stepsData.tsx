@@ -30,9 +30,6 @@ interface TStepsDataItem {
   hintClassName?: string;
 }
 
-export const equationBegin = '=ВПР(';
-export const equationEnd = ';3;0)';
-
 export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepStart]: {
     text: 'Выберите ячейку для ввода формулы',
@@ -81,11 +78,21 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     text: 'Закончите редактирование формулы',
     onEnterMessage: 'Закройте скобку после последнего значения формулы и нажмите Enter.',
   },
-  [ProgressSteps.StepExtendResults]: {
+  [ProgressSteps.StepExtendRawResults]: {
     text: 'Растяните ячейку с результатами',
+    onEnterMessage: 'Растяните ячейку с результатом вниз, чтобы увидеть все данные',
     hintCellName: inputCellName,
     hintClassName: 'w-[140%]',
-    hintContent: 'Растяните эту ячейку вниз, чтобы увидеть все результаты (В РАБОТЕ)',
+    hintContent: 'Растяните эту ячейку вниз, чтобы увидеть результаты работы функции',
+  },
+  [ProgressSteps.StepAddSubstrColumn]: {
+    text: 'Дополните формулу',
+    onEnterMessage:
+      'Добавьте в формулу адрес столбца, данные которого надо вычесть из предыдущих результатов.',
+  },
+  [ProgressSteps.StepExtendFinalResults]: {
+    text: 'Растяните ячейку с результатами ещё раз',
+    onEnterMessage: 'Растяните ячейку с результатом вниз ещё раз, чтобы обновить все данные.',
   },
   [ProgressSteps.StepDone]: {
     text: 'Все задачи выполнены!',

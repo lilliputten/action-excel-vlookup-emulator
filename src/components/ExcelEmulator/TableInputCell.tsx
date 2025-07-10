@@ -10,6 +10,8 @@ import {
   expectedIntervalValue,
   inputCellFieldId,
   lookupRangeName,
+  resultDataFinal,
+  resultDataRaw,
   sourceCellName,
   successReactionDelay,
 } from '@/constants/ExcelEmulator';
@@ -30,7 +32,12 @@ export function TableInputCell(props: TTableCellProps) {
   const { step, setNextStep } = useProgressContext();
   const [editionsCount, setEditionsCount] = React.useState(0);
   React.useEffect(() => setEditionsCount(0), [step]);
-  const isEquationFinished = step >= ProgressSteps.StepExtendResults;
+  /** Ready to show extended data and show raw results*/
+  const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
+  const isStepAddSubstrColumn = step === ProgressSteps.StepAddSubstrColumn;
+  const hideInput = isEquationFinished && !isStepAddSubstrColumn;
+  /** Ready to show final results */
+  const isEquationFinal = step >= ProgressSteps.StepExtendFinalResults;
   const isStepStart = step === ProgressSteps.StepStart;
   const handleClick = (ev: React.MouseEvent<HTMLInputElement>) => {
     ev.preventDefault();
@@ -122,13 +129,13 @@ export function TableInputCell(props: TTableCellProps) {
         className,
       )}
     >
-      {isEquationFinished && (
-        <span>
-          {/* Just render non-empty cell to prevent collpaing and keep tooltip at the bottom */}
-          #Н/Д
-        </span>
-      )}
-      <form onSubmit={handleEnter}>
+      <form
+        className={cn(
+          isDev && '__TableInputCell_Form', // DEBUG
+          hideInput && 'hidden',
+        )}
+        onSubmit={handleEnter}
+      >
         <input
           ref={inputRef}
           type="text"
@@ -141,13 +148,19 @@ export function TableInputCell(props: TTableCellProps) {
             'bg-transparent',
             'text-black',
             'border-0 outline-none',
-            isEquationFinished && 'hidden',
+            hideInput && 'hidden',
           )}
           onClick={handleClick}
           onInput={handleInput}
           autoComplete="off"
         />
       </form>
+      {isEquationFinished && (
+        <span>
+          {/* Just render non-empty cell to prevent collpaing and keep tooltip at the bottom */}
+          {isEquationFinal ? resultDataFinal[0] : resultDataRaw[0]}
+        </span>
+      )}
     </TableCell>
   );
 }

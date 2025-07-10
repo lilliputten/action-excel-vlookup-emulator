@@ -53,6 +53,9 @@ export const editedLookupRangeName =
 export const sourceCol = 2;
 export const sourceCellName: TCellName = getColName(sourceCol) + targetTableFirstRow;
 
+export const substrCol = 4;
+export const substrCellName: TCellName = getColName(substrCol) + targetTableFirstRow;
+
 export const gridTemplateColumns = Array.from(Array(colsCount))
   .map((_none, no) => (no ? '1fr' : 'min-content'))
   .join(' ');
@@ -63,6 +66,9 @@ export const rulerCellClassNames =
 // Expected Values
 export const expectedColumnNumber = 2;
 export const expectedIntervalValue = 0;
+
+export const equationBegin = '=ВПР(';
+// export const equationEnd = `;${expectedColumnNumber};${expectedIntervalValue})`;
 
 // Edit input filed options
 export const editionsBeforeWarn = 3;

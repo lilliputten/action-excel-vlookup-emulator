@@ -17,8 +17,7 @@ const helpDelay = toastAutoCloseTimeout + 2000;
 
 export function ProgressNav(props: TProgressNavProps) {
   const { canGoForward, onGoForward, helpMessage } = props;
-  const { step, stepIndex, setPrevStep, isFirstStep, isLastStep, allowedNextStep } =
-    useProgressContext();
+  const { step, setPrevStep, isFirstStep, isLastStep, allowedNextStep } = useProgressContext();
   const [showHelp, setShowHelp] = React.useState(false);
 
   React.useEffect(() => {
@@ -77,7 +76,7 @@ export function ProgressNav(props: TProgressNavProps) {
         title={text}
       >
         <div className="truncate">
-          <span className="pr-1 font-bold opacity-50">Шаг {stepIndex + 1}:</span> {text}
+          <span className="pr-1 font-bold opacity-50">Шаг {step + 1}:</span> {text}
         </div>
       </div>
       <div
