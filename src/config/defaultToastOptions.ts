@@ -7,7 +7,6 @@ export const defaultToastOptions: ToastOptions = {
   closeOnClick: false,
   pauseOnHover: true,
   draggable: true,
-  // progress: undefined,
   theme: 'colored',
-  // transition: Bounce,
+  // transition: Zoom,
 };

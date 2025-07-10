@@ -4,10 +4,12 @@ import { toast } from 'react-toastify';
 import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev } from '@/config';
+import { successReactionDelay } from '@/constants/ExcelEmulator';
 import {
   gridTemplateColumns,
   idDelim,
   inputCellFieldId,
+  inputCellName,
   rowsCount,
 } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
@@ -17,11 +19,34 @@ import { cn } from '@/lib';
 
 import { TableRow } from './TableRow';
 
+function getCellNodeForEventTarget(target?: EventTarget | HTMLElement | null) {
+  if (!target) {
+    throw new Error('No target node specified');
+  }
+  let node: HTMLDivElement | null = target as HTMLDivElement;
+  if (!node.dataset.cellName) {
+    node = node.closest('div[data-cell-name]');
+  }
+  if (!node) {
+    throw new Error('Can not find parent cell');
+  }
+  if (!node.dataset.cellName) {
+    throw new Error('Can not find valid cell');
+  }
+  return node;
+}
+
+interface TMemo {
+  step?: ProgressSteps;
+}
+
 export function Table() {
   const nodeRef = React.useRef<HTMLDivElement>(null);
 
   const progressContext = useProgressContext();
   const { step, setNextStep } = progressContext;
+
+  const memo = React.useMemo<TMemo>(() => ({}), []);
 
   const selectionContext = useSelectionContext();
   const {
@@ -36,22 +61,31 @@ export function Table() {
     setSelectionFinish,
   } = selectionContext;
 
-  const { selectionStartCellName, selectionFinishCellName } = useStepData();
+  const { selectionStartCellName, selectionFinishCellName, onEnterMessage } = useStepData();
+
+  React.useEffect(() => {
+    // Update memo
+    memo.step = step;
+    // Show on enter message if defined
+    if (onEnterMessage) {
+      toast.info(onEnterMessage, defaultToastOptions);
+    }
+  }, [memo, step, onEnterMessage]);
 
   React.useEffect(() => {
     if (finished && correct) {
-      const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRange;
+      const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
       if (isSelectLookupRange) {
         const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
         inputCellField?.focus();
         setFinished(false);
         setCorrect(false);
         setSelecting(false);
-        setNextStep();
+        setTimeout(setNextStep, successReactionDelay);
       }
     }
   }, [
-    step,
+    memo,
     finished,
     correct,
     selectionStart,
@@ -65,34 +99,39 @@ export function Table() {
   // Handle range selection
   React.useEffect(() => {
     const node = nodeRef.current;
-    const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRange;
+    const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
     if (isSelectLookupRange && node) {
       const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
       let selecting = false;
       let isCorrectStartCell = false;
+      let startCellName = '';
+      let finishCellName = '';
       let isCorrectCells = false;
       const handleStart = (ev: MouseEvent) => {
-        const cellNode = ev.target as HTMLDivElement;
-        const cellName = cellNode.dataset.cellName;
+        const cellNode = getCellNodeForEventTarget(ev.target);
+        const cellName = cellNode.dataset.cellName || '';
+        if (isSelectLookupRange && cellName === inputCellName) {
+          // Don't react if input node clicked on StepSelectLookupRange
+          return;
+        }
         isCorrectStartCell = cellName === selectionStartCellName;
-        // if (isHintCell) {
         if (inputCellField) {
           if (!inputCellField.value.trim().endsWith(';')) {
             inputCellField.value += ';';
           }
           inputCellField.value += cellName + ':' + cellName;
+          finishCellName = startCellName = cellName;
         }
         selecting = true;
         setFinished(false);
         setSelecting(selecting);
         setSelectionStart(cellNode);
         setSelectionFinish(cellNode);
-        // }
       };
       const handleMouseMove = (ev: MouseEvent) => {
         if (selecting) {
-          const cellNode = ev.target as HTMLDivElement;
-          const cellName = cellNode.dataset.cellName;
+          const cellNode = getCellNodeForEventTarget(ev.target);
+          const cellName = cellNode.dataset.cellName || '';
           isCorrectCells = isCorrectStartCell && cellName === selectionFinishCellName;
           setSelectionFinish(cellNode);
           setCorrect(isCorrectCells);
@@ -117,13 +156,15 @@ export function Table() {
       /** Finish selection */
       const handleDone = () => {
         if (selecting) {
+          const range = [startCellName, finishCellName].filter(Boolean).join(':');
           // console.log('[Table:Effect:isSelectLookupRange] mouseup');
           if (isCorrectCells) {
             selecting = false;
             setSelecting(selecting);
             setFinished(true);
+            toast.success('Выделен диапазон: ' + range, defaultToastOptions);
           } else {
-            toast.error('Выделен неверный диапазон', defaultToastOptions);
+            toast.error('Выделен неверный диапазон: ' + range, defaultToastOptions);
             handleCancel();
           }
         }
@@ -140,7 +181,7 @@ export function Table() {
       };
     }
   }, [
-    step,
+    memo,
     nodeRef,
     setSelecting,
     setSelectionStart,

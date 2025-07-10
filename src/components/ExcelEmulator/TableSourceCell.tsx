@@ -1,4 +1,5 @@
 import { isDev } from '@/config';
+import { successReactionDelay } from '@/constants/ExcelEmulator';
 import { inputCellFieldId, sourceCellName } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
@@ -10,15 +11,15 @@ import { TableCell } from './TableCell';
 export function TableSourceCell(props: TTableCellProps) {
   const { className, colIndex, ...rest } = props;
   const { step, setNextStep } = useProgressContext();
-  const isWaitingForClick = step === ProgressSteps.StepSelectSourceColunn;
-  const isChecked = step > ProgressSteps.StepSelectSourceColunn;
+  const isWaitingForClick = step === ProgressSteps.StepSelectSourceColumn;
+  const isChecked = step > ProgressSteps.StepSelectSourceColumn;
   const handleClick = () => {
     const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
     if (inputCellField && !inputCellField.value.endsWith(sourceCellName)) {
       inputCellField.value += sourceCellName;
       inputCellField.focus();
     }
-    setNextStep();
+    setTimeout(setNextStep, successReactionDelay);
   };
   return (
     <TableCell

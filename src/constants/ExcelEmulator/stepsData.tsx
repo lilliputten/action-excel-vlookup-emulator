@@ -11,8 +11,10 @@ import { TReactNode } from '@/types/react';
 interface TStepsDataItem {
   text: string;
   textClassName?: string;
+  // State
+  onEnterMessage?: string;
   // Input
-  checkInput?: boolean | string;
+  // checkInput?: boolean | string;
   // Click
   clickCellName?: TCellName;
   clickCellClassName?: string;
@@ -40,7 +42,8 @@ export const equationEnd = ';3;0)';
 
 export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepStart]: {
-    text: 'Выберите ячейку для ввода',
+    text: 'Выберите ячейку для ввода формулы',
+    onEnterMessage: 'Выберите ячейку, в которую будете вводить формулу.',
     hintCellName: inputCellName,
     hintContent: 'Начните вводить формулу в эту ячейку',
     // hintClassName: 'w-[200%]',
@@ -49,8 +52,9 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   },
   [ProgressSteps.StepEquationStart]: {
     text: 'Начните вводить формулу в ячейку',
-    hintCellName: inputCellName,
-    hintContent: 'Введите начало формулы',
+    onEnterMessage: 'Введите начало формулы.',
+    // hintCellName: inputCellName,
+    // hintContent: 'Введите начало формулы',
     // hintContent: (
     //   <>
     //     Введите начало формулы:{' '}
@@ -59,8 +63,9 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     // ),
     hintClassName: 'whitespace-nowrap',
   },
-  [ProgressSteps.StepSelectSourceColunn]: {
+  [ProgressSteps.StepSelectSourceColumn]: {
     text: 'Выберите исходную колонку',
+    onEnterMessage: 'Кликните по ячейке с данными для сравнения или введите её адрес в формулу.',
     clickCellName: sourceCellName, // 'B6',
     clickWrongCellMessage: 'Выбрана неверная исходная ячейка',
     clickCorrectCellMessage: 'Выбрана исходная ячейка',
@@ -70,42 +75,45 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   },
   [ProgressSteps.StepEquationSemicolon]: {
     text: 'Продолжите редактирование формулы',
-    hintCellName: inputCellName,
-    hintContent: 'Добавьте точку с запятой',
-    hintClassName: 'whitespace-nowrap',
+    onEnterMessage: 'Добавьте разделитель в формулу.',
+    // hintCellName: inputCellName,
+    // hintContent: 'Добавьте точку с запятой',
+    // hintClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepSelectLookupRange]: {
     text: 'Выделите или введите диапазон для поиска',
-    checkInput: true,
+    onEnterMessage:
+      'Выберите мышью диапазон для поиска или введите адреса начальной и конечной ячеек диапазона в формулу.',
     selectionStartCellName: lookupRangeFirstCellName,
-    selectionStartCellClassName: 'before:bg-blue-500/40',
+    // selectionStartCellClassName: 'before:bg-blue-500/40',
     // hintCellName: lookupRangeFirstCellName,
     // hintCellClassName: 'before:bg-blue-500/40',
     // hintContent: 'Начните выделение диапазона просмотра с этой ячейки',
     // hintClassName: 'whitespace-nowrap',
     selectionFinishCellName: lookupRangeLastCellName,
-    selectionFinishCellClassName: 'before:bg-green-500/40',
+    // selectionFinishCellClassName: 'before:bg-green-500/40',
     // finishCellName: lookupRangeLastCellName,
     // finishCellClassName: 'before:bg-green-500/40',
     // finishContent: 'Закончите выделение здесь',
     // finishClassName: 'whitespace-nowrap',
   },
-  [ProgressSteps.StepEquationFinish]: {
-    text: 'Закончите ввод формулы',
-    hintCellName: inputCellName,
-    hintClassName: 'w-[140%]',
-    hintContent: (
-      <>
-        Добавьте номер столбца, нулевое значение интервального просмотра и закрывающую скобку:{' '}
-        <code className="rounded-md border border-white/20 bg-white/10 px-1">{equationEnd}</code>
-      </>
-    ),
+  [ProgressSteps.StepAddColumnNumber]: {
+    text: 'Добавьте номер столбца',
+    onEnterMessage: 'Добавьте номер столбца в формулу.',
+  },
+  [ProgressSteps.StepAddInterval]: {
+    text: 'Добавьте значение интервального просмотра',
+    onEnterMessage: 'Добавьте значение интервального просмотра в формулу.',
+  },
+  [ProgressSteps.StepFinishEquation]: {
+    text: 'Закончите редактирование формулы',
+    onEnterMessage: 'Добавьте скобку и нажмите Enter.',
   },
   [ProgressSteps.StepExtendResults]: {
     text: 'Растяните ячейку с результатами',
     hintCellName: inputCellName,
     hintClassName: 'w-[140%]',
-    hintContent: 'Растяиите эту ячейку вниз, чтобы увидеть все результаты (В РАБОТЕ)',
+    hintContent: 'Растяните эту ячейку вниз, чтобы увидеть все результаты (В РАБОТЕ)',
   },
   [ProgressSteps.StepDone]: {
     text: 'Все задачи выполнены!',

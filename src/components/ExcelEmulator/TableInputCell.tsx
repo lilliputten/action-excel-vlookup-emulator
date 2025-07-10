@@ -1,7 +1,14 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
-import { isDev } from '@/config';
-import { equationBegin, equationEnd, inputCellFieldId } from '@/constants/ExcelEmulator';
+import { defaultToastOptions, isDev } from '@/config';
+import {
+  equationBegin,
+  inputCellFieldId,
+  lookupRangeName,
+  sourceCellName,
+  successReactionDelay,
+} from '@/constants/ExcelEmulator';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
@@ -9,32 +16,69 @@ import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
 import { TableCell } from './TableCell';
 
+function normalizeInputString(str: string) {
+  return str.trim().replace(/\s+/g, '').toUpperCase();
+}
+
 export function TableInputCell(props: TTableCellProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const { className, colIndex, ...rest } = props;
   const { step, setNextStep } = useProgressContext();
-  const isEquationFinished = step > ProgressSteps.StepEquationFinish;
+  const isEquationFinished = step >= ProgressSteps.StepExtendResults;
   const isStepStart = step === ProgressSteps.StepStart;
-  const handleClick = (_ev: React.MouseEvent<HTMLInputElement>) => {
+  const handleClick = (ev: React.MouseEvent<HTMLInputElement>) => {
+    ev.preventDefault();
+    ev.stopPropagation();
     if (isStepStart) {
       setNextStep();
+      // setTimeout(setNextStep, successReactionDelay);
     }
   };
   const handleInput = (ev: React.FormEvent<HTMLInputElement>) => {
     const node = ev.currentTarget;
-    const text = node.value.trim().toUpperCase();
-    const isStepEquationStart = step === ProgressSteps.StepEquationStart;
-    const isStepEquationFinish = step === ProgressSteps.StepEquationFinish;
-    const isStepEquationSemicolon = step === ProgressSteps.StepEquationSemicolon;
-    if (isStepEquationStart && (isDev ? !!text : text.startsWith(equationBegin))) {
+    const text = normalizeInputString(node.value);
+    if (
+      step === ProgressSteps.StepEquationStart &&
+      (isDev ? !!text : text.startsWith(equationBegin))
+    ) {
       node.value = equationBegin;
-      setNextStep();
+      // node.blur();
+      toast.success('Введено начало формулы: ' + text, defaultToastOptions);
+      setTimeout(setNextStep, successReactionDelay);
     }
-    if (isStepEquationFinish && text.endsWith(equationEnd)) {
-      setNextStep();
+    if (step === ProgressSteps.StepEquationSemicolon && text.endsWith(';')) {
+      toast.success('Добавлена точка с запятой. Формула: ' + text, defaultToastOptions);
+      setTimeout(setNextStep, successReactionDelay);
     }
-    if (isStepEquationSemicolon && text.endsWith(';')) {
-      node.blur();
-      setNextStep();
+    if (step === ProgressSteps.StepSelectSourceColumn && text.endsWith(';' + sourceCellName)) {
+      toast.success('Выбрана исходная колонка: ' + sourceCellName, defaultToastOptions);
+      setTimeout(setNextStep, successReactionDelay);
+    }
+    if (step === ProgressSteps.StepSelectLookupRange && text.endsWith(';' + lookupRangeName)) {
+      // Wait for ';E6:H16'
+      toast.success('Введён диапазон: ' + text, defaultToastOptions);
+      setTimeout(setNextStep, successReactionDelay);
+    }
+    if (step === ProgressSteps.StepAddColumnNumber && text.endsWith(';2')) {
+      toast.success('Введён номер столбца: 2', defaultToastOptions);
+      setTimeout(setNextStep, successReactionDelay);
+    }
+    if (step === ProgressSteps.StepAddInterval && text.endsWith(';0')) {
+      toast.success('Введено значение интервального просмотра: 0', defaultToastOptions);
+      setTimeout(setNextStep, successReactionDelay);
+    }
+  };
+  const handleEnter = (ev: React.FormEvent<HTMLFormElement>) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const node = inputRef.current;
+    if (node) {
+      const text = normalizeInputString(node.value);
+      if (step === ProgressSteps.StepFinishEquation && text.endsWith(')')) {
+        // node.blur();
+        toast.success('Завершён ввод формулы: ' + text, defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      }
     }
   };
   return (
@@ -54,23 +98,26 @@ export function TableInputCell(props: TTableCellProps) {
           #Н/Д
         </span>
       )}
-      <input
-        type="text"
-        name={inputCellFieldId}
-        id={inputCellFieldId}
-        className={cn(
-          isDev && '__TableInputCell_Field', // DEBUG
-          'w-full',
-          'px-1',
-          'bg-transparent',
-          'text-black',
-          'border-0 outline-none',
-          isEquationFinished && 'hidden',
-        )}
-        onClick={handleClick}
-        onInput={handleInput}
-        autoComplete="off"
-      />
+      <form onSubmit={handleEnter}>
+        <input
+          ref={inputRef}
+          type="text"
+          name={inputCellFieldId}
+          id={inputCellFieldId}
+          className={cn(
+            isDev && '__TableInputCell_Field', // DEBUG
+            'w-full',
+            'px-1',
+            'bg-transparent',
+            'text-black',
+            'border-0 outline-none',
+            isEquationFinished && 'hidden',
+          )}
+          onClick={handleClick}
+          onInput={handleInput}
+          autoComplete="off"
+        />
+      </form>
     </TableCell>
   );
 }

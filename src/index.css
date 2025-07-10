@@ -16,6 +16,8 @@
   --appDestructiveColor: #f55;
   --formSize: 2.5em;
 
+  --toastify-color-info: #2b7fff;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -31,16 +33,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body,
-#root {
-  /* position: fixed; */
-  /* left: 0; */
-  /* right: 0; */
-  /* bottom: 0; */
-  /* top: 0; */
-  /* overflow: hidden; */
 }
 
 body {
@@ -157,7 +149,7 @@ body {
 }
 
 @keyframes wrong-cell-clicked-animation {
-  0% {
+  20% {
     border-color: var(--toastify-color-error);
   }
   100% {
@@ -170,7 +162,7 @@ div[data-clicked='wrong']:before {
 }
 
 @keyframes correct-cell-clicked-animation {
-  0% {
+  20% {
     border-color: var(--toastify-color-success);
   }
   100% {
@@ -180,4 +172,10 @@ div[data-clicked='wrong']:before {
 div[data-clicked='correct']:before {
   border: 2px solid transparent;
   animation: correct-cell-clicked-animation 1s ease-out;
+}
+
+.Toastify__toast {
+  padding-right: 20px;
+  -webkit-user-select: none;
+  user-select: none;
 }

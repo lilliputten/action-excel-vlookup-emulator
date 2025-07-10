@@ -3,10 +3,12 @@ import { isDev } from '@/config';
 export enum ProgressSteps {
   StepStart,
   StepEquationStart,
-  StepSelectSourceColunn,
+  StepSelectSourceColumn,
   StepEquationSemicolon,
   StepSelectLookupRange,
-  StepEquationFinish,
+  StepAddColumnNumber,
+  StepAddInterval,
+  StepFinishEquation,
   StepExtendResults,
   StepDone,
 }
@@ -15,10 +17,12 @@ export enum ProgressSteps {
 export const progressStepsSequence = [
   ProgressSteps.StepStart,
   ProgressSteps.StepEquationStart,
-  ProgressSteps.StepSelectSourceColunn,
+  ProgressSteps.StepSelectSourceColumn,
   ProgressSteps.StepEquationSemicolon,
   ProgressSteps.StepSelectLookupRange,
-  ProgressSteps.StepEquationFinish,
+  ProgressSteps.StepAddColumnNumber,
+  ProgressSteps.StepAddInterval,
+  ProgressSteps.StepFinishEquation,
   ProgressSteps.StepExtendResults,
   ProgressSteps.StepDone,
 ];
@@ -26,5 +30,5 @@ export const progressStepsSequence = [
 const __useDebug = false;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepSelectSourceColunn // DEBUG
+    ? ProgressSteps.StepSelectLookupRange // DEBUG
     : ProgressSteps.StepStart;

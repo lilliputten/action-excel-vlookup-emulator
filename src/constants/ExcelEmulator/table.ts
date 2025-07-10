@@ -35,6 +35,7 @@ export const lookupRangeFirstCellName: TCellName =
   getColName(lookupTableFirstCol) + lookupTableFirstRow;
 export const lookupRangeLastCellName: TCellName =
   getColName(lookupTableLastCol) + lookupTableLastRow;
+export const lookupRangeName = lookupRangeFirstCellName + ':' + lookupRangeLastCellName;
 
 // Column number 2, row 3
 export const sourceCol = 2;
