@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 
 import { defaultToastOptions, isDev } from '@/config';
 import {
+  editedLookupRangeName,
   equationBegin,
   inputCellFieldId,
   lookupRangeName,
@@ -19,6 +20,9 @@ import { TableCell } from './TableCell';
 function normalizeInputString(str: string) {
   return str.trim().replace(/\s+/g, '').toUpperCase();
 }
+
+const expectedColumnNumber = 2;
+const expectedIntervalValue = 0;
 
 export function TableInputCell(props: TTableCellProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -51,21 +55,39 @@ export function TableInputCell(props: TTableCellProps) {
       setTimeout(setNextStep, successReactionDelay);
     }
     if (step === ProgressSteps.StepSelectSourceColumn && text.endsWith(';' + sourceCellName)) {
-      toast.success('Выбрана исходная колонка: ' + sourceCellName, defaultToastOptions);
+      toast.success('Выбран исходный столбец: ' + sourceCellName, defaultToastOptions);
       setTimeout(setNextStep, successReactionDelay);
     }
     if (step === ProgressSteps.StepSelectLookupRange && text.endsWith(';' + lookupRangeName)) {
       // Wait for ';E6:H16'
-      toast.success('Введён диапазон: ' + text, defaultToastOptions);
+      toast.success('Введён диапазон: ' + lookupRangeName, defaultToastOptions);
       setTimeout(setNextStep, successReactionDelay);
     }
-    if (step === ProgressSteps.StepAddColumnNumber && text.endsWith(';2')) {
-      toast.success('Введён номер столбца: 2', defaultToastOptions);
-      setTimeout(setNextStep, successReactionDelay);
+    if (step === ProgressSteps.StepEditLookupRange) {
+      // Wait for ';$E$6:$H$16'
+      if (text.endsWith(editedLookupRangeName)) {
+        toast.success('Исправлен диапазон: ' + editedLookupRangeName, defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      }
     }
-    if (step === ProgressSteps.StepAddInterval && text.endsWith(';0')) {
-      toast.success('Введено значение интервального просмотра: 0', defaultToastOptions);
-      setTimeout(setNextStep, successReactionDelay);
+    if (step === ProgressSteps.StepAddColumnNumber) {
+      if (text.endsWith(';' + expectedColumnNumber)) {
+        toast.success('Введён номер столбца: ' + expectedColumnNumber, defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      } else if (text.match(/^=.*;.*:.*;.+/)) {
+        toast.warn('Ожидается номер столбца', defaultToastOptions);
+      }
+    }
+    if (step === ProgressSteps.StepAddInterval) {
+      if (text.endsWith(';' + expectedIntervalValue)) {
+        toast.success(
+          'Введено значение интервального просмотра: ' + expectedIntervalValue,
+          defaultToastOptions,
+        );
+        setTimeout(setNextStep, successReactionDelay);
+      } else if (text.match(/^=.*;.*:.*;.*;.+/)) {
+        toast.warn('Ожидается значение интервального просмотра', defaultToastOptions);
+      }
     }
   };
   const handleEnter = (ev: React.FormEvent<HTMLFormElement>) => {

@@ -6,6 +6,7 @@ export enum ProgressSteps {
   StepSelectSourceColumn,
   StepEquationSemicolon,
   StepSelectLookupRange,
+  StepEditLookupRange,
   StepAddColumnNumber,
   StepAddInterval,
   StepFinishEquation,
@@ -20,6 +21,7 @@ export const progressStepsSequence = [
   ProgressSteps.StepSelectSourceColumn,
   ProgressSteps.StepEquationSemicolon,
   ProgressSteps.StepSelectLookupRange,
+  ProgressSteps.StepEditLookupRange,
   ProgressSteps.StepAddColumnNumber,
   ProgressSteps.StepAddInterval,
   ProgressSteps.StepFinishEquation,
@@ -27,7 +29,7 @@ export const progressStepsSequence = [
   ProgressSteps.StepDone,
 ];
 
-const __useDebug = true;
+const __useDebug = false;
 export const initalProgressStep =
   __useDebug && isDev
     ? ProgressSteps.StepSelectLookupRange // DEBUG

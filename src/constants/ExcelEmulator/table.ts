@@ -35,7 +35,19 @@ export const lookupRangeFirstCellName: TCellName =
   getColName(lookupTableFirstCol) + lookupTableFirstRow;
 export const lookupRangeLastCellName: TCellName =
   getColName(lookupTableLastCol) + lookupTableLastRow;
+/** Lookup range address, in form '{startColName}{startRowIndex}:{endColName}{endRowIndex}' */
 export const lookupRangeName = lookupRangeFirstCellName + ':' + lookupRangeLastCellName;
+/** Edited lookup range address -- with '$' symbols around column names */
+export const editedLookupRangeName =
+  '$' +
+  getColName(lookupTableFirstCol) +
+  '$' +
+  lookupTableFirstRow +
+  ':' +
+  '$' +
+  getColName(lookupTableLastCol) +
+  '$' +
+  lookupTableLastRow;
 
 // Column number 2, row 3
 export const sourceCol = 2;

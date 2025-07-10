@@ -17,6 +17,7 @@
   --formSize: 2.5em;
 
   --toastify-color-info: #2b7fff;
+  --toastify-color-warning: #fe9a00;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

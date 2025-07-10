@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 
 import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
+import { ProgressNav } from '@/components/ProgressNav';
 import { defaultToastOptions, isDev } from '@/config';
 import { successReactionDelay } from '@/constants/ExcelEmulator';
 import {
@@ -37,7 +38,12 @@ function getCellNodeForEventTarget(target?: EventTarget | HTMLElement | null) {
 }
 
 interface TMemo {
+  /** Current step */
   step?: ProgressSteps;
+  /** Input values per step starts */
+  cachedInputs: Partial<Record<ProgressSteps, string>>;
+  /** Inout field dom node */
+  inputCellField?: HTMLInputElement | null;
 }
 
 export function Table() {
@@ -46,7 +52,7 @@ export function Table() {
   const progressContext = useProgressContext();
   const { step, setNextStep } = progressContext;
 
-  const memo = React.useMemo<TMemo>(() => ({}), []);
+  const memo = React.useMemo<TMemo>(() => ({ cachedInputs: {} }), []);
 
   const selectionContext = useSelectionContext();
   const {
@@ -62,16 +68,38 @@ export function Table() {
   } = selectionContext;
 
   const { selectionStartCellName, selectionFinishCellName, onEnterMessage } = useStepData();
+  const [canGoForward, setCanGoForward] = React.useState(false);
 
   React.useEffect(() => {
+    const inputCellField =
+      memo.inputCellField ||
+      (memo.inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null);
     // Update memo
     if (memo.step != step) {
-      const prevStep = memo.step;
+      const cachedInputs = memo.cachedInputs;
+      const prevStep = memo.step || ProgressSteps.StepStart;
+      const nextStep = (step + 1) as ProgressSteps;
+      const isForward = step >= prevStep;
+      const canGoForward = !isForward || cachedInputs[nextStep] != undefined;
       // eslint-disable-next-line no-console
       console.log('[Table:Effect] step changed', {
+        isForward,
+        canGoForward,
+        inputCellField,
         prevStep,
         step,
+        nextStep,
+        cachedInputs,
+        memo,
       });
+      if (isForward) {
+        cachedInputs[step] = inputCellField?.value || '';
+      } else if (step < prevStep && inputCellField) {
+        // Go back
+        inputCellField.value = cachedInputs[step] || '';
+      }
+      // Can go forward if there was a step back
+      setCanGoForward(canGoForward);
       memo.step = step;
       // TODO: To fix data, eg if previous step has been chosen?
     }
@@ -81,11 +109,37 @@ export function Table() {
     }
   }, [memo, step, onEnterMessage]);
 
+  const handleGoForward = React.useCallback(() => {
+    const inputCellField = memo.inputCellField;
+    const currStep = memo.step || ProgressSteps.StepStart;
+    const nextStep = (currStep + 1) as ProgressSteps;
+    const futureStep = (currStep + 2) as ProgressSteps;
+    const cachedInputs = memo.cachedInputs;
+    const nextValue = cachedInputs[nextStep];
+    const canGoForward = cachedInputs[futureStep] != undefined;
+    /** console.log('[handleGoForward]', {
+     *   canGoForward,
+     *   nextValue,
+     *   futureStep,
+     *   nextStep,
+     *   currStep,
+     *   cachedInputs,
+     *   memo,
+     *   setNextStep,
+     * });
+     */
+    if (inputCellField && nextValue != undefined) {
+      inputCellField.value = nextValue;
+    }
+    setCanGoForward(canGoForward);
+    setNextStep();
+  }, [memo, setNextStep]);
+
   React.useEffect(() => {
     if (finished && correct) {
       const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
       if (isSelectLookupRange) {
-        const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
+        const inputCellField = memo.inputCellField;
         inputCellField?.focus();
         setFinished(false);
         setCorrect(false);
@@ -110,7 +164,7 @@ export function Table() {
     const node = nodeRef.current;
     const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
     if (isSelectLookupRange && node) {
-      const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
+      const inputCellField = memo.inputCellField;
       let selecting = false;
       let isCorrectStartCell = false;
       let startCellName = '';
@@ -214,14 +268,26 @@ export function Table() {
     <div
       ref={nodeRef}
       className={cn(
-        isDev && '__Table', // DEBUG
-        'grid select-none',
+        isDev && '__TableWrapper', // DEBUG
       )}
-      style={{
-        gridTemplateColumns,
-      }}
     >
-      {rows}
+      <div
+        ref={nodeRef}
+        className={cn(
+          isDev && '__Table', // DEBUG
+          'grid select-none',
+        )}
+        style={{
+          gridTemplateColumns,
+        }}
+      >
+        {rows}
+      </div>
+      <ProgressNav
+        canGoForward={canGoForward}
+        onGoForward={handleGoForward}
+        helpMessage={onEnterMessage}
+      />
     </div>
   );
 }
