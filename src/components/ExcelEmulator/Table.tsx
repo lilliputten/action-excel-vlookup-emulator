@@ -65,7 +65,16 @@ export function Table() {
 
   React.useEffect(() => {
     // Update memo
-    memo.step = step;
+    if (memo.step != step) {
+      const prevStep = memo.step;
+      // eslint-disable-next-line no-console
+      console.log('[Table:Effect] step changed', {
+        prevStep,
+        step,
+      });
+      memo.step = step;
+      // TODO: To fix data, eg if previous step has been chosen?
+    }
     // Show on enter message if defined
     if (onEnterMessage) {
       toast.info(onEnterMessage, defaultToastOptions);
@@ -134,6 +143,7 @@ export function Table() {
           const cellName = cellNode.dataset.cellName || '';
           isCorrectCells = isCorrectStartCell && cellName === selectionFinishCellName;
           setSelectionFinish(cellNode);
+          finishCellName = cellName;
           setCorrect(isCorrectCells);
           if (inputCellField) {
             inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);

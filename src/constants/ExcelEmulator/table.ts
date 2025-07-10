@@ -27,7 +27,7 @@ export const inputCellFieldId = 'InputCellField';
 // Lookup table
 export const lookupTableFirstRow = targetTableFirstRow;
 export const lookupTableLastRow = targetTableLastRow;
-export const lookupTableFirstCol = 5;
+export const lookupTableFirstCol = 6;
 export const lookupTableLastCol = 8;
 export const lookupTableColsCount = lookupTableLastCol - lookupTableFirstCol + 1;
 
