@@ -66,7 +66,7 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     selectionFinishCellName: lookupRangeLastCellName,
   },
   [ProgressSteps.StepEditLookupRange]: {
-    text: 'Отредактируйте формулу',
+    text: 'Отредактируйте диапазон поиска в формуле',
     onEnterMessage: 'Отредактируйте адреса ячеек диапазона поиска.',
   },
   [ProgressSteps.StepAddColumnNumber]: {

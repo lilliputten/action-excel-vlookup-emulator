@@ -4,7 +4,10 @@ import { toast } from 'react-toastify';
 import { defaultToastOptions, isDev } from '@/config';
 import {
   editedLookupRangeName,
+  editionsBeforeWarn,
   equationBegin,
+  expectedColumnNumber,
+  expectedIntervalValue,
   inputCellFieldId,
   lookupRangeName,
   sourceCellName,
@@ -21,13 +24,12 @@ function normalizeInputString(str: string) {
   return str.trim().replace(/\s+/g, '').toUpperCase();
 }
 
-const expectedColumnNumber = 2;
-const expectedIntervalValue = 0;
-
 export function TableInputCell(props: TTableCellProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const { className, colIndex, ...rest } = props;
   const { step, setNextStep } = useProgressContext();
+  const [editionsCount, setEditionsCount] = React.useState(0);
+  React.useEffect(() => setEditionsCount(0), [step]);
   const isEquationFinished = step >= ProgressSteps.StepExtendResults;
   const isStepStart = step === ProgressSteps.StepStart;
   const handleClick = (ev: React.MouseEvent<HTMLInputElement>) => {
@@ -68,13 +70,18 @@ export function TableInputCell(props: TTableCellProps) {
       if (text.endsWith(editedLookupRangeName)) {
         toast.success('Исправлен диапазон: ' + editedLookupRangeName, defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
+      } else if (editionsCount > 3 + editionsBeforeWarn && text.match(/^=.*;.*:.*;.+/)) {
+        toast.warn(
+          'Добавьте знаки доллара вокруг адресов столбцов во вставленном диапазоне.',
+          defaultToastOptions,
+        );
       }
     }
     if (step === ProgressSteps.StepAddColumnNumber) {
       if (text.endsWith(';' + expectedColumnNumber)) {
         toast.success('Введён номер столбца: ' + expectedColumnNumber, defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (text.match(/^=.*;.*:.*;.+/)) {
+      } else if (editionsCount > editionsBeforeWarn && text.match(/^=.*;.*:.*;.+/)) {
         toast.warn('Ожидается номер столбца', defaultToastOptions);
       }
     }
@@ -85,10 +92,11 @@ export function TableInputCell(props: TTableCellProps) {
           defaultToastOptions,
         );
         setTimeout(setNextStep, successReactionDelay);
-      } else if (text.match(/^=.*;.*:.*;.*;.+/)) {
+      } else if (editionsCount > editionsBeforeWarn && text.match(/^=.*;.*:.*;.*;.+/)) {
         toast.warn('Ожидается значение интервального просмотра', defaultToastOptions);
       }
     }
+    setEditionsCount((count) => count + 1);
   };
   const handleEnter = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();

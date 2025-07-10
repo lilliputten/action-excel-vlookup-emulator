@@ -59,3 +59,10 @@ export const gridTemplateColumns = Array.from(Array(colsCount))
 
 export const rulerCellClassNames =
   'bg-gray-500 px-2 text-center border border-solid border-white text-white cursor-default border-t-0 border-l-0';
+
+// Expected Values
+export const expectedColumnNumber = 2;
+export const expectedIntervalValue = 0;
+
+// Edit input filed options
+export const editionsBeforeWarn = 3;

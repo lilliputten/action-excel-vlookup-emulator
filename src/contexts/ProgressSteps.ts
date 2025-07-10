@@ -1,4 +1,11 @@
 import { isDev } from '@/config';
+import {
+  editedLookupRangeName,
+  expectedColumnNumber,
+  expectedIntervalValue,
+  lookupRangeName,
+  sourceCellName,
+} from '@/constants/ExcelEmulator';
 
 export enum ProgressSteps {
   StepStart,
@@ -29,8 +36,22 @@ export const progressStepsSequence = [
   ProgressSteps.StepDone,
 ];
 
-const __useDebug = false;
+export const defaultStepsValues: string[] = [
+  ``,
+  ``,
+  `=ВПР(`,
+  `=ВПР(${sourceCellName}`,
+  `=ВПР(${sourceCellName};`,
+  `=ВПР(${sourceCellName};${lookupRangeName}`,
+  `=ВПР(${sourceCellName};${editedLookupRangeName}`,
+  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber}`,
+  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue}`,
+  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`,
+  `=ВПР(${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`,
+];
+
+const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepSelectLookupRange // DEBUG
+    ? ProgressSteps.StepAddColumnNumber // DEBUG
     : ProgressSteps.StepStart;

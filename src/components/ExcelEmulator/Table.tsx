@@ -14,7 +14,7 @@ import {
   rowsCount,
 } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { ProgressSteps } from '@/contexts/ProgressSteps';
+import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 
@@ -71,9 +71,13 @@ export function Table() {
   const [canGoForward, setCanGoForward] = React.useState(false);
 
   React.useEffect(() => {
+    const inited = !!memo.inputCellField;
     const inputCellField =
       memo.inputCellField ||
       (memo.inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null);
+    if (!inited && inputCellField) {
+      inputCellField.value = defaultStepsValues[step] || '';
+    }
     // Update memo
     if (memo.step != step) {
       const cachedInputs = memo.cachedInputs;
@@ -91,12 +95,13 @@ export function Table() {
         nextStep,
         cachedInputs,
         memo,
+        defaultStepsValues,
       });
       if (isForward) {
         cachedInputs[step] = inputCellField?.value || '';
       } else if (step < prevStep && inputCellField) {
         // Go back
-        inputCellField.value = cachedInputs[step] || '';
+        inputCellField.value = cachedInputs[step] || defaultStepsValues[step] || '';
       }
       // Can go forward if there was a step back
       setCanGoForward(canGoForward);
