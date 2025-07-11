@@ -1,6 +1,7 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Maximize, Minimize } from 'lucide-react';
 import { toast } from 'react-toastify';
+import screenfull from 'screenfull';
 
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev, toastAutoCloseTimeout } from '@/config';
@@ -20,6 +21,8 @@ export function ProgressNav(props: TProgressNavProps) {
   const { step, setPrevStep, isFirstStep, isLastStep, allowedNextStep } = useProgressContext();
   const [showHelp, setShowHelp] = React.useState(false);
 
+  const [isFullscreen, setFullscreen] = React.useState(false);
+
   React.useEffect(() => {
     setShowHelp(true);
     setTimeout(() => setShowHelp(false), helpDelay);
@@ -32,6 +35,18 @@ export function ProgressNav(props: TProgressNavProps) {
     setShowHelp(true);
     setTimeout(() => setShowHelp(false), helpDelay);
   };
+
+  React.useEffect(() => {
+    if (isFullscreen) {
+      screenfull.request();
+    } else {
+      screenfull.exit();
+    }
+  }, [isFullscreen]);
+
+  const toggleFullscreen = () => setFullscreen((isFullscreen) => !isFullscreen);
+
+  const FullScreenIcon = isFullscreen ? Minimize : Maximize;
 
   return (
     <div
@@ -78,6 +93,22 @@ export function ProgressNav(props: TProgressNavProps) {
         <div className="truncate">
           <span className="pr-1 font-bold opacity-50">Шаг {step + 1}:</span> {text}
         </div>
+      </div>
+      <div
+        className={cn(
+          isDev && '__ProgressNav_Fullscreen', // DEBUG
+          'flex items-center justify-center',
+          'bg-blue-500 text-white',
+          'rounded-full shadow-lg/30',
+          'transition',
+          'cursor-pointer',
+          'hover:opacity-80',
+          'p-2',
+        )}
+        title="Полноэкранный режим"
+        onClick={toggleFullscreen}
+      >
+        <FullScreenIcon size="2em" />
       </div>
       <div
         className={cn(
