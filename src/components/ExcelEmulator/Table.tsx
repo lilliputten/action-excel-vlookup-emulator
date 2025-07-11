@@ -87,6 +87,7 @@ export function Table() {
     // Update memo
     if (memo.step != step) {
       if (step === ProgressSteps.StepDone) {
+        // Final step
         toast.success('Поздравляем! Все задачи выполены!', defaultToastOptions);
       }
       const cachedInputs = memo.cachedInputs;

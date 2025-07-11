@@ -8,17 +8,22 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 // @see https://vite.dev/config/
 export default defineConfig({
+  // Use relative paths
+  base: './',
+
   plugins: [
     // Plugins...
     tailwindcss(),
     react(),
     tsconfigPaths(),
   ],
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
+
   /*
    * css: {
    *   preprocessorOptions: {
@@ -31,6 +36,7 @@ export default defineConfig({
    *   },
    * },
    */
+
   build: {
     // Place all assets (JS, CSS, images) in the `static` folder
     assetsDir: 'static',
