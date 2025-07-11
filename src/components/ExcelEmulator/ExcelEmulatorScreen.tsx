@@ -1,4 +1,3 @@
-import { ProgressNav } from '@/components/ProgressNav';
 import { isDev } from '@/config';
 import { cn } from '@/lib';
 
@@ -12,7 +11,6 @@ export function ExcelEmulatorScreen() {
       )}
     >
       <Table />
-      <ProgressNav />
     </div>
   );
 }

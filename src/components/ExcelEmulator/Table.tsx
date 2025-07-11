@@ -1,20 +1,55 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
 import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
-import { isDev } from '@/config';
+import { ProgressNav } from '@/components/ProgressNav';
+import { defaultToastOptions, isDev } from '@/config';
+import { successReactionDelay } from '@/constants/ExcelEmulator';
 import {
   gridTemplateColumns,
   idDelim,
   inputCellFieldId,
+  inputCellName,
   rowsCount,
 } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { ProgressSteps } from '@/contexts/ProgressSteps';
+import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 
 import { TableRow } from './TableRow';
+
+const helpDelay = 10000; // toastAutoCloseTimeout + 2000;
+
+function getCellNodeForEventTarget(target?: EventTarget | HTMLElement | null) {
+  if (!target) {
+    throw new Error('No target node specified');
+  }
+  let node: HTMLDivElement | null = target as HTMLDivElement;
+  if (!node.dataset.cellName) {
+    node = node.closest('div[data-cell-name]');
+  }
+  if (!node) {
+    throw new Error('Can not find parent cell');
+  }
+  if (!node.dataset.cellName) {
+    throw new Error('Can not find valid cell');
+  }
+  return node;
+}
+
+interface TMemo {
+  /** Current step */
+  step?: ProgressSteps;
+  /** Input values per step starts */
+  cachedInputs: Partial<Record<ProgressSteps, string>>;
+  /** Inout field dom node */
+  inputCellField?: HTMLInputElement | null;
+}
+
+/** Amount of wrong selections before a tip */
+const wrongSelectionsLimit = 2;
 
 export function Table() {
   const nodeRef = React.useRef<HTMLDivElement>(null);
@@ -22,8 +57,10 @@ export function Table() {
   const progressContext = useProgressContext();
   const { step, setNextStep } = progressContext;
 
-  const selectionContext = useSelectionContext();
+  const memo = React.useMemo<TMemo>(() => ({ cachedInputs: {} }), []);
+
   const {
+    // selecting: isSelecting,
     finished,
     correct,
     selectionStart,
@@ -33,24 +70,112 @@ export function Table() {
     setCorrect,
     setSelectionStart,
     setSelectionFinish,
-  } = selectionContext;
+    setWrongClicksCount,
+  } = useSelectionContext();
 
-  const { hintCellName, finishCellName } = useStepData();
+  const {
+    selectionStartCellName,
+    selectionFinishCellName,
+    onEnterMessage,
+    selectionSuccessMessage,
+    selectionErrorMessage,
+    clickCellName,
+  } = useStepData();
+  const [canGoForward, setCanGoForward] = React.useState(false);
+
+  const isSelectingStep =
+    step === ProgressSteps.StepSelectLookupRange ||
+    step === ProgressSteps.StepExtendRawResults ||
+    step === ProgressSteps.StepExtendFinalResults;
+
+  React.useEffect(() => {
+    // Reset clicks count once (for each `TableCell` click checking)
+    if (clickCellName) {
+      setWrongClicksCount(0);
+    }
+    /* // NOTE: Used local `wrongSelectionsCount`
+     * if (isSelectingStep) {
+     *   setWrongSelectionsCount(0);
+     * }
+     */
+  }, [clickCellName, setWrongClicksCount, step]);
+
+  React.useEffect(() => {
+    const inited = !!memo.inputCellField;
+    const inputCellField =
+      memo.inputCellField ||
+      (memo.inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null);
+    if (!inited && inputCellField) {
+      inputCellField.value = defaultStepsValues[step] || '';
+    }
+    // Update memo
+    if (memo.step != step) {
+      if (step === ProgressSteps.StepDone) {
+        // Final step
+        toast.success('Поздравляем! Все задачи выполены!', defaultToastOptions);
+      }
+      const cachedInputs = memo.cachedInputs;
+      const prevStep = memo.step || ProgressSteps.StepStart;
+      const nextStep = (step + 1) as ProgressSteps;
+      const isForward = step >= prevStep;
+      const canGoForward = !isForward || cachedInputs[nextStep] != undefined;
+      /* // DEBUG
+       * // eslint-disable-next-line no-console
+       * console.log('[Table:Effect] step changed', {
+       *   isForward,
+       *   canGoForward,
+       *   inputCellField,
+       *   prevStep,
+       *   step,
+       *   nextStep,
+       *   cachedInputs,
+       *   memo,
+       *   defaultStepsValues,
+       * });
+       */
+      if (isForward) {
+        cachedInputs[step] = inputCellField?.value || '';
+      } else if (step < prevStep && inputCellField) {
+        // Go back
+        inputCellField.value = cachedInputs[step] || defaultStepsValues[step] || '';
+      }
+      // Can go forward if there was a step back
+      setCanGoForward(canGoForward);
+      memo.step = step;
+    }
+    // Show on enter message if defined
+    if (onEnterMessage) {
+      toast.info(onEnterMessage, { ...defaultToastOptions, autoClose: helpDelay });
+    }
+  }, [memo, step, onEnterMessage]);
+
+  const handleGoForward = React.useCallback(() => {
+    const inputCellField = memo.inputCellField;
+    const currStep = memo.step || ProgressSteps.StepStart;
+    const nextStep = (currStep + 1) as ProgressSteps;
+    const futureStep = (currStep + 2) as ProgressSteps;
+    const cachedInputs = memo.cachedInputs;
+    const nextValue = cachedInputs[nextStep];
+    const canGoForward = cachedInputs[futureStep] != undefined;
+    if (inputCellField && nextValue != undefined) {
+      inputCellField.value = nextValue;
+    }
+    setCanGoForward(canGoForward);
+    setNextStep();
+  }, [memo, setNextStep]);
 
   React.useEffect(() => {
     if (finished && correct) {
-      const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRangeStart;
-      if (isSelectLookupRange) {
-        const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
-        inputCellField?.focus();
+      if (isSelectingStep) {
         setFinished(false);
         setCorrect(false);
         setSelecting(false);
-        setNextStep();
+        setTimeout(setNextStep, successReactionDelay);
       }
     }
   }, [
-    step,
+    memo,
+    isSelectingStep,
     finished,
     correct,
     selectionStart,
@@ -64,37 +189,45 @@ export function Table() {
   // Handle range selection
   React.useEffect(() => {
     const node = nodeRef.current;
-    const isSelectLookupRange = step === ProgressSteps.StepSelectLookupRangeStart;
-    if (isSelectLookupRange && node) {
-      const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
+    if (isSelectingStep && node) {
+      const inputCellField = memo.inputCellField;
+      const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
+      let wrongSelectionsCount = 0;
       let selecting = false;
-      let isFinishCell = false;
+      let isCorrectStartCell = false;
+      let startCellName = '';
+      let finishCellName = '';
+      let isCorrectCells = false;
       const handleStart = (ev: MouseEvent) => {
-        const cellNode = ev.target as HTMLDivElement;
-        const cellName = cellNode.dataset.cellName;
-        const isHintCell = cellName === hintCellName;
-        if (isHintCell) {
-          if (inputCellField) {
-            if (!inputCellField.value.trim().endsWith(';')) {
-              inputCellField.value += ';';
-            }
-            inputCellField.value += cellName + ':' + cellName;
-          }
-          selecting = true;
-          setFinished(false);
-          setSelecting(selecting);
-          setSelectionStart(cellNode);
-          setSelectionFinish(cellNode);
+        const cellNode = getCellNodeForEventTarget(ev.target);
+        const cellName = cellNode.dataset.cellName || '';
+        if (isSelectLookupRange && cellName === inputCellName) {
+          // Don't react if input node clicked on StepSelectLookupRange
+          return;
         }
+        isCorrectStartCell = cellName === selectionStartCellName;
+        if (isSelectLookupRange && inputCellField) {
+          if (!inputCellField.value.trim().endsWith(';')) {
+            inputCellField.value += ';';
+          }
+          inputCellField.value += cellName + ':' + cellName;
+        }
+        finishCellName = startCellName = cellName;
+        selecting = true;
+        setFinished(false);
+        setSelecting(selecting);
+        setSelectionStart(cellNode);
+        setSelectionFinish(cellNode);
       };
       const handleMouseMove = (ev: MouseEvent) => {
         if (selecting) {
-          const cellNode = ev.target as HTMLDivElement;
-          const cellName = cellNode.dataset.cellName;
-          isFinishCell = cellName === finishCellName;
+          const cellNode = getCellNodeForEventTarget(ev.target);
+          const cellName = cellNode.dataset.cellName || '';
+          isCorrectCells = isCorrectStartCell && cellName === selectionFinishCellName;
           setSelectionFinish(cellNode);
-          setCorrect(isFinishCell);
-          if (inputCellField) {
+          finishCellName = cellName;
+          setCorrect(isCorrectCells);
+          if (isSelectLookupRange && inputCellField) {
             inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);
           }
         }
@@ -102,12 +235,11 @@ export function Table() {
       /** Cancel selection */
       const handleCancel = () => {
         if (selecting) {
-          // console.log('[Table:Effect:isSelectLookupRange] mouseout');
           selecting = false;
           setSelecting(selecting);
           setSelectionStart(undefined);
           setSelectionFinish(undefined);
-          if (inputCellField) {
+          if (isSelectLookupRange && inputCellField) {
             inputCellField.value = inputCellField.value.replace(/;.*?$/, ';');
           }
         }
@@ -115,12 +247,31 @@ export function Table() {
       /** Finish selection */
       const handleDone = () => {
         if (selecting) {
-          // console.log('[Table:Effect:isSelectLookupRange] mouseup');
-          if (isFinishCell) {
+          const range = [startCellName, finishCellName].filter(Boolean).join(':');
+          if (isCorrectCells) {
             selecting = false;
             setSelecting(selecting);
             setFinished(true);
+            toast.success(
+              selectionSuccessMessage || 'Выделен диапазон: ' + range + '.',
+              defaultToastOptions,
+            );
           } else {
+            const showTip = ++wrongSelectionsCount > wrongSelectionsLimit;
+            toast.error(
+              [
+                selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
+                showTip &&
+                  'Выберите диапазон ' +
+                    selectionStartCellName +
+                    ':' +
+                    selectionFinishCellName +
+                    '.',
+              ]
+                .filter(Boolean)
+                .join(' '),
+              defaultToastOptions,
+            );
             handleCancel();
           }
         }
@@ -137,13 +288,16 @@ export function Table() {
       };
     }
   }, [
-    step,
+    memo,
+    isSelectingStep,
     nodeRef,
     setSelecting,
     setSelectionStart,
     setSelectionFinish,
-    hintCellName,
-    finishCellName,
+    selectionStartCellName,
+    selectionFinishCellName,
+    selectionSuccessMessage,
+    selectionErrorMessage,
     setCorrect,
     setFinished,
   ]);
@@ -160,14 +314,26 @@ export function Table() {
     <div
       ref={nodeRef}
       className={cn(
-        isDev && '__Table', // DEBUG
-        'grid select-none',
+        isDev && '__TableWrapper', // DEBUG
       )}
-      style={{
-        gridTemplateColumns,
-      }}
     >
-      {rows}
+      <div
+        ref={nodeRef}
+        className={cn(
+          isDev && '__Table', // DEBUG
+          'grid select-none',
+        )}
+        style={{
+          gridTemplateColumns,
+        }}
+      >
+        {rows}
+      </div>
+      <ProgressNav
+        canGoForward={canGoForward}
+        onGoForward={handleGoForward}
+        helpMessage={onEnterMessage}
+      />
     </div>
   );
 }

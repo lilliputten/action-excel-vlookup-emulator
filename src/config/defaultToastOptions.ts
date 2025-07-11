@@ -1,13 +1,14 @@
 import { ToastOptions } from 'react-toastify';
 
+export const toastAutoCloseTimeout = 5000;
+
 export const defaultToastOptions: ToastOptions = {
   position: 'bottom-right',
-  autoClose: 3000,
+  autoClose: toastAutoCloseTimeout,
   hideProgressBar: false,
   closeOnClick: false,
   pauseOnHover: true,
   draggable: true,
-  // progress: undefined,
   theme: 'colored',
-  // transition: Bounce,
+  // transition: Zoom,
 };

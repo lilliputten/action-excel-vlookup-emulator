@@ -5,10 +5,20 @@ export function useIsCellInSelection(rowIndex: number, colIndex: number) {
   if (!selecting || !selectionStart || !selectionFinish) {
     return false;
   }
-  const startRowIndex = Number(selectionStart.dataset.rowIndex);
-  const startColIndex = Number(selectionStart.dataset.colIndex);
-  const finishRowIndex = Number(selectionFinish.dataset.rowIndex);
-  const finishColIndex = Number(selectionFinish.dataset.colIndex);
+  let startRowIndex = Number(selectionStart.dataset.rowIndex);
+  let startColIndex = Number(selectionStart.dataset.colIndex);
+  let finishRowIndex = Number(selectionFinish.dataset.rowIndex);
+  let finishColIndex = Number(selectionFinish.dataset.colIndex);
+  if (startRowIndex > finishRowIndex) {
+    const x = startRowIndex;
+    startRowIndex = finishRowIndex;
+    finishRowIndex = x;
+  }
+  if (startColIndex > finishColIndex) {
+    const x = startColIndex;
+    startColIndex = finishColIndex;
+    finishColIndex = x;
+  }
   const isCellInSelection =
     colIndex >= startColIndex &&
     colIndex <= finishColIndex &&

@@ -1,15 +1,11 @@
 import {
-  targetTableFirstCol,
-  targetTableFirstRow,
-  targetTableLastCol,
-  targetTableLastRow,
+  targetAreaCol,
+  targetAreaFirstRow,
+  targetAreaLastRow,
 } from '@/constants/ExcelEmulator/table';
 
 export function isCellInTargetTable(rowIndex: number, colIndex: number) {
   const isMainTableCell =
-    colIndex >= targetTableFirstCol &&
-    colIndex <= targetTableLastCol &&
-    rowIndex >= targetTableFirstRow &&
-    rowIndex <= targetTableLastRow;
+    colIndex === targetAreaCol && rowIndex >= targetAreaFirstRow && rowIndex <= targetAreaLastRow;
   return isMainTableCell;
 }
