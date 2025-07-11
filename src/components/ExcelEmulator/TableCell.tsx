@@ -87,14 +87,12 @@ export function TableCell(props: TTableCellProps) {
         if (!isExpectedClickCell) {
           const showTip = wrongClicksCount >= wrongSelectionsLimit;
           toast.error(
-            [
-              clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
-              showTip && 'Выберите ячейку ' + clickCellName + '.',
-            ]
-              .filter(Boolean)
-              .join(' '),
+            clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
             defaultToastOptions,
           );
+          if (showTip) {
+            toast.info(showTip && 'Выберите ячейку ' + clickCellName + '.', defaultToastOptions);
+          }
           setWrongClicksCount((count) => count + 1);
           return;
         } else {

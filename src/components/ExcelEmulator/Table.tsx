@@ -259,19 +259,15 @@ export function Table() {
           } else {
             const showTip = ++wrongSelectionsCount > wrongSelectionsLimit;
             toast.error(
-              [
-                selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
-                showTip &&
-                  'Выберите диапазон ' +
-                    selectionStartCellName +
-                    ':' +
-                    selectionFinishCellName +
-                    '.',
-              ]
-                .filter(Boolean)
-                .join(' '),
+              selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
               defaultToastOptions,
             );
+            if (showTip) {
+              toast.info(
+                'Выберите диапазон ' + selectionStartCellName + ':' + selectionFinishCellName + '.',
+                defaultToastOptions,
+              );
+            }
             handleCancel();
           }
         }
