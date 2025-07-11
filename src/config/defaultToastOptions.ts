@@ -1,6 +1,6 @@
 import { ToastOptions } from 'react-toastify';
 
-export const toastAutoCloseTimeout = 3000;
+export const toastAutoCloseTimeout = 5000;
 
 export const defaultToastOptions: ToastOptions = {
   position: 'bottom-right',

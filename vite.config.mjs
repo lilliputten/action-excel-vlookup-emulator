@@ -51,8 +51,18 @@ export default defineConfig({
     assetsDir: 'static',
     target: 'es2015',
 
+    /* lib: {
+     *   entry: path.resolve(__dirname, 'src/main.tsx'), // your entry file
+     *   name: 'App',
+     *   formats: ['iife'], // or 'umd'
+     *   fileName: () => 'bundle.js',
+     * },
+     */
+
     rollupOptions: {
       output: {
+        format: 'umd',
+        inlineDynamicImports: true,
         // Ensure index.html is at root (default behavior)
         // No need to change entryFileNames or chunkFileNames for index.html
         // Customize chunk and asset file names inside static folder

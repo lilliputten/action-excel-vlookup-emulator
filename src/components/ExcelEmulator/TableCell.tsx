@@ -30,7 +30,7 @@ import { isCellInLookupTable } from './helpers/isCellInLookupTable';
 import { isCellInMainTable } from './helpers/isCellInMainTable';
 import { isCellInTargetTable } from './helpers/isCellInTargetTable';
 import { TOptionalColSpec } from './TColSpec';
-import { ToolTip } from './ToolTip';
+import { HintToolTip } from './ToolTip';
 
 function isInnerTableCol(rowIndex: number, colIndex: number) {
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
@@ -171,7 +171,7 @@ export function TableCell(props: TTableCellProps) {
       onClick={handleClick}
     >
       {content}
-      {hasHint && <ToolTip />}
+      {hasHint && <HintToolTip />}
     </div>
   );
 }

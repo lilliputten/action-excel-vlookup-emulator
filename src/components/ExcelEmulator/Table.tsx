@@ -20,6 +20,8 @@ import { cn } from '@/lib';
 
 import { TableRow } from './TableRow';
 
+const helpDelay = 10000; // toastAutoCloseTimeout + 2000;
+
 function getCellNodeForEventTarget(target?: EventTarget | HTMLElement | null) {
   if (!target) {
     throw new Error('No target node specified');
@@ -95,20 +97,19 @@ export function Table() {
       const nextStep = (step + 1) as ProgressSteps;
       const isForward = step >= prevStep;
       const canGoForward = !isForward || cachedInputs[nextStep] != undefined;
-      /* // DEBUG
-       * // eslint-disable-next-line no-console
-       * console.log('[Table:Effect] step changed', {
-       *   isForward,
-       *   canGoForward,
-       *   inputCellField,
-       *   prevStep,
-       *   step,
-       *   nextStep,
-       *   cachedInputs,
-       *   memo,
-       *   defaultStepsValues,
-       * });
-       */
+      // DEBUG
+      // eslint-disable-next-line no-console
+      console.log('[Table:Effect] step changed', {
+        isForward,
+        canGoForward,
+        inputCellField,
+        prevStep,
+        step,
+        nextStep,
+        cachedInputs,
+        memo,
+        defaultStepsValues,
+      });
       if (isForward) {
         cachedInputs[step] = inputCellField?.value || '';
       } else if (step < prevStep && inputCellField) {
@@ -121,7 +122,7 @@ export function Table() {
     }
     // Show on enter message if defined
     if (onEnterMessage) {
-      toast.info(onEnterMessage, defaultToastOptions);
+      toast.info(onEnterMessage, { ...defaultToastOptions, autoClose: helpDelay });
     }
   }, [memo, step, onEnterMessage]);
 

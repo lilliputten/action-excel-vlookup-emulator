@@ -48,5 +48,5 @@ export const defaultStepsValues: string[] = [
 const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepExtendFinalResults // DEBUG
+    ? ProgressSteps.StepEditLookupRange // DEBUG
     : ProgressSteps.StepStart;
