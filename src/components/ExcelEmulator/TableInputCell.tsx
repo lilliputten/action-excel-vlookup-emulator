@@ -28,12 +28,25 @@ function normalizeInputString(str: string) {
   return str.trim().replace(/\s+/g, '').toUpperCase();
 }
 
+interface TMemo {
+  inputErrorsCount: number;
+  errorsCount: number;
+}
+
 export function TableInputCell(props: TTableCellProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const { className, colIndex, ...rest } = props;
   const { step, setNextStep } = useProgressContext();
-  const [inputErrorsCount, setInputErrorsCount] = React.useState(1);
+  const memo = React.useMemo<TMemo>(() => ({ inputErrorsCount: 0, errorsCount: 0 }), []);
   const [error, setError] = React.useState<string | undefined>();
+  const setErrorIncrement = React.useCallback(
+    (error: string | undefined) => {
+      setError(error);
+      memo.errorsCount = error ? memo.errorsCount + 1 : 0;
+      memo.inputErrorsCount = 0;
+    },
+    [memo],
+  );
   React.useEffect(() => {
     const inputNode = inputRef.current;
     // Detect F4 press for equation edit (while wait for adding of '$' signs)
@@ -43,7 +56,11 @@ export function TableInputCell(props: TTableCellProps) {
           const value = defaultStepsValues[step + 1];
           if (value) {
             inputNode.value = value;
-            setNextStep();
+            toast.success(
+              'Закреплён диапазон: "' + editedLookupRangeName + '".',
+              defaultToastOptions,
+            );
+            setTimeout(setNextStep, successReactionDelay);
           }
         }
       };
@@ -55,8 +72,10 @@ export function TableInputCell(props: TTableCellProps) {
   }, [step, inputRef, setNextStep]);
   React.useEffect(() => {
     // Reset errors on a step change
-    setInputErrorsCount(0);
-  }, [step]);
+    memo.inputErrorsCount = 0;
+    memo.errorsCount = 0;
+    setError(undefined);
+  }, [step, memo]);
   /** Ready to show extended data and show raw results*/
   const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
   const isStepAddSubstrColumn = step === ProgressSteps.StepAddSubstrColumn;
@@ -67,11 +86,6 @@ export function TableInputCell(props: TTableCellProps) {
   const isEquationFinal = step >= ProgressSteps.StepExtendFinalResults;
   const isStepStart = step === ProgressSteps.StepStart;
   const isStepSelectEquatonAgain = step === ProgressSteps.StepSelectEquatonAgain;
-  React.useEffect(() => {
-    if (!inputErrorsCount) {
-      setError(undefined);
-    }
-  }, [inputErrorsCount]);
   const handleClick = (ev: React.MouseEvent) => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -87,15 +101,21 @@ export function TableInputCell(props: TTableCellProps) {
     const expectedValue = defaultStepsValues[step + 1];
     const isCorrectValue = text === expectedValue;
     const isPartialValue = isCorrectValue || expectedValue.startsWith(text);
-    setInputErrorsCount((count) => (isPartialValue ? 0 : count + 1));
+    if (isPartialValue) {
+      memo.inputErrorsCount = 0;
+      memo.errorsCount = 0;
+      setError(undefined);
+    } else {
+      memo.inputErrorsCount++;
+    }
     /* // DEBUG
-     * console.log(
-     *   '[TableInputCell:handleInput]',
-     *   inputErrorsCount,
+     * console.log('[TableInputCell:handleInput]', {
+     *   inputErrorsCount: memo.inputErrorsCount,
+     *   errorsCount: memo.errorsCount,
      *   isCorrectValue,
      *   text,
      *   expectedValue,
-     * );
+     * });
      */
     if (step === ProgressSteps.StepEquationStart) {
       if (__debugQuickEquation && isDev ? !!text : isCorrectValue) {
@@ -103,8 +123,8 @@ export function TableInputCell(props: TTableCellProps) {
         // node.blur();
         toast.success('Введено начало формулы: "' + text + '".', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError(
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement(
           'Ожидается ввод формулы (формулы в Excel начинаются со знака "=", за которым следует краткое название функции и открывающая скобка).',
         );
       }
@@ -113,17 +133,16 @@ export function TableInputCell(props: TTableCellProps) {
       if (isCorrectValue) {
         toast.success('Добавлен разделитель (точка с запятой).', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError('Ожидается ввод разделителя (точка с запятой, ";").');
-        // toast.warn('Ожидается ввод разделителя (точка с запятой, ";")', defaultToastOptions);
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement('Ожидается ввод разделителя (точка с запятой, ";").');
       }
     }
     if (step === ProgressSteps.StepSelectSourceColumn) {
       if (isCorrectValue) {
         toast.success('Выбран исходный столбец: ' + sourceCellName, defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError('Ожидается ввод адрес исходного столбца для поиска.');
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement('Ожидается ввод адрес исходного столбца для поиска.');
       }
     }
     if (step === ProgressSteps.StepSelectLookupRange) {
@@ -131,8 +150,8 @@ export function TableInputCell(props: TTableCellProps) {
         // Wait for ';E6:H16'
         toast.success('Введён диапазон: "' + lookupRangeName + '".', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError(
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement(
           'Ожидается ввод диапазона ячеек (адреса начальной и конечной ячеек через двоеточие).',
         );
       }
@@ -140,18 +159,24 @@ export function TableInputCell(props: TTableCellProps) {
     if (step === ProgressSteps.StepEditLookupRange) {
       // Wait for ';$E$6:$H$16'
       if (text.endsWith(editedLookupRangeName)) {
-        toast.success('Исправлен диапазон: "' + editedLookupRangeName + '".', defaultToastOptions);
+        toast.success('Закреплён диапазон: "' + editedLookupRangeName + '".', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError('Добавьте знаки доллара вокруг адресов столбцов во вставленном диапазоне.');
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement(
+          'Добавьте знаки доллара вокруг адресов столбцов во вставленном диапазоне.',
+        );
       }
     }
     if (step === ProgressSteps.StepAddColumnNumber) {
       if (text.endsWith(';' + expectedColumnNumber)) {
         toast.success('Введён номер столбца: "' + expectedColumnNumber + '".', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError('Ожидается номер столбца');
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement(
+          ['Ожидается номер столбца', memo.errorsCount && `(${expectedColumnNumber})`]
+            .filter(Boolean)
+            .join(' '),
+        );
       }
     }
     if (step === ProgressSteps.StepAddInterval) {
@@ -161,17 +186,23 @@ export function TableInputCell(props: TTableCellProps) {
           defaultToastOptions,
         );
         setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError('Ожидается значение интервального просмотра');
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement(
+          [
+            'Ожидается значение интервального просмотра',
+            memo.errorsCount && `(${expectedIntervalValue})`,
+          ]
+            .filter(Boolean)
+            .join(' '),
+        );
       }
     }
     if (step === ProgressSteps.StepFinishEquation) {
       if (text.endsWith(')')) {
-        // node.blur();
         toast.success('Завершён ввод формулы. Теперь нажмите Enter.', defaultToastOptions);
         // setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError('Ожидается ввод закрывающей скобки.');
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement('Ожидается ввод закрывающей скобки.');
       }
     }
     if (step === ProgressSteps.StepAddSubstrColumn) {
@@ -181,8 +212,8 @@ export function TableInputCell(props: TTableCellProps) {
           defaultToastOptions,
         );
         // setTimeout(setNextStep, successReactionDelay);
-      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
-        setError(
+      } else if (memo.inputErrorsCount > inputErrorsBeforeWarn) {
+        setErrorIncrement(
           'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы.',
         );
       }
