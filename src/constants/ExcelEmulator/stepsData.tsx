@@ -28,7 +28,7 @@ interface TStepsDataItem {
   selectionFinishCellClassName?: string;
   selectionSuccessMessage?: string;
   selectionErrorMessage?: string;
-  // Hint tooltip celll
+  // Hint tooltip cell
   hintCellName?: TCellName;
   hintCellClassName?: string;
   hintContent?: TReactNode;
@@ -69,7 +69,8 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   },
   [ProgressSteps.StepEditLookupRange]: {
     text: 'Закрепите диапазон поиска в формуле',
-    onEnterMessage: 'Закрепите адреса ячеек диапазона поиска (вручную или нажав F4).',
+    onEnterMessage:
+      'Закрепите адреса ячеек диапазона поиска (вручную или нажав F4, находясь в поле ввода).',
   },
   [ProgressSteps.StepAddColumnNumber]: {
     text: 'Добавьте номер столбца',

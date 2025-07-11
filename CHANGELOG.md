@@ -1,9 +1,25 @@
 <!--
  @since 2025.07.08
- @changed 2025.07.10, 14:30
+ @changed 2025.07.11, 19:25
 -->
 
 # CHANGELOG
+
+## [v.0.0.3](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.3) - 2025.07.11
+
+[Issue #2: Finish progress (add the last steps). Add current step indications.](https://github.com/lilliputten/action-excel-vlookup-emulator/issues/2)
+
+- The texts have been changed.
+- Added a check for pressing the F4 key in the "Fix the search range in the formula" step.
+- Instead of a pop-up warning about input errors, an error prompt is used.
+- Increased delays in pop-up messages.
+- Added navigation buttons (first, full screen).
+- The project configuration has been changed: it works in the Action environment.
+- Added column selection for subtraction.
+- Added hints for incorrect selection of a range and cell with the mouse, a message appears after 3 incorrect selections.
+- Added hints for repeated keyboard input errors for steps: StepEditLookupRange ('Fix the search range in the formula'), StepAddColumnNumber ('Add column number'), StepAddInterval ('Add interval view value').
+
+- [Compare](https://github.com/lilliputten/action-excel-vlookup-emulator/compare/v.0.0.2...v.0.0.3)
 
 ## [v.0.0.2](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.2) - 2025.07.10
 
