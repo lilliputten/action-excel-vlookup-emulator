@@ -45,8 +45,8 @@ export const defaultStepsValues: string[] = [
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepDone
 ];
 
-const __useDebug = false;
+const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepEquationSemicolon // DEBUG
+    ? ProgressSteps.StepExtendFinalResults // DEBUG
     : ProgressSteps.StepStart;

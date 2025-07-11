@@ -92,7 +92,7 @@
     "build": "echo --Build client via vite-- && tsc -b && vite build",
     "clean-all-builds": "rimraf -I server/dist client/dist",
     "vercel-clean": "vercel remove --safe --yes action-excel-vlookup-emulator",
-    "vercel-publish": "echo --Build and upload pre-built bundles-- && pnpm build && vercel --prod && pnpm vercel-clean",
+    "vercel-publish-UNUSED": "echo --Build and upload pre-built bundles-- && pnpm build && vercel --prod && pnpm vercel-clean",
     "test": "echo --Run tests-- && jest"
   }
 }
