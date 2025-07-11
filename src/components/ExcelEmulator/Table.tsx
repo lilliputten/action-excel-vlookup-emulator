@@ -59,8 +59,8 @@ export function Table() {
 
   const memo = React.useMemo<TMemo>(() => ({ cachedInputs: {} }), []);
 
-  const selectionContext = useSelectionContext();
   const {
+    // selecting: isSelecting,
     finished,
     correct,
     selectionStart,
@@ -70,7 +70,8 @@ export function Table() {
     setCorrect,
     setSelectionStart,
     setSelectionFinish,
-  } = selectionContext;
+    setWrongClicksCount,
+  } = useSelectionContext();
 
   const {
     selectionStartCellName,
@@ -78,8 +79,26 @@ export function Table() {
     onEnterMessage,
     selectionSuccessMessage,
     selectionErrorMessage,
+    clickCellName,
   } = useStepData();
   const [canGoForward, setCanGoForward] = React.useState(false);
+
+  const isSelectingStep =
+    step === ProgressSteps.StepSelectLookupRange ||
+    step === ProgressSteps.StepExtendRawResults ||
+    step === ProgressSteps.StepExtendFinalResults;
+
+  React.useEffect(() => {
+    // Reset clicks count once (for each `TableCell` click checking)
+    if (clickCellName) {
+      setWrongClicksCount(0);
+    }
+    /* // NOTE: Used local `wrongSelectionsCount`
+     * if (isSelectingStep) {
+     *   setWrongSelectionsCount(0);
+     * }
+     */
+  }, [clickCellName, setWrongClicksCount, step]);
 
   React.useEffect(() => {
     const inited = !!memo.inputCellField;
@@ -145,14 +164,9 @@ export function Table() {
     setNextStep();
   }, [memo, setNextStep]);
 
-  const isSelecting =
-    step === ProgressSteps.StepSelectLookupRange ||
-    step === ProgressSteps.StepExtendRawResults ||
-    step === ProgressSteps.StepExtendFinalResults;
-
   React.useEffect(() => {
     if (finished && correct) {
-      if (isSelecting) {
+      if (isSelectingStep) {
         setFinished(false);
         setCorrect(false);
         setSelecting(false);
@@ -161,7 +175,7 @@ export function Table() {
     }
   }, [
     memo,
-    isSelecting,
+    isSelectingStep,
     finished,
     correct,
     selectionStart,
@@ -175,7 +189,7 @@ export function Table() {
   // Handle range selection
   React.useEffect(() => {
     const node = nodeRef.current;
-    if (isSelecting && node) {
+    if (isSelectingStep && node) {
       const inputCellField = memo.inputCellField;
       const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
       let wrongSelectionsCount = 0;
@@ -221,7 +235,6 @@ export function Table() {
       /** Cancel selection */
       const handleCancel = () => {
         if (selecting) {
-          // console.log('[Table:Effect:isSelecting] mouseout');
           selecting = false;
           setSelecting(selecting);
           setSelectionStart(undefined);
@@ -235,7 +248,6 @@ export function Table() {
       const handleDone = () => {
         if (selecting) {
           const range = [startCellName, finishCellName].filter(Boolean).join(':');
-          // console.log('[Table:Effect:isSelecting] mouseup');
           if (isCorrectCells) {
             selecting = false;
             setSelecting(selecting);
@@ -245,15 +257,21 @@ export function Table() {
               defaultToastOptions,
             );
           } else {
+            const showTip = ++wrongSelectionsCount > wrongSelectionsLimit;
             toast.error(
-              selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
+              [
+                selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
+                showTip &&
+                  'Выберите диапазон ' +
+                    selectionStartCellName +
+                    ':' +
+                    selectionFinishCellName +
+                    '.',
+              ]
+                .filter(Boolean)
+                .join(' '),
               defaultToastOptions,
             );
-            if (++wrongSelectionsCount > wrongSelectionsLimit) {
-              const exptectedRangeName = selectionStartCellName + ':' + selectionFinishCellName;
-              toast.info('Выберите диапазон ' + exptectedRangeName + '.', defaultToastOptions);
-              wrongSelectionsCount = 0;
-            }
             handleCancel();
           }
         }
@@ -271,7 +289,7 @@ export function Table() {
     }
   }, [
     memo,
-    isSelecting,
+    isSelectingStep,
     nodeRef,
     setSelecting,
     setSelectionStart,

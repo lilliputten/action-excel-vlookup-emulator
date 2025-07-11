@@ -13,6 +13,12 @@ export interface TSelectionContext {
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectionStart: React.Dispatch<React.SetStateAction<HTMLDivElement | undefined>>;
   setSelectionFinish: React.Dispatch<React.SetStateAction<HTMLDivElement | undefined>>;
+  // Wrong actions count
+  wrongClicksCount: number;
+  setWrongClicksCount: React.Dispatch<React.SetStateAction<number>>;
+  // // NOTE: Used local `wrongSelectionsCount`
+  // wrongSelectionsCount: number;
+  // setWrongSelectionsCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const SelectionContext = React.createContext<TSelectionContext>({} as TSelectionContext);
@@ -23,6 +29,8 @@ export const useCreateSelectionContext = () => {
   const [correct, setCorrect] = React.useState(false);
   const [selectionStart, setSelectionStart] = React.useState<HTMLDivElement | undefined>();
   const [selectionFinish, setSelectionFinish] = React.useState<HTMLDivElement | undefined>();
+  const [wrongClicksCount, setWrongClicksCount] = React.useState<number>(0);
+  // const [wrongSelectionsCount, setWrongSelectionsCount] = React.useState<number>(0);
 
   const selectionContext = React.useMemo<TSelectionContext>(
     () =>
@@ -39,6 +47,11 @@ export const useCreateSelectionContext = () => {
         setFinished,
         setSelectionStart,
         setSelectionFinish,
+        // Wrong actions count
+        wrongClicksCount,
+        setWrongClicksCount,
+        // wrongSelectionsCount,
+        // setWrongSelectionsCount,
       }) satisfies TSelectionContext,
     [
       // Data
@@ -53,6 +66,11 @@ export const useCreateSelectionContext = () => {
       setFinished,
       setSelectionStart,
       setSelectionFinish,
+      // Wrong actions count
+      wrongClicksCount,
+      setWrongClicksCount,
+      // wrongSelectionsCount,
+      // setWrongSelectionsCount,
     ],
   );
   return selectionContext;

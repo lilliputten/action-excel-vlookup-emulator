@@ -31,17 +31,18 @@ import { HintToolTip } from './ToolTip';
 /** Amount of wrong selections before a tip */
 const wrongSelectionsLimit = 2;
 
-interface TMemo {
-  wrongSelectionsCount: number;
-}
-
 export function TableCell(props: TTableCellProps) {
   const nodeRef = React.useRef<HTMLDivElement>(null);
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
   const { step, setNextStep } = useProgressContext();
   const showLookupCells =
     step > ProgressSteps.StepSelectLookupRange && isCellInLookupTable(rowIndex, colIndex);
-  const { selecting: isSelecting, correct: selectionIsCorrect } = useSelectionContext();
+  const {
+    selecting: isSelecting,
+    correct: selectionIsCorrect,
+    wrongClicksCount,
+    setWrongClicksCount,
+  } = useSelectionContext();
   const isCellInSelection = useIsCellInSelection(rowIndex, colIndex);
   const {
     hintCellName,
@@ -74,48 +75,59 @@ export function TableCell(props: TTableCellProps) {
   const isSelectionStart = isSelecting && cellName === selectionStartCellName;
   const isExpectedClickCell = clickCellName && cellName === clickCellName;
 
-  const memo = React.useMemo<TMemo>(() => ({ wrongSelectionsCount: 0 }), []);
-
-  React.useEffect(() => {
-    memo.wrongSelectionsCount = 0;
-  }, [step, memo]);
-
-  const handleClick = (ev: React.MouseEvent<HTMLTableCellElement>) => {
-    if (clickCellName) {
-      const node = nodeRef.current;
-      if (node) {
-        // Add & remove accent
-        node.dataset.clicked = isExpectedClickCell ? 'correct' : 'wrong';
-        setTimeout(() => delete node.dataset.clicked, 1000);
-      }
-      if (!isExpectedClickCell) {
-        toast.error(
-          clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
-          defaultToastOptions,
-        );
-        if (++memo.wrongSelectionsCount > wrongSelectionsLimit) {
-          toast.info('Выберите ячейку ' + clickCellName + '.', defaultToastOptions);
-          memo.wrongSelectionsCount = 0;
+  const handleClick = React.useCallback(
+    (ev: React.MouseEvent<HTMLTableCellElement>) => {
+      if (clickCellName) {
+        const node = nodeRef.current;
+        if (node) {
+          // Add & remove accent
+          node.dataset.clicked = isExpectedClickCell ? 'correct' : 'wrong';
+          setTimeout(() => delete node.dataset.clicked, 1000);
         }
-        return;
-      } else {
-        toast.success(
-          clickCorrectCellMessage || 'Выбрана ячейка: ' + cellName + '.',
-          defaultToastOptions,
-        );
+        if (!isExpectedClickCell) {
+          const showTip = wrongClicksCount >= wrongSelectionsLimit;
+          toast.error(
+            [
+              clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
+              showTip && 'Выберите ячейку ' + clickCellName + '.',
+            ]
+              .filter(Boolean)
+              .join(' '),
+            defaultToastOptions,
+          );
+          setWrongClicksCount((count) => count + 1);
+          return;
+        } else {
+          toast.success(
+            clickCorrectCellMessage || 'Выбрана ячейка: ' + cellName + '.',
+            defaultToastOptions,
+          );
+        }
       }
-    }
-    if (onClick) {
-      onClick(ev);
-    } else if (step === ProgressSteps.StepAddSubstrColumn) {
-      const expectedValue = defaultStepsValues[step + 1];
-      const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
-      if (expectedValue && inputCellField) {
-        inputCellField.value = expectedValue;
-        setTimeout(setNextStep, successReactionDelay);
+      if (onClick) {
+        onClick(ev);
+      } else if (step === ProgressSteps.StepAddSubstrColumn) {
+        const expectedValue = defaultStepsValues[step + 1];
+        const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
+        if (expectedValue && inputCellField) {
+          inputCellField.value = expectedValue;
+          setTimeout(setNextStep, successReactionDelay);
+        }
       }
-    }
-  };
+    },
+    [
+      cellName,
+      clickCellName,
+      clickCorrectCellMessage,
+      clickWrongCellMessage,
+      isExpectedClickCell,
+      onClick,
+      setNextStep,
+      step,
+      wrongClicksCount,
+      setWrongClicksCount,
+    ],
+  );
 
   return (
     <div
