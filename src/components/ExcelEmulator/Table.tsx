@@ -67,7 +67,13 @@ export function Table() {
     setSelectionFinish,
   } = selectionContext;
 
-  const { selectionStartCellName, selectionFinishCellName, onEnterMessage } = useStepData();
+  const {
+    selectionStartCellName,
+    selectionFinishCellName,
+    onEnterMessage,
+    selectionSuccessMessage,
+    selectionErrorMessage,
+  } = useStepData();
   const [canGoForward, setCanGoForward] = React.useState(false);
 
   React.useEffect(() => {
@@ -85,18 +91,20 @@ export function Table() {
       const nextStep = (step + 1) as ProgressSteps;
       const isForward = step >= prevStep;
       const canGoForward = !isForward || cachedInputs[nextStep] != undefined;
-      // eslint-disable-next-line no-console
-      console.log('[Table:Effect] step changed', {
-        isForward,
-        canGoForward,
-        inputCellField,
-        prevStep,
-        step,
-        nextStep,
-        cachedInputs,
-        memo,
-        defaultStepsValues,
-      });
+      /* // DEBUG
+       * // eslint-disable-next-line no-console
+       * console.log('[Table:Effect] step changed', {
+       *   isForward,
+       *   canGoForward,
+       *   inputCellField,
+       *   prevStep,
+       *   step,
+       *   nextStep,
+       *   cachedInputs,
+       *   memo,
+       *   defaultStepsValues,
+       * });
+       */
       if (isForward) {
         cachedInputs[step] = inputCellField?.value || '';
       } else if (step < prevStep && inputCellField) {
@@ -106,7 +114,6 @@ export function Table() {
       // Can go forward if there was a step back
       setCanGoForward(canGoForward);
       memo.step = step;
-      // TODO: To fix data, eg if previous step has been chosen?
     }
     // Show on enter message if defined
     if (onEnterMessage) {
@@ -122,17 +129,6 @@ export function Table() {
     const cachedInputs = memo.cachedInputs;
     const nextValue = cachedInputs[nextStep];
     const canGoForward = cachedInputs[futureStep] != undefined;
-    /** console.log('[handleGoForward]', {
-     *   canGoForward,
-     *   nextValue,
-     *   futureStep,
-     *   nextStep,
-     *   currStep,
-     *   cachedInputs,
-     *   memo,
-     *   setNextStep,
-     * });
-     */
     if (inputCellField && nextValue != undefined) {
       inputCellField.value = nextValue;
     }
@@ -140,12 +136,14 @@ export function Table() {
     setNextStep();
   }, [memo, setNextStep]);
 
+  const isSelecting =
+    step === ProgressSteps.StepSelectLookupRange ||
+    step === ProgressSteps.StepExtendRawResults ||
+    step === ProgressSteps.StepExtendFinalResults;
+
   React.useEffect(() => {
     if (finished && correct) {
-      const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
-      if (isSelectLookupRange) {
-        const inputCellField = memo.inputCellField;
-        inputCellField?.focus();
+      if (isSelecting) {
         setFinished(false);
         setCorrect(false);
         setSelecting(false);
@@ -154,6 +152,7 @@ export function Table() {
     }
   }, [
     memo,
+    isSelecting,
     finished,
     correct,
     selectionStart,
@@ -167,9 +166,9 @@ export function Table() {
   // Handle range selection
   React.useEffect(() => {
     const node = nodeRef.current;
-    const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
-    if (isSelectLookupRange && node) {
+    if (isSelecting && node) {
       const inputCellField = memo.inputCellField;
+      const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
       let selecting = false;
       let isCorrectStartCell = false;
       let startCellName = '';
@@ -183,13 +182,13 @@ export function Table() {
           return;
         }
         isCorrectStartCell = cellName === selectionStartCellName;
-        if (inputCellField) {
+        if (isSelectLookupRange && inputCellField) {
           if (!inputCellField.value.trim().endsWith(';')) {
             inputCellField.value += ';';
           }
           inputCellField.value += cellName + ':' + cellName;
-          finishCellName = startCellName = cellName;
         }
+        finishCellName = startCellName = cellName;
         selecting = true;
         setFinished(false);
         setSelecting(selecting);
@@ -204,7 +203,7 @@ export function Table() {
           setSelectionFinish(cellNode);
           finishCellName = cellName;
           setCorrect(isCorrectCells);
-          if (inputCellField) {
+          if (isSelectLookupRange && inputCellField) {
             inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);
           }
         }
@@ -212,12 +211,12 @@ export function Table() {
       /** Cancel selection */
       const handleCancel = () => {
         if (selecting) {
-          // console.log('[Table:Effect:isSelectLookupRange] mouseout');
+          // console.log('[Table:Effect:isSelecting] mouseout');
           selecting = false;
           setSelecting(selecting);
           setSelectionStart(undefined);
           setSelectionFinish(undefined);
-          if (inputCellField) {
+          if (isSelectLookupRange && inputCellField) {
             inputCellField.value = inputCellField.value.replace(/;.*?$/, ';');
           }
         }
@@ -226,14 +225,20 @@ export function Table() {
       const handleDone = () => {
         if (selecting) {
           const range = [startCellName, finishCellName].filter(Boolean).join(':');
-          // console.log('[Table:Effect:isSelectLookupRange] mouseup');
+          // console.log('[Table:Effect:isSelecting] mouseup');
           if (isCorrectCells) {
             selecting = false;
             setSelecting(selecting);
             setFinished(true);
-            toast.success('Выделен диапазон: ' + range, defaultToastOptions);
+            toast.success(
+              selectionSuccessMessage || 'Выделен диапазон: ' + range + '.',
+              defaultToastOptions,
+            );
           } else {
-            toast.error('Выделен неверный диапазон: ' + range, defaultToastOptions);
+            toast.error(
+              selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
+              defaultToastOptions,
+            );
             handleCancel();
           }
         }
@@ -251,12 +256,15 @@ export function Table() {
     }
   }, [
     memo,
+    isSelecting,
     nodeRef,
     setSelecting,
     setSelectionStart,
     setSelectionFinish,
     selectionStartCellName,
     selectionFinishCellName,
+    selectionSuccessMessage,
+    selectionErrorMessage,
     setCorrect,
     setFinished,
   ]);

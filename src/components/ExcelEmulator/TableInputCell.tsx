@@ -4,19 +4,20 @@ import { toast } from 'react-toastify';
 import { defaultToastOptions, isDev } from '@/config';
 import {
   editedLookupRangeName,
-  editionsBeforeWarn,
   equationBegin,
   expectedColumnNumber,
   expectedIntervalValue,
   inputCellFieldId,
+  inputErrorsBeforeWarn,
   lookupRangeName,
   resultDataFinal,
   resultDataRaw,
   sourceCellName,
+  substrCellName,
   successReactionDelay,
 } from '@/constants/ExcelEmulator';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { ProgressSteps } from '@/contexts/ProgressSteps';
+import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
 import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
@@ -30,19 +31,22 @@ export function TableInputCell(props: TTableCellProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const { className, colIndex, ...rest } = props;
   const { step, setNextStep } = useProgressContext();
-  const [editionsCount, setEditionsCount] = React.useState(0);
-  React.useEffect(() => setEditionsCount(0), [step]);
+  const [inputErrorsCount, setInputErrorsCount] = React.useState(0);
+  React.useEffect(() => setInputErrorsCount(0), [step]);
   /** Ready to show extended data and show raw results*/
   const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
   const isStepAddSubstrColumn = step === ProgressSteps.StepAddSubstrColumn;
   const hideInput = isEquationFinished && !isStepAddSubstrColumn;
+  const showDragHandler =
+    step === ProgressSteps.StepExtendRawResults || step >= ProgressSteps.StepExtendFinalResults;
   /** Ready to show final results */
   const isEquationFinal = step >= ProgressSteps.StepExtendFinalResults;
   const isStepStart = step === ProgressSteps.StepStart;
-  const handleClick = (ev: React.MouseEvent<HTMLInputElement>) => {
+  const isStepSelectEquatonAgain = step === ProgressSteps.StepSelectEquatonAgain;
+  const handleClick = (ev: React.MouseEvent) => {
     ev.preventDefault();
     ev.stopPropagation();
-    if (isStepStart) {
+    if (isStepStart || isStepSelectEquatonAgain) {
       setNextStep();
       // setTimeout(setNextStep, successReactionDelay);
     }
@@ -50,34 +54,67 @@ export function TableInputCell(props: TTableCellProps) {
   const handleInput = (ev: React.FormEvent<HTMLInputElement>) => {
     const node = ev.currentTarget;
     const text = normalizeInputString(node.value);
-    if (
-      step === ProgressSteps.StepEquationStart &&
-      (isDev ? !!text : text.startsWith(equationBegin))
-    ) {
-      node.value = equationBegin;
-      // node.blur();
-      toast.success('Введено начало формулы: ' + text, defaultToastOptions);
-      setTimeout(setNextStep, successReactionDelay);
+    const __debugQuickEquation = false;
+    const expectedValue = defaultStepsValues[step + 1];
+    const isCorrectValue = text === expectedValue;
+    const isPartialValue = isCorrectValue || expectedValue.startsWith(text);
+    setInputErrorsCount((count) => (isPartialValue ? 0 : count + 1));
+    /* // DEBUG
+     * console.log(
+     *   '[TableInputCell:handleInput]',
+     *   inputErrorsCount,
+     *   isCorrectValue,
+     *   text,
+     *   expectedValue,
+     * );
+     */
+    if (step === ProgressSteps.StepEquationStart) {
+      if (__debugQuickEquation && isDev ? !!text : isCorrectValue) {
+        node.value = equationBegin;
+        // node.blur();
+        toast.success('Введено начало формулы: "' + text + '".', defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
+        toast.warn(
+          'Ожидается ввод формулы (формулы в Excel начинаются со знака "=", за которым следует краткое название функции и открывающая скобка).',
+          defaultToastOptions,
+        );
+      }
     }
-    if (step === ProgressSteps.StepEquationSemicolon && text.endsWith(';')) {
-      toast.success('Добавлена точка с запятой. Формула: ' + text, defaultToastOptions);
-      setTimeout(setNextStep, successReactionDelay);
+    if (step === ProgressSteps.StepEquationSemicolon) {
+      if (isCorrectValue) {
+        toast.success('Добавлен разделитель (точка с запятой).', defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
+        toast.warn('Ожидается ввод разделителя (точка с запятой, ";")', defaultToastOptions);
+      }
     }
-    if (step === ProgressSteps.StepSelectSourceColumn && text.endsWith(';' + sourceCellName)) {
-      toast.success('Выбран исходный столбец: ' + sourceCellName, defaultToastOptions);
-      setTimeout(setNextStep, successReactionDelay);
+    if (step === ProgressSteps.StepSelectSourceColumn) {
+      if (isCorrectValue) {
+        toast.success('Выбран исходный столбец: ' + sourceCellName, defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
+        toast.warn('Ожидается ввод адрес исходного столбца для поиска.', defaultToastOptions);
+      }
     }
-    if (step === ProgressSteps.StepSelectLookupRange && text.endsWith(';' + lookupRangeName)) {
-      // Wait for ';E6:H16'
-      toast.success('Введён диапазон: ' + lookupRangeName, defaultToastOptions);
-      setTimeout(setNextStep, successReactionDelay);
+    if (step === ProgressSteps.StepSelectLookupRange) {
+      if (text.endsWith(';' + lookupRangeName)) {
+        // Wait for ';E6:H16'
+        toast.success('Введён диапазон: "' + lookupRangeName + '".', defaultToastOptions);
+        setTimeout(setNextStep, successReactionDelay);
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
+        toast.warn(
+          'Ожидается ввод диапазона ячеек (адреса начальной и конечной ячеек через двоеточие).',
+          defaultToastOptions,
+        );
+      }
     }
     if (step === ProgressSteps.StepEditLookupRange) {
       // Wait for ';$E$6:$H$16'
       if (text.endsWith(editedLookupRangeName)) {
-        toast.success('Исправлен диапазон: ' + editedLookupRangeName, defaultToastOptions);
+        toast.success('Исправлен диапазон: "' + editedLookupRangeName + '".', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (editionsCount > 3 + editionsBeforeWarn && text.match(/^=.*;.*:.*;.+/)) {
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
         toast.warn(
           'Добавьте знаки доллара вокруг адресов столбцов во вставленном диапазоне.',
           defaultToastOptions,
@@ -86,24 +123,46 @@ export function TableInputCell(props: TTableCellProps) {
     }
     if (step === ProgressSteps.StepAddColumnNumber) {
       if (text.endsWith(';' + expectedColumnNumber)) {
-        toast.success('Введён номер столбца: ' + expectedColumnNumber, defaultToastOptions);
+        toast.success('Введён номер столбца: "' + expectedColumnNumber + '".', defaultToastOptions);
         setTimeout(setNextStep, successReactionDelay);
-      } else if (editionsCount > editionsBeforeWarn && text.match(/^=.*;.*:.*;.+/)) {
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
         toast.warn('Ожидается номер столбца', defaultToastOptions);
       }
     }
     if (step === ProgressSteps.StepAddInterval) {
       if (text.endsWith(';' + expectedIntervalValue)) {
         toast.success(
-          'Введено значение интервального просмотра: ' + expectedIntervalValue,
+          'Введено значение интервального просмотра: "' + expectedIntervalValue + '".',
           defaultToastOptions,
         );
         setTimeout(setNextStep, successReactionDelay);
-      } else if (editionsCount > editionsBeforeWarn && text.match(/^=.*;.*:.*;.*;.+/)) {
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
         toast.warn('Ожидается значение интервального просмотра', defaultToastOptions);
       }
     }
-    setEditionsCount((count) => count + 1);
+    if (step === ProgressSteps.StepFinishEquation) {
+      if (text.endsWith(')')) {
+        // node.blur();
+        toast.success('Завершён ввод формулы. Теперь нажмите Enter.', defaultToastOptions);
+        // setTimeout(setNextStep, successReactionDelay);
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
+        toast.warn('Ожидается ввод закрывающей скобки.', defaultToastOptions);
+      }
+    }
+    if (step === ProgressSteps.StepAddSubstrColumn) {
+      if (text.endsWith('-' + substrCellName)) {
+        toast.success(
+          'Введён адрес столбца для вычитания: "' + substrCellName + '". Теперь нажмите Enter.',
+          defaultToastOptions,
+        );
+        // setTimeout(setNextStep, successReactionDelay);
+      } else if (inputErrorsCount > inputErrorsBeforeWarn) {
+        toast.warn(
+          'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы.',
+          defaultToastOptions,
+        );
+      }
+    }
   };
   const handleEnter = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -111,10 +170,26 @@ export function TableInputCell(props: TTableCellProps) {
     const node = inputRef.current;
     if (node) {
       const text = normalizeInputString(node.value);
-      if (step === ProgressSteps.StepFinishEquation && text.endsWith(')')) {
-        // node.blur();
-        toast.success('Завершён ввод формулы: ' + text, defaultToastOptions);
-        setTimeout(setNextStep, successReactionDelay);
+      if (step === ProgressSteps.StepFinishEquation) {
+        if (text.endsWith(')')) {
+          // node.blur();
+          toast.success('Введена формула: "' + text + '".', defaultToastOptions);
+          setTimeout(setNextStep, successReactionDelay);
+        } else {
+          toast.error('Ожидается ввод закрывающей скобки.', defaultToastOptions);
+        }
+      }
+      if (step === ProgressSteps.StepAddSubstrColumn) {
+        if (text.endsWith('-' + substrCellName)) {
+          // node.blur();
+          toast.success('Завершён ввод. Значение формулы: "' + text + '".', defaultToastOptions);
+          setTimeout(setNextStep, successReactionDelay);
+        } else {
+          toast.error(
+            'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы.',
+            defaultToastOptions,
+          );
+        }
       }
     }
   };
@@ -126,8 +201,10 @@ export function TableInputCell(props: TTableCellProps) {
         isDev && '__TableInputCell', // DEBUG
         'border-2 border-solid border-blue-500',
         'p-0',
+        showDragHandler && 'cursor-crosshair',
         className,
       )}
+      onClick={handleClick}
     >
       <form
         className={cn(
@@ -150,16 +227,28 @@ export function TableInputCell(props: TTableCellProps) {
             'border-0 outline-none',
             hideInput && 'hidden',
           )}
-          onClick={handleClick}
           onInput={handleInput}
           autoComplete="off"
         />
       </form>
-      {isEquationFinished && (
+      {hideInput && (
         <span>
           {/* Just render non-empty cell to prevent collpaing and keep tooltip at the bottom */}
           {isEquationFinal ? resultDataFinal[0] : resultDataRaw[0]}
         </span>
+      )}
+      {showDragHandler && (
+        <div
+          className={cn(
+            isDev && '__TableInputCell_DragHandler', // DEBUG
+            'absolute -bottom-[5px] -right-[5px]',
+            'size-[5px]',
+            'bg-blue-500',
+            'border-[2px] border-solid border-white',
+            'z-10',
+            'cursor-crosshair',
+          )}
+        />
       )}
     </TableCell>
   );

@@ -160,6 +160,7 @@ body {
 div[data-clicked='wrong']:before {
   border: 2px solid transparent;
   animation: wrong-cell-clicked-animation 1s ease-out;
+  box-shadow: none;
 }
 
 @keyframes correct-cell-clicked-animation {
@@ -173,6 +174,7 @@ div[data-clicked='wrong']:before {
 div[data-clicked='correct']:before {
   border: 2px solid transparent;
   animation: correct-cell-clicked-animation 1s ease-out;
+  box-shadow: none;
 }
 
 .Toastify__toast {

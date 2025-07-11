@@ -3,6 +3,8 @@ import {
   lookupRangeFirstCellName,
   lookupRangeLastCellName,
   sourceCellName,
+  targetRangeFirstCellName,
+  targetRangeLastCellName,
 } from '@/constants/ExcelEmulator/table';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { TCellName } from '@/types/ExcelEmulator';
@@ -23,6 +25,8 @@ interface TStepsDataItem {
   selectionStartCellClassName?: string;
   selectionFinishCellName?: TCellName;
   selectionFinishCellClassName?: string;
+  selectionSuccessMessage?: string;
+  selectionErrorMessage?: string;
   // Hint tooltip celll
   hintCellName?: TCellName;
   hintCellClassName?: string;
@@ -49,7 +53,7 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     onEnterMessage: 'Кликните по ячейке с данными для сравнения или введите её адрес в формулу.',
     clickCellName: sourceCellName, // 'B6',
     clickWrongCellMessage: 'Выбрана неверная исходная ячейка',
-    clickCorrectCellMessage: 'Выбрана исходная ячейка',
+    clickCorrectCellMessage: 'Выбрана исходная ячейка: ' + sourceCellName,
   },
   [ProgressSteps.StepEquationSemicolon]: {
     text: 'Продолжите редактирование формулы',
@@ -68,11 +72,11 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   },
   [ProgressSteps.StepAddColumnNumber]: {
     text: 'Добавьте номер столбца',
-    onEnterMessage: 'Добавьте номер столбца в формулу (через разделитель).',
+    onEnterMessage: 'Добавьте (через разделитель) номер столбца в формулу.',
   },
   [ProgressSteps.StepAddInterval]: {
     text: 'Добавьте значение интервального просмотра',
-    onEnterMessage: 'Добавьте значение интервального просмотра в формулу (через разделитель).',
+    onEnterMessage: 'Добавьте (через разделитель) значение интервального просмотра в формулу.',
   },
   [ProgressSteps.StepFinishEquation]: {
     text: 'Закончите редактирование формулы',
@@ -81,18 +85,30 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
   [ProgressSteps.StepExtendRawResults]: {
     text: 'Растяните ячейку с результатами',
     onEnterMessage: 'Растяните ячейку с результатом вниз, чтобы увидеть все данные',
+    selectionStartCellName: targetRangeFirstCellName,
+    selectionFinishCellName: targetRangeLastCellName,
+    selectionSuccessMessage: 'Ячейка с результатами растянута.',
+    selectionErrorMessage: 'Нужно растянуть ячейку на высоту всех строк с данными.',
+  },
+  [ProgressSteps.StepSelectEquatonAgain]: {
+    text: 'Ещё раз отредактируйте ячейку с формулой',
+    onEnterMessage: 'Кликните по ячейке с формулой, чтобы добавить вычитание столбцов.',
     hintCellName: inputCellName,
-    hintClassName: 'w-[140%]',
-    hintContent: 'Растяните эту ячейку вниз, чтобы увидеть результаты работы функции',
+    hintContent: 'Кликните по ячейке ещё раз',
+    hintClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepAddSubstrColumn]: {
-    text: 'Дополните формулу',
+    text: 'Дополните формулу адресом столбца для вычитания',
     onEnterMessage:
-      'Добавьте в формулу адрес столбца, данные которого надо вычесть из предыдущих результатов.',
+      'Добавьте в формулу адрес столбца, данные которого надо вычесть из предыдущих результатов, после этого нажмите Enter.',
   },
   [ProgressSteps.StepExtendFinalResults]: {
     text: 'Растяните ячейку с результатами ещё раз',
     onEnterMessage: 'Растяните ячейку с результатом вниз ещё раз, чтобы обновить все данные.',
+    selectionStartCellName: targetRangeFirstCellName,
+    selectionFinishCellName: targetRangeLastCellName,
+    selectionSuccessMessage: 'Ячейка с результатами растянута.',
+    selectionErrorMessage: 'Нужно растянуть ячейку на высоту всех строк с данными.',
   },
   [ProgressSteps.StepDone]: {
     text: 'Все задачи выполнены!',

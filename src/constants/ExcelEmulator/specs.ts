@@ -4,10 +4,9 @@ import { TCellName, TColName } from '@/types/ExcelEmulator';
 import { mainTableColsCount } from './table';
 
 export const genericColSpecs: Record<TColName, TColSpec> = {
-  I: { className: 'min-w-[50px]' },
-  J: { className: 'min-w-[160px]' },
-  K: { className: 'min-w-[50px]' },
-  L: { className: 'min-w-[50px]' },
+  I: { className: 'min-w-[20px]' },
+  J: { className: 'min-w-[190px]' },
+  K: { className: 'min-w-[20px]' },
 };
 
 export const mainColSpecs: Record<TColName, TColSpec> = {

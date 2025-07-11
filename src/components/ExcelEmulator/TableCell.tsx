@@ -15,8 +15,9 @@ import {
   colsCount,
   mainTableFirstCol,
   mainTableFirstRow,
-  targetTableFirstCol,
-  targetTableFirstRow,
+  substrCellName,
+  targetAreaCol,
+  targetAreaFirstRow,
 } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
@@ -33,11 +34,11 @@ import { ToolTip } from './ToolTip';
 
 function isInnerTableCol(rowIndex: number, colIndex: number) {
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
-  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
+  const isTargetTableCell = isCellInTargetTable(rowIndex, colIndex);
   if (isMainTableCell && colIndex !== mainTableFirstCol) {
     return true;
   }
-  if (isAuxTableCell && colIndex !== targetTableFirstCol) {
+  if (isTargetTableCell && colIndex !== targetAreaCol) {
     return true;
   }
   return false;
@@ -45,11 +46,11 @@ function isInnerTableCol(rowIndex: number, colIndex: number) {
 
 function isInnerTableRow(rowIndex: number, colIndex: number) {
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
-  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
+  const isTargetTableCell = isCellInTargetTable(rowIndex, colIndex);
   if (isMainTableCell && rowIndex !== mainTableFirstRow) {
     return true;
   }
-  if (isAuxTableCell && rowIndex !== targetTableFirstRow) {
+  if (isTargetTableCell && rowIndex !== targetAreaFirstRow) {
     return true;
   }
   return false;
@@ -67,8 +68,6 @@ export function TableCell(props: TTableCellProps) {
   const {
     hintCellName,
     hintCellClassName,
-    // finishCellName,
-    // finishCellClassName,
     // Click
     clickCellName,
     clickCellClassName,
@@ -80,18 +79,19 @@ export function TableCell(props: TTableCellProps) {
     selectionFinishCellName,
     selectionFinishCellClassName,
   } = useStepData();
-  // const tooltipCellName = isSelecting && finishCellName ? finishCellName : hintCellName;
-  // const tooltipClassName = isSelecting && finishCellName ? finishCellClassName : hintCellClassName;
   const colName = getColName(colIndex);
   const cellName = getCellName(rowIndex, colIndex);
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
-  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
+  const isTargetTableCell = isCellInTargetTable(rowIndex, colIndex);
   const mainRowSpec: TOptionalColSpec = isMainTableCell ? mainRowSpecs[rowIndex] : undefined;
   const genericColSpec: TOptionalColSpec = genericColSpecs[colName];
   const mainColSpec: TOptionalColSpec = isMainTableCell ? mainColSpecs[colName] : undefined;
   const cellSpec: TOptionalColSpec = cellSpecs[cellName];
-  const content = children || getTableCellContent(rowIndex, colIndex);
+  const content = children || getTableCellContent(step, rowIndex, colIndex);
   const hasHint = cellName === hintCellName;
+  const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
+  const isStepAddSubstrColumn = step > ProgressSteps.StepAddSubstrColumn;
+  const isEquationFinal = step > ProgressSteps.StepExtendFinalResults;
   const isSelectionFinish = isSelecting && cellName === selectionFinishCellName;
   const isSelectionStart = isSelecting && cellName === selectionStartCellName;
   const isExpectedClickCell = clickCellName && cellName === clickCellName;
@@ -133,8 +133,9 @@ export function TableCell(props: TTableCellProps) {
         'cursor-default bg-white',
         'before:pointer-events-none before:absolute before:top-0 before:right-0 before:bottom-0 before:left-0 before:z-[5] before:content-[""]',
         showLookupCells && 'bg-green-500/10',
-        isCellInSelection && (selectionIsCorrect ? 'bg-green-500/30' : 'bg-blue-500/10'),
-        isAuxTableCell && 'border border-solid border-gray-300',
+        isCellInSelection &&
+          (selectionIsCorrect ? 'before:bg-green-500/30' : 'before:bg-blue-500/10'),
+        isTargetTableCell && 'border border-solid border-gray-300',
         isMainTableCell && 'border border-solid border-black',
         isMainTableCell && 'whitespace-nowrap',
         isMainTableCell ? 'text-black' : 'text-gray-500',
@@ -148,6 +149,19 @@ export function TableCell(props: TTableCellProps) {
         isExpectedClickCell && clickCellClassName,
         isSelectionFinish && selectionFinishCellClassName,
         isSelectionStart && selectionStartCellClassName,
+        isStepAddSubstrColumn && cellName === substrCellName && 'bg-blue-500/15',
+        isEquationFinished && isTargetTableCell && 'border-white text-black',
+        isEquationFinished &&
+          isTargetTableCell &&
+          (isEquationFinal ? 'bg-orange-500/20' : 'bg-blue-500/15'),
+        isEquationFinished &&
+          typeof content === 'string' &&
+          content.startsWith('-') &&
+          'text-red-500 font-bold',
+        (clickCellName || selectionStartCellName) &&
+          !!rowIndex &&
+          !!colIndex &&
+          'hover:before:inset-ring hover:before:inset-ring-blue-500',
         className,
       )}
       style={{

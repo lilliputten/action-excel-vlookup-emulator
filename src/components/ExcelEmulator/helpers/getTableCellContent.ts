@@ -1,16 +1,23 @@
 import { getCellName, getColName } from '@/lib/ExcelEmulator';
-import { cellSpecs, colsData, mainTableFirstRow } from '@/constants/ExcelEmulator';
+import {
+  cellSpecs,
+  colsData,
+  mainTableFirstRow,
+  resultDataFinal,
+  resultDataRaw,
+  targetAreaFirstRow,
+} from '@/constants/ExcelEmulator';
+import { ProgressSteps } from '@/contexts/ProgressSteps';
 
 import { TOptionalColSpec } from '../TColSpec';
 import { isCellInMainTable } from './isCellInMainTable';
 import { isCellInTargetTable } from './isCellInTargetTable';
 
-export function getTableCellContent(rowIndex: number, colIndex: number) {
+export function getTableCellContent(step: ProgressSteps, rowIndex: number, colIndex: number) {
   const colName = getColName(colIndex);
   const cellName = getCellName(rowIndex, colIndex);
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
-  const isAuxTableCell = isCellInTargetTable(rowIndex, colIndex);
-  // const mainColSpec: TOptionalColSpec = isMainTableCell ? mainColSpecs[colName] : undefined;
+  const isTargetTableCell = isCellInTargetTable(rowIndex, colIndex);
   const cellSpec: TOptionalColSpec = cellSpecs[cellName];
   const cellContent = cellSpec?.content;
   if (cellContent) {
@@ -22,7 +29,13 @@ export function getTableCellContent(rowIndex: number, colIndex: number) {
       return colContent;
     }
   }
-  if (isAuxTableCell) {
+  if (isTargetTableCell) {
+    const isEquationFinished = step > ProgressSteps.StepExtendRawResults;
+    const isEquationFinal = step > ProgressSteps.StepExtendFinalResults;
+    if (isEquationFinished) {
+      const targetIndex = rowIndex - targetAreaFirstRow;
+      return isEquationFinal ? resultDataFinal[targetIndex] : resultDataRaw[targetIndex];
+    }
     return /* cellKey || */ '';
   }
   return /* isMainTableCell ? cellKey : */ '';

@@ -29,6 +29,7 @@ export function ToolTip(props: TToolTipProps) {
         'bg-blue-500 text-white',
         'after:border-blue-500',
         'after:absolute after:-top-1 after:left-1/2 after:h-0 after:w-0 after:-translate-x-1/2 after:rotate-45 after:border-4 after:content-[""]',
+        'cursor-default',
         'z-[10]',
         className,
         tooltipClassName,

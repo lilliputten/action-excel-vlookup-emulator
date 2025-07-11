@@ -20,6 +20,7 @@ export enum ProgressSteps {
   StepAddInterval,
   StepFinishEquation,
   StepExtendRawResults,
+  StepSelectEquatonAgain,
   StepAddSubstrColumn,
   StepExtendFinalResults,
   StepDone,
@@ -38,13 +39,14 @@ export const defaultStepsValues: string[] = [
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber}`, // StepAddInterval
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue}`, // StepFinishEquation
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`, // StepExtendRawResults
+  `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`, // StepSelectEquatonAgain
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})`, // StepAddSubstrColumn
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepExtendFinalResults
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepDone
 ];
 
-const __useDebug = true;
+const __useDebug = false;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepExtendRawResults // DEBUG
+    ? ProgressSteps.StepEquationSemicolon // DEBUG
     : ProgressSteps.StepStart;
