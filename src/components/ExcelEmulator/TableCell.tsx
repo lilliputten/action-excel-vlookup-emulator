@@ -12,15 +12,7 @@ import {
   mainColSpecs,
   mainRowSpecs,
 } from '@/constants/ExcelEmulator/specs';
-import {
-  colsCount,
-  inputCellFieldId,
-  mainTableFirstCol,
-  mainTableFirstRow,
-  substrCellName,
-  targetAreaCol,
-  targetAreaFirstRow,
-} from '@/constants/ExcelEmulator/table';
+import { colsCount, inputCellFieldId, substrCellName } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
@@ -31,31 +23,16 @@ import { getTableCellContent } from './helpers/getTableCellContent';
 import { isCellInLookupTable } from './helpers/isCellInLookupTable';
 import { isCellInMainTable } from './helpers/isCellInMainTable';
 import { isCellInTargetTable } from './helpers/isCellInTargetTable';
+import { isInnerTableCol } from './helpers/isInnerTableCol';
+import { isInnerTableRow } from './helpers/isInnerTableRow';
 import { TOptionalColSpec } from './TColSpec';
 import { HintToolTip } from './ToolTip';
 
-function isInnerTableCol(rowIndex: number, colIndex: number) {
-  const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
-  const isTargetTableCell = isCellInTargetTable(rowIndex, colIndex);
-  if (isMainTableCell && colIndex !== mainTableFirstCol) {
-    return true;
-  }
-  if (isTargetTableCell && colIndex !== targetAreaCol) {
-    return true;
-  }
-  return false;
-}
+/** Amount of wrong selections before a tip */
+const wrongSelectionsLimit = 2;
 
-function isInnerTableRow(rowIndex: number, colIndex: number) {
-  const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
-  const isTargetTableCell = isCellInTargetTable(rowIndex, colIndex);
-  if (isMainTableCell && rowIndex !== mainTableFirstRow) {
-    return true;
-  }
-  if (isTargetTableCell && rowIndex !== targetAreaFirstRow) {
-    return true;
-  }
-  return false;
+interface TMemo {
+  wrongSelectionsCount: number;
 }
 
 export function TableCell(props: TTableCellProps) {
@@ -97,6 +74,12 @@ export function TableCell(props: TTableCellProps) {
   const isSelectionStart = isSelecting && cellName === selectionStartCellName;
   const isExpectedClickCell = clickCellName && cellName === clickCellName;
 
+  const memo = React.useMemo<TMemo>(() => ({ wrongSelectionsCount: 0 }), []);
+
+  React.useEffect(() => {
+    memo.wrongSelectionsCount = 0;
+  }, [step, memo]);
+
   const handleClick = (ev: React.MouseEvent<HTMLTableCellElement>) => {
     if (clickCellName) {
       const node = nodeRef.current;
@@ -110,6 +93,10 @@ export function TableCell(props: TTableCellProps) {
           clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
           defaultToastOptions,
         );
+        if (++memo.wrongSelectionsCount > wrongSelectionsLimit) {
+          toast.info('Выберите ячейку ' + clickCellName + '.', defaultToastOptions);
+          memo.wrongSelectionsCount = 0;
+        }
         return;
       } else {
         toast.success(
@@ -129,7 +116,7 @@ export function TableCell(props: TTableCellProps) {
       }
     }
   };
-  // TODO: Show current selection
+
   return (
     <div
       ref={nodeRef}

@@ -48,6 +48,9 @@ interface TMemo {
   inputCellField?: HTMLInputElement | null;
 }
 
+/** Amount of wrong selections before a tip */
+const wrongSelectionsLimit = 2;
+
 export function Table() {
   const nodeRef = React.useRef<HTMLDivElement>(null);
 
@@ -175,6 +178,7 @@ export function Table() {
     if (isSelecting && node) {
       const inputCellField = memo.inputCellField;
       const isSelectLookupRange = memo.step === ProgressSteps.StepSelectLookupRange;
+      let wrongSelectionsCount = 0;
       let selecting = false;
       let isCorrectStartCell = false;
       let startCellName = '';
@@ -245,6 +249,11 @@ export function Table() {
               selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
               defaultToastOptions,
             );
+            if (++wrongSelectionsCount > wrongSelectionsLimit) {
+              const exptectedRangeName = selectionStartCellName + ':' + selectionFinishCellName;
+              toast.info('Выберите диапазон ' + exptectedRangeName + '.', defaultToastOptions);
+              wrongSelectionsCount = 0;
+            }
             handleCancel();
           }
         }
