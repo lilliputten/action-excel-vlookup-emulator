@@ -3,6 +3,7 @@ import {
   lookupRangeFirstCellName,
   lookupRangeLastCellName,
   sourceCellName,
+  substrCellName,
   targetRangeFirstCellName,
   targetRangeLastCellName,
 } from '@/constants/ExcelEmulator/table';
@@ -52,8 +53,8 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     text: 'Выберите исходный столбец',
     onEnterMessage: 'Кликните по ячейке с данными для сравнения или введите её адрес в формулу.',
     clickCellName: sourceCellName, // 'B6',
-    clickWrongCellMessage: 'Выбрана неверная исходная ячейка',
-    clickCorrectCellMessage: 'Выбрана исходная ячейка: ' + sourceCellName,
+    // clickWrongCellMessage: 'Выбрана неверная исходная ячейка.',
+    clickCorrectCellMessage: 'Выбрана исходная ячейка: ' + sourceCellName + '.',
   },
   [ProgressSteps.StepEquationSemicolon]: {
     text: 'Продолжите редактирование формулы',
@@ -67,8 +68,8 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     selectionFinishCellName: lookupRangeLastCellName,
   },
   [ProgressSteps.StepEditLookupRange]: {
-    text: 'Отредактируйте диапазон поиска в формуле',
-    onEnterMessage: 'Отредактируйте адреса ячеек диапазона поиска.',
+    text: 'Закрепите диапазон поиска в формуле',
+    onEnterMessage: 'Закрепите адреса ячеек диапазона поиска (вручную или нажав F4).',
   },
   [ProgressSteps.StepAddColumnNumber]: {
     text: 'Добавьте номер столбца',
@@ -98,9 +99,12 @@ export const stepsData: Record<ProgressSteps, TStepsDataItem> = {
     hintClassName: 'whitespace-nowrap',
   },
   [ProgressSteps.StepAddSubstrColumn]: {
+    clickCellName: substrCellName, // 'D6',
+    // clickWrongCellMessage: 'Выбрана неверная ячейка для вычитания.',
+    clickCorrectCellMessage: 'Выбрана ячейка для вычитания: ' + substrCellName + '.',
     text: 'Дополните формулу адресом столбца для вычитания',
     onEnterMessage:
-      'Добавьте в формулу адрес столбца, данные которого надо вычесть из предыдущих результатов, после этого нажмите Enter.',
+      'Выберите столбец, данные которого надо вычесть из предыдущих результатов. Или добавьте адрес столбца в формулу вручную, после этого нажмите Enter.',
   },
   [ProgressSteps.StepExtendFinalResults]: {
     text: 'Растяните ячейку с результатами ещё раз',

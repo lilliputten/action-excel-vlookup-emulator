@@ -5,6 +5,7 @@ import { getCellName, getColName } from '@/lib/ExcelEmulator';
 import { useIsCellInSelection } from '@/hooks/ExcelEmulator/useIsCellInSelection';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev } from '@/config';
+import { successReactionDelay } from '@/constants/ExcelEmulator';
 import {
   cellSpecs,
   genericColSpecs,
@@ -13,6 +14,7 @@ import {
 } from '@/constants/ExcelEmulator/specs';
 import {
   colsCount,
+  inputCellFieldId,
   mainTableFirstCol,
   mainTableFirstRow,
   substrCellName,
@@ -20,7 +22,7 @@ import {
   targetAreaFirstRow,
 } from '@/constants/ExcelEmulator/table';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { ProgressSteps } from '@/contexts/ProgressSteps';
+import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
@@ -59,12 +61,11 @@ function isInnerTableRow(rowIndex: number, colIndex: number) {
 export function TableCell(props: TTableCellProps) {
   const nodeRef = React.useRef<HTMLDivElement>(null);
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
-  const { step } = useProgressContext();
+  const { step, setNextStep } = useProgressContext();
   const showLookupCells =
     step > ProgressSteps.StepSelectLookupRange && isCellInLookupTable(rowIndex, colIndex);
   const { selecting: isSelecting, correct: selectionIsCorrect } = useSelectionContext();
   const isCellInSelection = useIsCellInSelection(rowIndex, colIndex);
-  // const isStepSelectLookupRangeStart = step === ProgressSteps.StepSelectLookupRange;
   const {
     hintCellName,
     hintCellClassName,
@@ -95,6 +96,7 @@ export function TableCell(props: TTableCellProps) {
   const isSelectionFinish = isSelecting && cellName === selectionFinishCellName;
   const isSelectionStart = isSelecting && cellName === selectionStartCellName;
   const isExpectedClickCell = clickCellName && cellName === clickCellName;
+
   const handleClick = (ev: React.MouseEvent<HTMLTableCellElement>) => {
     if (clickCellName) {
       const node = nodeRef.current;
@@ -104,18 +106,27 @@ export function TableCell(props: TTableCellProps) {
         setTimeout(() => delete node.dataset.clicked, 1000);
       }
       if (!isExpectedClickCell) {
-        if (clickWrongCellMessage) {
-          toast.error(clickWrongCellMessage, defaultToastOptions);
-        }
+        toast.error(
+          clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
+          defaultToastOptions,
+        );
         return;
       } else {
-        if (clickCorrectCellMessage) {
-          toast.success(clickCorrectCellMessage, defaultToastOptions);
-        }
+        toast.success(
+          clickCorrectCellMessage || 'Выбрана ячейка: ' + cellName + '.',
+          defaultToastOptions,
+        );
       }
     }
     if (onClick) {
       onClick(ev);
+    } else if (step === ProgressSteps.StepAddSubstrColumn) {
+      const expectedValue = defaultStepsValues[step + 1];
+      const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
+      if (expectedValue && inputCellField) {
+        inputCellField.value = expectedValue;
+        setTimeout(setNextStep, successReactionDelay);
+      }
     }
   };
   // TODO: Show current selection

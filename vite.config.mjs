@@ -33,7 +33,7 @@ export default defineConfig({
     },
   },
 
-  /*
+  /* // SCSS Configuration (TODO: To make it work with tailwindcss v.4)
    * css: {
    *   preprocessorOptions: {
    *     scss: {
@@ -51,17 +51,9 @@ export default defineConfig({
     assetsDir: 'static',
     target: 'es2015',
 
-    /* lib: {
-     *   entry: path.resolve(__dirname, 'src/main.tsx'), // your entry file
-     *   name: 'App',
-     *   formats: ['iife'], // or 'umd'
-     *   fileName: () => 'bundle.js',
-     * },
-     */
-
     rollupOptions: {
       output: {
-        format: 'umd',
+        // format: 'umd',
         inlineDynamicImports: true,
         // Ensure index.html is at root (default behavior)
         // No need to change entryFileNames or chunkFileNames for index.html

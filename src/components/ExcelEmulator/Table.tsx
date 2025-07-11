@@ -97,19 +97,20 @@ export function Table() {
       const nextStep = (step + 1) as ProgressSteps;
       const isForward = step >= prevStep;
       const canGoForward = !isForward || cachedInputs[nextStep] != undefined;
-      // DEBUG
-      // eslint-disable-next-line no-console
-      console.log('[Table:Effect] step changed', {
-        isForward,
-        canGoForward,
-        inputCellField,
-        prevStep,
-        step,
-        nextStep,
-        cachedInputs,
-        memo,
-        defaultStepsValues,
-      });
+      /* // DEBUG
+       * // eslint-disable-next-line no-console
+       * console.log('[Table:Effect] step changed', {
+       *   isForward,
+       *   canGoForward,
+       *   inputCellField,
+       *   prevStep,
+       *   step,
+       *   nextStep,
+       *   cachedInputs,
+       *   memo,
+       *   defaultStepsValues,
+       * });
+       */
       if (isForward) {
         cachedInputs[step] = inputCellField?.value || '';
       } else if (step < prevStep && inputCellField) {
