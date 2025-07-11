@@ -10,6 +10,8 @@ if [ -z "$CONFIG_IMPORTED" ]; then
 
   APP_ID=`git ls-remote --get-url | xargs basename -s .git`
 
+  BUILD_FOLDER="dist"
+
   VERSION_FILE="project-version.txt"
   PROJECT_INFO_FILE="public/app-info.txt"
   PROJECT_INFO_JSON_FILE="src/app-info.json"
