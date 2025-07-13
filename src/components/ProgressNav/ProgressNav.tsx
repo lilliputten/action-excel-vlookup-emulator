@@ -5,6 +5,7 @@ import screenfull from 'screenfull';
 
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev } from '@/config';
+import { helpMessageDelay } from '@/constants/ExcelEmulator';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { ProgressSteps } from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
@@ -14,8 +15,6 @@ interface TProgressNavProps {
   onGoForward: () => void;
   helpMessage?: string;
 }
-
-const helpDelay = 10000; // toastAutoCloseTimeout + 2000;
 
 export function ProgressNav(props: TProgressNavProps) {
   const { canGoForward, onGoForward, helpMessage } = props;
@@ -27,15 +26,15 @@ export function ProgressNav(props: TProgressNavProps) {
 
   React.useEffect(() => {
     setShowHelp(true);
-    setTimeout(() => setShowHelp(false), helpDelay);
+    setTimeout(() => setShowHelp(false), helpMessageDelay);
   }, [step]);
 
   const { text, textClassName } = useStepData();
 
   const handleShowHelp = () => {
-    toast.info(helpMessage, { ...defaultToastOptions, autoClose: helpDelay });
+    toast.info(helpMessage, { ...defaultToastOptions, autoClose: helpMessageDelay });
     setShowHelp(true);
-    setTimeout(() => setShowHelp(false), helpDelay);
+    setTimeout(() => setShowHelp(false), helpMessageDelay);
   };
 
   React.useEffect(() => {

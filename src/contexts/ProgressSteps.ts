@@ -25,7 +25,10 @@ export enum ProgressSteps {
   StepExtendFinalResults,
   StepDone,
 }
-export const progressStepsCount = Math.floor(Object.keys(ProgressSteps).length);
+export const progressStepsCount = Math.floor(
+  // NOTE: The enum keys contain both key names and values
+  Object.keys(ProgressSteps).length / 2,
+);
 
 /** Default (failback/test) values on start of each step */
 export const defaultStepsValues: string[] = [
@@ -45,8 +48,8 @@ export const defaultStepsValues: string[] = [
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepDone
 ];
 
-const __useDebug = true;
+const __useDebug = false;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepSelectLookupRange // DEBUG
+    ? ProgressSteps.StepAddSubstrColumn // DEBUG: Inital step, for debug purposes
     : ProgressSteps.StepStart;

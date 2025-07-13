@@ -5,7 +5,7 @@ import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { ProgressNav } from '@/components/ProgressNav';
 import { defaultToastOptions, isDev } from '@/config';
-import { successReactionDelay } from '@/constants/ExcelEmulator';
+import { helpMessageDelay, successReactionDelay } from '@/constants/ExcelEmulator';
 import {
   gridTemplateColumns,
   idDelim,
@@ -13,31 +13,14 @@ import {
   inputCellName,
   rowsCount,
 } from '@/constants/ExcelEmulator/table';
+import { useFireworksContext } from '@/contexts/FireworksContext';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
+import { ProgressSteps, progressStepsCount } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 
+import { getCellNodeForEventTarget } from './helpers/getCellNodeForEventTarget';
 import { TableRow } from './TableRow';
-
-const helpDelay = 10000; // toastAutoCloseTimeout + 2000;
-
-function getCellNodeForEventTarget(target?: EventTarget | HTMLElement | null) {
-  if (!target) {
-    throw new Error('No target node specified');
-  }
-  let node: HTMLDivElement | null = target as HTMLDivElement;
-  if (!node.dataset.cellName) {
-    node = node.closest('div[data-cell-name]');
-  }
-  if (!node) {
-    throw new Error('Can not find parent cell');
-  }
-  if (!node.dataset.cellName) {
-    throw new Error('Can not find valid cell');
-  }
-  return node;
-}
 
 interface TMemo {
   /** Current step */
@@ -46,6 +29,9 @@ interface TMemo {
   cachedInputs: Partial<Record<ProgressSteps, string>>;
   /** Inout field dom node */
   inputCellField?: HTMLInputElement | null;
+  /** X and Y postioins for the fireworks effect */
+  x?: number;
+  y?: number;
 }
 
 /** Amount of wrong selections before a tip */
@@ -54,8 +40,9 @@ const wrongSelectionsLimit = 2;
 export function Table() {
   const nodeRef = React.useRef<HTMLDivElement>(null);
 
-  const progressContext = useProgressContext();
-  const { step, setNextStep } = progressContext;
+  const { startFireworks } = useFireworksContext();
+
+  const { step, setNextStep } = useProgressContext();
 
   const memo = React.useMemo<TMemo>(() => ({ cachedInputs: {} }), []);
 
@@ -93,21 +80,12 @@ export function Table() {
     if (clickCellName) {
       setWrongClicksCount(0);
     }
-    /* // NOTE: Used local `wrongSelectionsCount`
-     * if (isSelectingStep) {
-     *   setWrongSelectionsCount(0);
-     * }
-     */
   }, [clickCellName, setWrongClicksCount, step]);
 
   React.useEffect(() => {
-    const inited = !!memo.inputCellField;
     const inputCellField =
       memo.inputCellField ||
       (memo.inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null);
-    if (!inited && inputCellField) {
-      inputCellField.value = defaultStepsValues[step] || '';
-    }
     // Update memo
     if (memo.step != step) {
       if (step === ProgressSteps.StepDone) {
@@ -119,25 +97,8 @@ export function Table() {
       const nextStep = (step + 1) as ProgressSteps;
       const isForward = step >= prevStep;
       const canGoForward = !isForward || cachedInputs[nextStep] != undefined;
-      /* // DEBUG
-       * // eslint-disable-next-line no-console
-       * console.log('[Table:Effect] step changed', {
-       *   isForward,
-       *   canGoForward,
-       *   inputCellField,
-       *   prevStep,
-       *   step,
-       *   nextStep,
-       *   cachedInputs,
-       *   memo,
-       *   defaultStepsValues,
-       * });
-       */
       if (isForward) {
         cachedInputs[step] = inputCellField?.value || '';
-      } else if (step < prevStep && inputCellField) {
-        // Go back
-        inputCellField.value = cachedInputs[step] || defaultStepsValues[step] || '';
       }
       // Can go forward if there was a step back
       setCanGoForward(canGoForward);
@@ -145,7 +106,7 @@ export function Table() {
     }
     // Show on enter message if defined
     if (onEnterMessage) {
-      toast.info(onEnterMessage, { ...defaultToastOptions, autoClose: helpDelay });
+      toast.info(onEnterMessage, { ...defaultToastOptions, autoClose: helpMessageDelay });
     }
   }, [memo, step, onEnterMessage]);
 
@@ -161,6 +122,8 @@ export function Table() {
       inputCellField.value = nextValue;
     }
     setCanGoForward(canGoForward);
+    // debugger;
+    // startFireworks({ x: memo.x, y: memo.x });
     setNextStep();
   }, [memo, setNextStep]);
 
@@ -170,6 +133,9 @@ export function Table() {
         setFinished(false);
         setCorrect(false);
         setSelecting(false);
+        const step = memo.step || 0;
+        const isContinuous = step + 1 === progressStepsCount - 1;
+        startFireworks({ x: memo.x, y: memo.y, isContinuous });
         setTimeout(setNextStep, successReactionDelay);
       }
     }
@@ -184,6 +150,7 @@ export function Table() {
     setFinished,
     setCorrect,
     setSelecting,
+    startFireworks,
   ]);
 
   // Handle range selection
@@ -227,6 +194,13 @@ export function Table() {
           setSelectionFinish(cellNode);
           finishCellName = cellName;
           setCorrect(isCorrectCells);
+          console.log('XXX', {
+            selecting,
+            x: ev.clientX,
+            y: ev.clientY,
+          });
+          memo.x = ev.clientX;
+          memo.y = ev.clientY;
           if (isSelectLookupRange && inputCellField) {
             inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);
           }

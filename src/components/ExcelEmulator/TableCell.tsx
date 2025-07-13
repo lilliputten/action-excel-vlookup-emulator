@@ -12,7 +12,13 @@ import {
   mainColSpecs,
   mainRowSpecs,
 } from '@/constants/ExcelEmulator/specs';
-import { colsCount, inputCellFieldId, substrCellName } from '@/constants/ExcelEmulator/table';
+import {
+  colsCount,
+  inputCellFieldId,
+  inputCellName,
+  substrCellName,
+} from '@/constants/ExcelEmulator/table';
+import { useFireworksContext } from '@/contexts/FireworksContext';
 import { useProgressContext } from '@/contexts/ProgressContext';
 import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
@@ -33,6 +39,7 @@ const wrongSelectionsLimit = 2;
 
 export function TableCell(props: TTableCellProps) {
   const nodeRef = React.useRef<HTMLDivElement>(null);
+  const { startFireworks } = useFireworksContext();
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
   const { step, setNextStep } = useProgressContext();
   const showLookupCells =
@@ -68,7 +75,8 @@ export function TableCell(props: TTableCellProps) {
   const cellSpec: TOptionalColSpec = cellSpecs[cellName];
   const content = children || getTableCellContent(step, rowIndex, colIndex);
   const hasHint = cellName === hintCellName;
-  const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
+  // const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
+  const isEquationExtended = step > ProgressSteps.StepExtendRawResults;
   const isStepAddSubstrColumn = step > ProgressSteps.StepAddSubstrColumn;
   const isEquationFinal = step > ProgressSteps.StepExtendFinalResults;
   const isSelectionFinish = isSelecting && cellName === selectionFinishCellName;
@@ -86,10 +94,12 @@ export function TableCell(props: TTableCellProps) {
         }
         if (!isExpectedClickCell) {
           const showTip = wrongClicksCount >= wrongSelectionsLimit;
-          toast.error(
-            clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
-            defaultToastOptions,
-          );
+          if (cellName !== inputCellName) {
+            toast.error(
+              clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
+              defaultToastOptions,
+            );
+          }
           if (showTip) {
             toast.info(showTip && 'Выберите ячейку ' + clickCellName + '.', defaultToastOptions);
           }
@@ -109,6 +119,7 @@ export function TableCell(props: TTableCellProps) {
         const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
         if (expectedValue && inputCellField) {
           inputCellField.value = expectedValue;
+          startFireworks({ x: ev.clientX, y: ev.clientY });
           setTimeout(setNextStep, successReactionDelay);
         }
       }
@@ -124,6 +135,7 @@ export function TableCell(props: TTableCellProps) {
       step,
       wrongClicksCount,
       setWrongClicksCount,
+      startFireworks,
     ],
   );
 
@@ -158,11 +170,11 @@ export function TableCell(props: TTableCellProps) {
         isSelectionFinish && selectionFinishCellClassName,
         isSelectionStart && selectionStartCellClassName,
         isStepAddSubstrColumn && cellName === substrCellName && 'bg-blue-500/15',
-        isEquationFinished && isTargetTableCell && 'border-white text-black',
-        isEquationFinished &&
+        isEquationExtended && isTargetTableCell && 'border-white text-black',
+        isEquationExtended &&
           isTargetTableCell &&
           (isEquationFinal ? 'bg-orange-500/20' : 'bg-blue-500/15'),
-        isEquationFinished &&
+        isEquationExtended &&
           typeof content === 'string' &&
           content.startsWith('-') &&
           'text-red-500 font-bold',

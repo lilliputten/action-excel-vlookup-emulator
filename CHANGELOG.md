@@ -1,11 +1,11 @@
 <!--
  @since 2025.07.08
- @changed 2025.07.11, 19:25
+ @changed 2025.07.14, 02:55
 -->
 
 # CHANGELOG
 
-## [v.0.0.3](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.3) - 2025.07.11
+## [v.0.0.3](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.3) - 2025.07.14
 
 [Issue #2: Finish progress (add the last steps). Add current step indications.](https://github.com/lilliputten/action-excel-vlookup-emulator/issues/2)
 
@@ -18,6 +18,8 @@
 - Added column selection for subtraction.
 - Added hints for incorrect selection of a range and cell with the mouse, a message appears after 3 incorrect selections.
 - Added hints for repeated keyboard input errors for steps: StepEditLookupRange ('Fix the search range in the formula'), StepAddColumnNumber ('Add column number'), StepAddInterval ('Add interval view value').
+- Added fireworks effect on success actions.
+- Disabled error clearing on intermediate correct values.
 
 - [Compare](https://github.com/lilliputten/action-excel-vlookup-emulator/compare/v.0.0.2...v.0.0.3)
 
