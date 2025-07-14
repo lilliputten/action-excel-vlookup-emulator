@@ -1,4 +1,6 @@
 {
+  "app-title": "Тренажёр функции ВПР в Excel",
+  "app-description": "Action: Тренажёр функции ВПР (вертикальный просмотр) в Excel",
   "equationBegin": "=ВПР(",
   "equationDelim": ";",
   "reconciliation-report": "Акт сверки",

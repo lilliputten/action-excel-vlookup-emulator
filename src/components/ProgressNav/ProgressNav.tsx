@@ -313,10 +313,11 @@ function NavStatus(props: TNavStatusProps) {
       title={text}
     >
       <div className="truncate">
-        <span className="pr-1 font-bold opacity-50">
-          {t('step')} {step + 1}:
+        <span className="sm:font-bold sm:opacity-50">
+          {t('step')} {step + 1}
+          <span className="max-sm:hidden">:</span>
         </span>{' '}
-        {text}
+        <span className="pl-1 max-sm:hidden">{text}</span>
       </div>
     </div>
   );

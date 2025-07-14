@@ -83,5 +83,5 @@ export function useExpectedStepValue(step: ProgressSteps, lang: TLng) {
 const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepAddColumnNumber // DEBUG: Inital step, for debug purposes
+    ? ProgressSteps.StepExtendFinalResults // DEBUG: Inital step, for debug purposes
     : ProgressSteps.StepStart;
