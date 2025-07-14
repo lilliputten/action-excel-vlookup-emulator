@@ -88,6 +88,10 @@ export function ProgressNav(props: TProgressNavProps) {
       const closeMenu = () => {
         if (!memo.preventClose) {
           closeLangMenu();
+          memo.preventClose = true;
+          setTimeout(() => {
+            memo.preventClose = false;
+          }, 100);
         }
       };
       const detectEsc = (ev: KeyboardEvent) => {
@@ -112,10 +116,11 @@ export function ProgressNav(props: TProgressNavProps) {
         className={cn(
           isDev && '__LangMenu', // DEBUG
           'focus:outline-hidden absolute z-40 rounded-md',
-          'left-0 mb-42 w-64 origin-bottom',
+          'left-0 mb-45 w-64 origin-bottom',
           'flex flex-col gap-2 p-2',
           'bg-blue-500 shadow-lg ring-1 ring-black/5',
           'cursor-default',
+          'after:border-blue-500 after:absolute after:-bottom-1 after:left-[18px] after:h-0 after:w-0 after:-translate-x-1/2 after:rotate-45 after:border-4 after:content-[""]',
           !isLangMenuOpen && 'hidden',
         )}
         role="menu"
