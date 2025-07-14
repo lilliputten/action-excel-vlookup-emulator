@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Fireworks } from '@/lib/Fireworks/Fireworks';
+import { Fireworks, TInitOptions } from '@/lib/Fireworks/Fireworks';
 import { isDev } from '@/config';
 import { cn } from '@/lib';
 
@@ -34,7 +34,9 @@ export const useCreateFireworksContext = () => {
       launch_speed: 10,
       explode_particles_resistance: 5,
       zIndex: 20, // Ensure it's above the background
-    });
+      debris_num: Number(import.meta.env.VITE_FIREWORKS_DEBRIS_NUM) || 10,
+      rockets_num: Number(import.meta.env.VITE_FIREWORKS_ROCKETS_NUM) || 5,
+    } satisfies TInitOptions);
     setInited(true);
   }, []);
 
@@ -51,12 +53,8 @@ export const useCreateFireworksContext = () => {
       stopFireworks();
       const x = params?.x;
       const y = params?.y;
-      console.log('[FireworksProvider:start]', {
-        x,
-        y,
-      });
       const isContinuous = params?.isContinuous;
-      const timeout = isContinuous ? 15000 : 12000;
+      const timeout = isContinuous ? 15000 : 5000;
       Fireworks.start(x, y, isContinuous);
       memo.handler = setTimeout(stopFireworks, timeout);
     },

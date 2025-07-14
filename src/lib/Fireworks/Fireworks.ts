@@ -1,3 +1,21 @@
+export interface TInitOptions {
+  frequency?: number;
+  launch_speed?: number;
+  launch_particles_size?: number;
+  debris_num?: number;
+  rockets_num?: number;
+  // explode_debris_num?: number;
+  // explode_particles_size: number;
+  explode_particles_resistance?: number;
+  width?: number;
+  height?: number;
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  zIndex?: number;
+}
+
 interface TOpt {
   explode_debris_num?: number;
   explode_particles_resistance?: number;
@@ -9,7 +27,9 @@ interface TOpt {
 
 type TCssPos = number | string;
 
-const MAX_ROCKETS = 4;
+let MAX_ROCKETS = 4;
+
+let MAX_PARTICLES: number = 0;
 
 // Creating variables
 let SCREEN_X: number | undefined;
@@ -24,7 +44,6 @@ let fireworksField: HTMLElement | null;
 const opt: TOpt = {};
 let particles: Particle[] = [];
 let rockets: Rocket[] = [];
-let MAX_PARTICLES: number = 0;
 let SCREEN_TOP: TCssPos;
 let SCREEN_BOTTOM: TCssPos;
 let SCREEN_LEFT: TCssPos;
@@ -182,23 +201,6 @@ class Rocket extends Particle {
   }
 }
 
-interface TInitOptions {
-  frequency?: number;
-  launch_speed?: number;
-  launch_particles_size?: number;
-  debris_num?: number;
-  // explode_debris_num?: number;
-  // explode_particles_size: number;
-  explode_particles_resistance?: number;
-  width?: number;
-  height?: number;
-  top?: string;
-  bottom?: string;
-  left?: string;
-  right?: string;
-  zIndex?: number;
-}
-
 export const Fireworks = {
   init: function (dom: string, options: TInitOptions) {
     if (!dom || typeof dom !== 'string' || document.getElementById(dom) == null) {
@@ -206,6 +208,9 @@ export const Fireworks = {
       console.log('Expected DOM node identifier');
     } else {
       fireworksField = document.getElementById(dom);
+      if (options.rockets_num) {
+        MAX_ROCKETS = options.rockets_num;
+      }
       opt.frequency = options.frequency || 200;
       opt.launch_speed = options.launch_speed || 12;
       opt.launch_particles_size = options.launch_particles_size || 0;

@@ -19,7 +19,12 @@ import {
 } from '@/constants/ExcelEmulator';
 import { useFireworksContext } from '@/contexts/FireworksContext';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
+import {
+  defaultStepsValues,
+  getExpectedStepValue,
+  getInitialStepValue,
+  ProgressSteps,
+} from '@/contexts/ProgressSteps';
 import { cn } from '@/lib';
 import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
 
@@ -89,6 +94,7 @@ function getCursorCoordinates(input?: HTMLInputElement) {
 
 export function TableInputCell(props: TTableCellProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const [isInputSuccess, setIsInputSuccess] = React.useState(false);
   const { startFireworks } = useFireworksContext();
   const { className, colIndex, ...rest } = props;
   const { step, setNextStep } = useProgressContext();
@@ -105,10 +111,15 @@ export function TableInputCell(props: TTableCellProps) {
   const setErrorIncrement = React.useCallback(
     (error: string | undefined) => {
       setError(error);
+      setIsInputSuccess(!error);
       memo.errorsCount = error ? memo.errorsCount + 1 : 0;
       memo.inputErrorsCount = 0;
     },
     [memo],
+  );
+  const setInputSuccess = React.useCallback(
+    () => setErrorIncrement(undefined),
+    [setErrorIncrement],
   );
 
   const goToTheNextStep = React.useCallback(
@@ -126,11 +137,36 @@ export function TableInputCell(props: TTableCellProps) {
         }
       }
       startFireworks({ x, y });
+      setInputSuccess();
       setTimeout(setNextStep, delay);
     },
-    [setNextStep, startFireworks, inputRef],
+    [setNextStep, startFireworks, inputRef, setInputSuccess],
   );
 
+  // Initialize step: reset errors, setother parameters
+  React.useEffect(() => {
+    if (memo.prevStep != step) {
+      memo.prevStep = step;
+      const inputCellField = inputRef.current;
+      const expectedValue = getExpectedStepValue(step);
+      const currentValue = getInitialStepValue(step);
+      memo.inputErrorsCount = 0;
+      memo.errorsCount = 0;
+      memo.expectedValue = expectedValue;
+      memo.allowedInputErrorsCount = 1; // inputErrorsBeforeWarn;
+      if (inputCellField) {
+        inputCellField.value = currentValue;
+        // // NOTE: Wait for wrongly entered amout of symbols equals the tlength of expeted correct input?
+        // if (memo.expectedValue) {
+        //   memo.allowedInputErrorsCount = expectedValue.length - currentValue.length - 1;
+        // }
+        setError(undefined);
+        setIsInputSuccess(false);
+      }
+    }
+  }, [step, memo, inputRef]);
+
+  // Specific keystroke reader (F4 for StepEditLookupRange)
   React.useEffect(() => {
     const inputCellField = inputRef.current;
     // Detect F4 press for equation edit (while wait for adding of '$' signs)
@@ -155,27 +191,6 @@ export function TableInputCell(props: TTableCellProps) {
     }
   }, [step, inputRef, goToTheNextStep]);
 
-  React.useEffect(() => {
-    // Reset errors on a step change
-    if (memo.prevStep != step) {
-      memo.prevStep = step;
-      const inputCellField = inputRef.current;
-      const expectedValue = defaultStepsValues[step + 1] || '';
-      const currentValue = defaultStepsValues[step] || '';
-      memo.inputErrorsCount = 0;
-      memo.errorsCount = 0;
-      memo.expectedValue = expectedValue;
-      memo.allowedInputErrorsCount = inputErrorsBeforeWarn;
-      if (inputCellField) {
-        inputCellField.value = currentValue;
-        if (memo.expectedValue) {
-          memo.allowedInputErrorsCount = expectedValue.length - currentValue.length;
-        }
-        setError(undefined);
-      }
-    }
-  }, [step, memo, inputRef]);
-
   /** Ready to show extended data and show raw results*/
   const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
   const isStepAddSubstrColumn = step === ProgressSteps.StepAddSubstrColumn;
@@ -191,156 +206,192 @@ export function TableInputCell(props: TTableCellProps) {
     ev.stopPropagation();
     if (isStepStart || isStepSelectEquatonAgain) {
       goToTheNextStep(0, ev.clientX, ev.clientY);
-      // setNextStep();
-      // setTimeout(setNextStep, successReactionDelay);
     }
   };
 
-  const handleInput = (ev: React.FormEvent<HTMLInputElement>) => {
-    const node = ev.currentTarget;
-    const text = normalizeInputString(node.value);
-    const __debugQuickEquation = true;
-    const expectedValue = memo.expectedValue || ''; // defaultStepsValues[step + 1];
-    const isCorrectValue = text === expectedValue;
-    const isPartialValue = isCorrectValue || expectedValue.startsWith(text);
-    if (!isPartialValue) {
-      // memo.inputErrorsCount = 0;
-      // memo.errorsCount = 0;
-      // setError(undefined);
-      memo.inputErrorsCount++;
-    }
-    if (step === ProgressSteps.StepEquationStart) {
-      if (__debugQuickEquation && isDev ? !!text : isCorrectValue) {
-        node.value = equationBegin;
-        // node.blur();
-        toast.success('Введено начало формулы: "' + text + '".', defaultToastOptions);
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement(
-          'Ожидается ввод формулы (формулы в Excel начинаются со знака "=", за которым следует краткое название функции и открывающая скобка).',
-        );
-      }
-    }
-    if (step === ProgressSteps.StepEquationSemicolon) {
-      if (isCorrectValue) {
-        toast.success('Добавлен разделитель (точка с запятой).', defaultToastOptions);
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement('Ожидается ввод разделителя (точка с запятой, ";").');
-      }
-    }
-    if (step === ProgressSteps.StepSelectSourceColumn) {
-      if (isCorrectValue) {
-        toast.success('Выбран исходный столбец: ' + sourceCellName, defaultToastOptions);
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement('Ожидается ввод адрес исходного столбца для поиска.');
-      }
-    }
-    if (step === ProgressSteps.StepSelectLookupRange) {
-      if (text.endsWith(';' + lookupRangeName)) {
-        // Wait for ';E6:H16'
-        toast.success('Введён диапазон: "' + lookupRangeName + '".', defaultToastOptions);
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement(
-          'Ожидается ввод диапазона ячеек (адреса начальной и конечной ячеек через двоеточие).',
-        );
-      }
-    }
-    if (step === ProgressSteps.StepEditLookupRange) {
-      // Wait for ';$E$6:$H$16'
-      if (text.endsWith(editedLookupRangeName)) {
-        toast.success('Закреплён диапазон: "' + editedLookupRangeName + '".', defaultToastOptions);
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement(
-          'Добавьте знаки доллара вокруг адресов столбцов во вставленном диапазоне.',
-        );
-      }
-    }
-    if (step === ProgressSteps.StepAddColumnNumber) {
-      if (text.endsWith(';' + expectedColumnNumber)) {
-        toast.success('Введён номер столбца: "' + expectedColumnNumber + '".', defaultToastOptions);
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement(
-          ['Ожидается номер столбца', memo.errorsCount && `(${expectedColumnNumber})`]
-            .filter(Boolean)
-            .join(' '),
-        );
-      }
-    }
-    if (step === ProgressSteps.StepAddInterval) {
-      if (text.endsWith(';' + expectedIntervalValue)) {
-        toast.success(
-          'Введено значение интервального просмотра: "' + expectedIntervalValue + '".',
-          defaultToastOptions,
-        );
-        goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement(
-          [
-            'Ожидается значение интервального просмотра',
-            memo.errorsCount && `(${expectedIntervalValue})`,
-          ]
-            .filter(Boolean)
-            .join(' '),
-        );
-      }
-    }
-    if (step === ProgressSteps.StepFinishEquation) {
-      if (text.endsWith(')')) {
-        toast.success('Завершён ввод формулы. Теперь нажмите Enter.', defaultToastOptions);
-        // goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement('Ожидается ввод закрывающей скобки.');
-      }
-    }
-    if (step === ProgressSteps.StepAddSubstrColumn) {
-      if (text.endsWith('-' + substrCellName)) {
-        toast.success(
-          'Введён адрес столбца для вычитания: "' + substrCellName + '". Теперь нажмите Enter.',
-          defaultToastOptions,
-        );
-        // goToTheNextStep(successReactionDelay);
-      } else if (memo.inputErrorsCount > memo.allowedInputErrorsCount) {
-        setErrorIncrement(
-          'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы.',
-        );
-      }
-    }
-  };
-
-  const handleEnter = (ev: React.FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    const node = inputRef.current;
-    if (node) {
+  const handleInput = React.useCallback(
+    (ev: React.FormEvent<HTMLInputElement>) => {
+      const node = ev.currentTarget;
       const text = normalizeInputString(node.value);
-      if (step === ProgressSteps.StepFinishEquation) {
-        if (text.endsWith(')')) {
-          // node.blur();
-          toast.success('Введена формула: "' + text + '".', defaultToastOptions);
-          goToTheNextStep(successReactionDelay);
-        } else {
-          toast.error('Ожидается ввод закрывающей скобки.', defaultToastOptions);
-        }
+      const expectedValue = memo.expectedValue || ''; // defaultStepsValues[step + 1];
+      const isCorrectValue = text === expectedValue;
+      const isPartialValue = isCorrectValue || expectedValue.startsWith(text);
+      if (!isPartialValue) {
+        memo.inputErrorsCount++;
       }
-      if (step === ProgressSteps.StepAddSubstrColumn) {
-        if (text.endsWith('-' + substrCellName)) {
+      const showHint = memo.errorsCount >= 2;
+      const showNextHint = memo.errorsCount >= 4;
+      if (step === ProgressSteps.StepEquationStart) {
+        const __debugQuickEquation = false;
+        if (__debugQuickEquation && isDev ? !!text : isCorrectValue) {
+          node.value = equationBegin;
           // node.blur();
-          toast.success('Завершён ввод. Значение формулы: "' + text + '".', defaultToastOptions);
+          toast.success('Введено начало формулы: "' + text + '".', defaultToastOptions);
           goToTheNextStep(successReactionDelay);
-        } else {
-          toast.error(
-            'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы.',
-            defaultToastOptions,
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            [
+              'Ожидается ввод формулы',
+              showHint &&
+                (showNextHint
+                  ? `(в данном случае вводите "${equationBegin}")`
+                  : '(формулы в Excel начинаются со знака "=", за которым следует краткое название функции и открывающая скобка)'),
+            ]
+              .filter(Boolean)
+              .join(' '),
           );
         }
       }
-    }
-  };
+      if (step === ProgressSteps.StepEquationSemicolon) {
+        if (isCorrectValue) {
+          toast.success('Добавлен разделитель (точка с запятой).', defaultToastOptions);
+          goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            ['Ожидается ввод разделителя', showHint && `(точка с запятой, ";")`]
+              .filter(Boolean)
+              .join(' '),
+          );
+        }
+      }
+      if (step === ProgressSteps.StepSelectSourceColumn) {
+        if (isCorrectValue) {
+          toast.success('Выбран исходный столбец: ' + sourceCellName, defaultToastOptions);
+          goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement('Ожидается ввод адрес исходного столбца для поиска.');
+        }
+      }
+      if (step === ProgressSteps.StepSelectLookupRange) {
+        if (isCorrectValue) {
+          // Wait for ';E6:H16'
+          toast.success('Введён диапазон: "' + lookupRangeName + '".', defaultToastOptions);
+          goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            'Ожидается ввод диапазона ячеек (адреса начальной и конечной ячеек через двоеточие).',
+          );
+        }
+      }
+      if (step === ProgressSteps.StepEditLookupRange) {
+        // Wait for ';$E$6:$H$16'
+        if (isCorrectValue) {
+          toast.success(
+            'Закреплён диапазон: "' + editedLookupRangeName + '".',
+            defaultToastOptions,
+          );
+          goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            'Добавьте знаки доллара вокруг адресов столбцов во вставленном диапазоне.',
+          );
+        }
+      }
+      if (step === ProgressSteps.StepAddColumnNumber) {
+        if (isCorrectValue) {
+          toast.success(
+            'Введён номер столбца: "' + expectedColumnNumber + '".',
+            defaultToastOptions,
+          );
+          goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            ['Введите номер столбца', showHint && `(${expectedColumnNumber})`]
+              .filter(Boolean)
+              .join(' '),
+          );
+        }
+      }
+      if (step === ProgressSteps.StepAddInterval) {
+        if (isCorrectValue) {
+          toast.success(
+            'Введено значение интервального просмотра: "' + expectedIntervalValue + '".',
+            defaultToastOptions,
+          );
+          goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            ['Введите значение интервального просмотра', showHint && `(${expectedIntervalValue})`]
+              .filter(Boolean)
+              .join(' '),
+          );
+        }
+      }
+      if (step === ProgressSteps.StepFinishEquation) {
+        if (isCorrectValue) {
+          toast.success('Завершён ввод формулы. Теперь нажмите Enter.', defaultToastOptions);
+          setInputSuccess();
+          // goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement('Введите закрывающую скобку.');
+        }
+      }
+      if (step === ProgressSteps.StepAddSubstrColumn) {
+        if (isCorrectValue) {
+          toast.success(
+            'Введён адрес столбца для вычитания: "' + substrCellName + '". Теперь нажмите Enter.',
+            defaultToastOptions,
+          );
+          setInputSuccess();
+          // goToTheNextStep(successReactionDelay);
+        } else if (memo.inputErrorsCount >= memo.allowedInputErrorsCount || memo.errorsCount) {
+          setErrorIncrement(
+            [
+              'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы',
+              showHint && `(${substrCellName})`,
+            ]
+              .filter(Boolean)
+              .join(' '),
+          );
+        }
+      }
+    },
+    [
+      goToTheNextStep,
+      memo.allowedInputErrorsCount,
+      memo.errorsCount,
+      memo.expectedValue,
+      memo.inputErrorsCount,
+      setErrorIncrement,
+      setInputSuccess,
+      step,
+    ],
+  );
+
+  const handleEnter = React.useCallback(
+    (ev: React.FormEvent<HTMLFormElement>) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const node = inputRef.current;
+      if (node) {
+        const text = normalizeInputString(node.value);
+        const isCorrectValue = text === memo.expectedValue;
+        if (step === ProgressSteps.StepFinishEquation) {
+          if (isCorrectValue) {
+            // node.blur();
+            toast.success('Введена формула: "' + text + '".', defaultToastOptions);
+            setInputSuccess();
+            goToTheNextStep(successReactionDelay);
+          } else {
+            toast.error('Ожидается ввод закрывающей скобки.', defaultToastOptions);
+          }
+        }
+        if (step === ProgressSteps.StepAddSubstrColumn) {
+          if (isCorrectValue) {
+            // node.blur();
+            toast.success('Завершён ввод. Значение формулы: "' + text + '".', defaultToastOptions);
+            goToTheNextStep(successReactionDelay);
+          } else {
+            toast.error(
+              'Ожидается ввод знака "минус" и адреса столбца, значения которого надо вычитать из результатов формулы.',
+              defaultToastOptions,
+            );
+          }
+        }
+      }
+    },
+    [goToTheNextStep, memo.expectedValue, setInputSuccess, step],
+  );
 
   return (
     <TableCell
@@ -349,7 +400,7 @@ export function TableInputCell(props: TTableCellProps) {
       className={cn(
         isDev && '__TableInputCell', // DEBUG
         'border-2 border-solid',
-        error ? 'border-red-500' : 'border-blue-500',
+        isInputSuccess ? 'border-green-500' : error ? 'border-red-500' : 'border-blue-500',
         'p-0',
         showDragHandler && 'cursor-crosshair',
         className,

@@ -48,8 +48,16 @@ export const defaultStepsValues: string[] = [
   `${equationBegin}${sourceCellName};${editedLookupRangeName};${expectedColumnNumber};${expectedIntervalValue})-${substrCellName}`, // StepDone
 ];
 
-const __useDebug = false;
+export function getInitialStepValue(step: ProgressSteps) {
+  return defaultStepsValues[step];
+}
+export function getExpectedStepValue(step: ProgressSteps) {
+  step = Math.min(defaultStepsValues.length, step + 1);
+  return defaultStepsValues[step];
+}
+
+const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepAddSubstrColumn // DEBUG: Inital step, for debug purposes
+    ? ProgressSteps.StepEquationSemicolon // DEBUG: Inital step, for debug purposes
     : ProgressSteps.StepStart;
