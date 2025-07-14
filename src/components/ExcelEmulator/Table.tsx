@@ -167,6 +167,9 @@ export function Table() {
       let isCorrectCells = false;
       const handleStart = (ev: MouseEvent | TouchEvent) => {
         const cellNode = getCellNodeForEventTarget(ev.target);
+        if (!cellNode) {
+          return;
+        }
         const cellName = cellNode.dataset.cellName || '';
         if (isSelectLookupRange && cellName === inputCellName) {
           // Don't react if input node clicked on StepSelectLookupRange
@@ -188,11 +191,14 @@ export function Table() {
       };
       const handleMouseMove = (ev: MouseEvent | TouchEvent) => {
         if (selecting) {
+          const isTouchEvent = ev instanceof TouchEvent;
           const x = ev instanceof TouchEvent ? ev.changedTouches[0].clientX : ev.clientX;
           const y = ev instanceof TouchEvent ? ev.changedTouches[0].clientY : ev.clientY;
-          const isTouchEvent = ev instanceof TouchEvent;
           const target = isTouchEvent ? document.elementFromPoint(x, y) : ev.target;
           const cellNode = getCellNodeForEventTarget(target);
+          if (!cellNode) {
+            return;
+          }
           const cellName = cellNode.dataset.cellName || '';
           isCorrectCells = isCorrectStartCell && cellName === selectionFinishCellName;
           setSelectionFinish(cellNode);

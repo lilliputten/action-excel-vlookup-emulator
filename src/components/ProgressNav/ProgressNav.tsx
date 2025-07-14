@@ -1,8 +1,18 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Info, Maximize, Minimize, RotateCcw } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Info,
+  Maximize,
+  Minimize,
+  RotateCcw,
+  // Languages,
+} from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import screenfull from 'screenfull';
 
+import { allowedLanguageSwitch, languageNames, TLang, usedLanguages } from '@/config/lang';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev } from '@/config';
 import { helpMessageDelay } from '@/constants/ExcelEmulator';
@@ -16,13 +26,24 @@ interface TProgressNavProps {
   helpMessage?: string;
 }
 
+interface TMemo {
+  preventClose?: boolean;
+}
+
 export function ProgressNav(props: TProgressNavProps) {
   const { canGoForward, onGoForward, helpMessage } = props;
+  const memo = React.useMemo<TMemo>(() => ({}), []);
   const { step, setPrevStep, setFirstStep, isFirstStep, isLastStep, allowedNextStep } =
     useProgressContext();
   const [showHelp, setShowHelp] = React.useState(false);
 
+  const [isLangMenuOpen, toggleLangMenu] = React.useState(false);
+  const closeLangMenu = React.useCallback(() => toggleLangMenu(false), []);
+
   const [isFullscreen, setFullscreen] = React.useState(false);
+
+  const { i18n } = useTranslation();
+  const { language } = i18n;
 
   React.useEffect(() => {
     setShowHelp(true);
@@ -47,7 +68,79 @@ export function ProgressNav(props: TProgressNavProps) {
 
   const toggleFullscreen = () => setFullscreen((isFullscreen) => !isFullscreen);
 
+  const switchLanguage = React.useCallback(
+    (lang: TLang) => {
+      closeLangMenu();
+      i18n.changeLanguage(lang);
+    },
+    [i18n, closeLangMenu],
+  );
+
+  React.useEffect(() => {
+    if (isLangMenuOpen) {
+      const closeMenu = () => {
+        if (!memo.preventClose) {
+          closeLangMenu();
+        }
+      };
+      const detectEsc = (ev: KeyboardEvent) => {
+        if (ev.key === 'Escape') {
+          closeLangMenu();
+        }
+      };
+      document.addEventListener('mouseup', closeMenu);
+      document.addEventListener('keydown', detectEsc);
+      return () => {
+        document.removeEventListener('mouseup', closeMenu);
+        document.removeEventListener('keydown', detectEsc);
+      };
+    }
+  }, [memo, isLangMenuOpen, closeLangMenu]);
+
   const FullScreenIcon = isFullscreen ? Minimize : Maximize;
+
+  const langMenu = React.useMemo(
+    () => (
+      <div
+        className={cn(
+          isDev && '__LangMenu', // DEBUG
+          'focus:outline-hidden absolute z-40 rounded-md',
+          'left-0 mb-42 w-64 origin-bottom',
+          'flex flex-col gap-2 p-2',
+          'bg-blue-500 shadow-lg ring-1 ring-black/5',
+          'cursor-default',
+          !isLangMenuOpen && 'hidden',
+        )}
+        role="menu"
+        aria-orientation="vertical"
+        aria-labelledby="menu-button"
+        tabIndex={-1}
+        onMouseUp={(ev) => {
+          memo.preventClose = true;
+          setTimeout(() => {
+            memo.preventClose = false;
+          }, 100);
+          ev.stopPropagation();
+          ev.preventDefault();
+        }}
+      >
+        {usedLanguages.map((lang) => (
+          <span
+            key={lang}
+            className={cn(
+              isDev && '__ProgressNav_LangMenu_Item', // DEBUG
+              'btn btn-primary btn-plain btn-sm-text flex',
+              lang === language && 'disabled',
+            )}
+            onClick={() => switchLanguage(lang)}
+          >
+            {lang} {languageNames[lang]}
+          </span>
+        ))}
+      </div>
+    ),
+    [memo, isLangMenuOpen, language, switchLanguage],
+  );
 
   return (
     <div
@@ -104,6 +197,24 @@ export function ProgressNav(props: TProgressNavProps) {
       >
         <FullScreenIcon size="2em" />
       </NavIcon>
+      {allowedLanguageSwitch && (
+        <NavIcon
+          className={cn(
+            isDev && '__ProgressNav_Lang', // DEBUG
+            'bg-blue-500',
+            'relative',
+          )}
+          title={isLangMenuOpen ? 'Hide language menu' : 'Show language menu'}
+          onClick={() => {
+            if (!memo.preventClose) {
+              toggleLangMenu(!isLangMenuOpen);
+            }
+          }}
+        >
+          <span className="text-lg text-white uppercase">{language}</span>
+          {langMenu}
+        </NavIcon>
+      )}
       <NavIcon
         className={cn(
           isDev && '__ProgressNav_Help', // DEBUG
@@ -148,6 +259,7 @@ function NavIcon(props: TIconProps) {
       className={cn(
         isDev && '__ProgressNav_NavIcon', // DEBUG
         'flex items-center justify-center',
+        'size-[2em]',
         'text-white',
         'rounded-full shadow-lg/30',
         'transition',
