@@ -14,6 +14,7 @@ import {
   inputCellFieldId,
   inputCellName,
   rowsCount,
+  useEquationDelim,
 } from '@/constants/ExcelEmulator/table';
 import { useFireworksContext } from '@/contexts/FireworksContext';
 import { useProgressContext } from '@/contexts/ProgressContext';
@@ -64,6 +65,7 @@ export function Table() {
     setWrongClicksCount,
   } = useSelectionContext();
 
+  const equationDelim = useEquationDelim(lng);
   const {
     selectionStartCellName,
     selectionFinishCellName,
@@ -181,8 +183,8 @@ export function Table() {
         }
         isCorrectStartCell = cellName === selectionStartCellName;
         if (isSelectLookupRange && inputCellField) {
-          if (!inputCellField.value.trim().endsWith(';')) {
-            inputCellField.value += ';';
+          if (!inputCellField.value.trim().endsWith(equationDelim)) {
+            inputCellField.value += equationDelim;
           }
           inputCellField.value += cellName + ':' + cellName;
         }
@@ -280,18 +282,19 @@ export function Table() {
       };
     }
   }, [
-    memo,
+    equationDelim,
     isSelectingStep,
+    memo,
     nodeRef,
-    setSelecting,
-    setSelectionStart,
-    setSelectionFinish,
-    selectionStartCellName,
-    selectionFinishCellName,
-    selectionSuccessMessage,
     selectionErrorMessage,
+    selectionFinishCellName,
+    selectionStartCellName,
+    selectionSuccessMessage,
     setCorrect,
     setFinished,
+    setSelecting,
+    setSelectionFinish,
+    setSelectionStart,
     t,
   ]);
 
