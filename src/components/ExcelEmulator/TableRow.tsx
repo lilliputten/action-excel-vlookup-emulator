@@ -1,7 +1,8 @@
+import { useLanguage } from '@/config/lang';
 import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
-import { cellSpecs } from '@/constants/ExcelEmulator/specs';
+import { getCellSpecs } from '@/constants/ExcelEmulator/specs';
 import { colsCount, idDelim, inputCellName, sourceCellName } from '@/constants/ExcelEmulator/table';
 import { cn } from '@/lib';
 import { TTableRowProps } from '@/types/ExcelEmulator/cellPropTypes';
@@ -15,11 +16,12 @@ import { TableTopRulerCell } from './TableTopRulerCell';
 
 export function TableRow(props: TTableRowProps) {
   const { className, rowIndex } = props;
+  const lng = useLanguage();
   const cols: React.JSX.Element[] = [];
-  const { hintCellName } = useStepData();
+  const { hintCellName } = useStepData(lng);
   for (let colIndex = 0; colIndex < colsCount; colIndex++) {
     const cellKey = getCellName(rowIndex, colIndex);
-    const spanCount = cellSpecs[cellKey]?.colSpan;
+    const spanCount = getCellSpecs(lng)[cellKey]?.colSpan;
     const nodeKey = ['cell', cellKey].map(String).join(idDelim);
     let Cell = TableCell;
     if (!rowIndex) {

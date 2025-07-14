@@ -1,5 +1,10 @@
+import i18next from 'i18next';
+
+import { TLng } from '@/config/lang';
 import { getColName } from '@/lib/ExcelEmulator';
 import { TCellName } from '@/types/ExcelEmulator';
+
+const { t } = i18next;
 
 export const colsCount = 12;
 export const rowsCount = 25;
@@ -70,8 +75,15 @@ export const rulerCellClassNames =
 export const expectedColumnNumber = 2;
 export const expectedIntervalValue = 0;
 
-export const equationBegin = '=ВПР(';
-// export const equationEnd = `;${expectedColumnNumber};${expectedIntervalValue})`;
-
-// User input errors allowed before warning
-export const inputErrorsBeforeWarn = 2;
+export function getEquationBegin(lng: TLng) {
+  return t('equationBegin', { lng });
+}
+export function useEquationBegin(lng: TLng) {
+  return getEquationBegin(lng);
+}
+export function getEquationDelim(lng: TLng) {
+  return t('equationDelim', { lng });
+}
+export function useEquationDelim(lng: TLng) {
+  return getEquationDelim(lng);
+}

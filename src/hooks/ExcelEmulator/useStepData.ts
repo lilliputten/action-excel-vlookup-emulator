@@ -1,7 +1,8 @@
-import { stepsData } from '@/constants/ExcelEmulator/stepsData';
+import { TLng } from '@/config/lang';
+import { getStepsData } from '@/constants/ExcelEmulator/stepsData';
 import { useProgressContext } from '@/contexts/ProgressContext';
 
-export function useStepData() {
+export function useStepData(lng: TLng) {
   const { step } = useProgressContext();
-  return stepsData[step];
+  return getStepsData(lng)[step];
 }

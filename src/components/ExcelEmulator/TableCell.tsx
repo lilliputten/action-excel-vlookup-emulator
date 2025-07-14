@@ -1,16 +1,18 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
+import { useLanguage } from '@/config/lang';
 import { getCellName, getColName } from '@/lib/ExcelEmulator';
 import { useIsCellInSelection } from '@/hooks/ExcelEmulator/useIsCellInSelection';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev } from '@/config';
 import { successReactionDelay } from '@/constants/ExcelEmulator';
 import {
-  cellSpecs,
   genericColSpecs,
   mainColSpecs,
   mainRowSpecs,
+  useCellSpecs,
 } from '@/constants/ExcelEmulator/specs';
 import {
   colsCount,
@@ -20,7 +22,7 @@ import {
 } from '@/constants/ExcelEmulator/table';
 import { useFireworksContext } from '@/contexts/FireworksContext';
 import { useProgressContext } from '@/contexts/ProgressContext';
-import { defaultStepsValues, ProgressSteps } from '@/contexts/ProgressSteps';
+import { ProgressSteps, useExpectedStepValue } from '@/contexts/ProgressSteps';
 import { useSelectionContext } from '@/contexts/SelectionContext';
 import { cn } from '@/lib';
 import { TTableCellProps } from '@/types/ExcelEmulator/cellPropTypes';
@@ -38,10 +40,13 @@ import { HintToolTip } from './ToolTip';
 const wrongSelectionsLimit = 2;
 
 export function TableCell(props: TTableCellProps) {
+  const lng = useLanguage();
+  const { t } = useTranslation();
   const nodeRef = React.useRef<HTMLDivElement>(null);
   const { startFireworks } = useFireworksContext();
   const { children, onClick, className, id, rowIndex, colIndex, spanCount, style } = props;
   const { step, setNextStep } = useProgressContext();
+  const expectedValue = useExpectedStepValue(step, lng);
   const showLookupCells =
     step > ProgressSteps.StepSelectLookupRange && isCellInLookupTable(rowIndex, colIndex);
   const {
@@ -64,7 +69,7 @@ export function TableCell(props: TTableCellProps) {
     selectionStartCellClassName,
     selectionFinishCellName,
     selectionFinishCellClassName,
-  } = useStepData();
+  } = useStepData(lng);
   const colName = getColName(colIndex);
   const cellName = getCellName(rowIndex, colIndex);
   const isMainTableCell = isCellInMainTable(rowIndex, colIndex);
@@ -72,10 +77,9 @@ export function TableCell(props: TTableCellProps) {
   const mainRowSpec: TOptionalColSpec = isMainTableCell ? mainRowSpecs[rowIndex] : undefined;
   const genericColSpec: TOptionalColSpec = genericColSpecs[colName];
   const mainColSpec: TOptionalColSpec = isMainTableCell ? mainColSpecs[colName] : undefined;
-  const cellSpec: TOptionalColSpec = cellSpecs[cellName];
-  const content = children || getTableCellContent(step, rowIndex, colIndex);
+  const cellSpec: TOptionalColSpec = useCellSpecs(lng)[cellName];
+  const content = children || getTableCellContent(step, rowIndex, colIndex, lng);
   const hasHint = cellName === hintCellName;
-  // const isEquationFinished = step >= ProgressSteps.StepExtendRawResults;
   const isEquationExtended = step > ProgressSteps.StepExtendRawResults;
   const isStepAddSubstrColumn = step > ProgressSteps.StepAddSubstrColumn;
   const isEquationFinal = step > ProgressSteps.StepExtendFinalResults;
@@ -96,18 +100,21 @@ export function TableCell(props: TTableCellProps) {
           const showTip = wrongClicksCount >= wrongSelectionsLimit;
           if (cellName !== inputCellName) {
             toast.error(
-              clickWrongCellMessage || 'Выбрана неверная ячейка: ' + cellName + '.',
+              clickWrongCellMessage || t('vybrana-nevernaya-yacheika') + cellName + '.',
               defaultToastOptions,
             );
           }
           if (showTip) {
-            toast.info(showTip && 'Выберите ячейку ' + clickCellName + '.', defaultToastOptions);
+            toast.info(
+              showTip && t('vyberite-yacheiku') + clickCellName + '.',
+              defaultToastOptions,
+            );
           }
           setWrongClicksCount((count) => count + 1);
           return;
         } else {
           toast.success(
-            clickCorrectCellMessage || 'Выбрана ячейка: ' + cellName + '.',
+            clickCorrectCellMessage || t('vybrana-yacheika') + cellName + '.',
             defaultToastOptions,
           );
         }
@@ -115,7 +122,6 @@ export function TableCell(props: TTableCellProps) {
       if (onClick) {
         onClick(ev);
       } else if (step === ProgressSteps.StepAddSubstrColumn) {
-        const expectedValue = defaultStepsValues[step + 1];
         const inputCellField = document.getElementById(inputCellFieldId) as HTMLInputElement | null;
         if (expectedValue && inputCellField) {
           inputCellField.value = expectedValue;
@@ -129,13 +135,15 @@ export function TableCell(props: TTableCellProps) {
       clickCellName,
       clickCorrectCellMessage,
       clickWrongCellMessage,
+      expectedValue,
       isExpectedClickCell,
       onClick,
       setNextStep,
-      step,
-      wrongClicksCount,
       setWrongClicksCount,
       startFireworks,
+      step,
+      t,
+      wrongClicksCount,
     ],
   );
 

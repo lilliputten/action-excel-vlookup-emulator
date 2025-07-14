@@ -1,3 +1,4 @@
+import { useLanguage } from '@/config/lang';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import { cn } from '@/lib';
@@ -42,7 +43,8 @@ export function ToolTip(props: TToolTipProps) {
 
 export function HintToolTip(props: TToolTipProps) {
   const { id, className } = props;
-  const { hintContent, hintClassName } = useStepData();
+  const lng = useLanguage();
+  const { hintContent, hintClassName } = useStepData(lng);
 
   const tooltipContent = hintContent;
   const tooltipClassName = hintClassName;
