@@ -93,5 +93,10 @@
   "vybrana-yacheika": "Выбрана ячейка: ",
   "select-language": "Выберите язык",
   "hide-language-menu": "Скрыть языковое меню",
-  "show-language-menu": "Показать языковое меню"
+  "show-language-menu": "Показать языковое меню",
+  "predydushii-shag": "Предыдущий шаг",
+  "nachat-snachala": "Начать сначала",
+  "polnoekrannyi-rezhim": "Полноэкранный режим",
+  "tekst-podskazki-dlya-dannogo-shaga": "Текст подсказки для данного шага",
+  "sleduyushii-shag": "Следующий шаг"
 }
