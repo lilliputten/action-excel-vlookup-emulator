@@ -1,6 +1,6 @@
 <!--
  @since 2025.07.08
- @changed 2025.07.14, 02:55
+ @changed 2025.07.14, 12:01
 -->
 
 # CHANGELOG
@@ -20,6 +20,8 @@
 - Added hints for repeated keyboard input errors for steps: StepEditLookupRange ('Fix the search range in the formula'), StepAddColumnNumber ('Add column number'), StepAddInterval ('Add interval view value').
 - Added fireworks effect on success actions.
 - Disabled error clearing on intermediate correct values.
+- Fixed errors processing for the input cell (error tooltip after the 1st error, hint tooltop after any next error).
+- Added support of touch events for range selection.
 
 - [Compare](https://github.com/lilliputten/action-excel-vlookup-emulator/compare/v.0.0.2...v.0.0.3)
 

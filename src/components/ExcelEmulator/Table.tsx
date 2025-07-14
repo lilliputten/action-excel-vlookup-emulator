@@ -165,7 +165,7 @@ export function Table() {
       let startCellName = '';
       let finishCellName = '';
       let isCorrectCells = false;
-      const handleStart = (ev: MouseEvent) => {
+      const handleStart = (ev: MouseEvent | TouchEvent) => {
         const cellNode = getCellNodeForEventTarget(ev.target);
         const cellName = cellNode.dataset.cellName || '';
         if (isSelectLookupRange && cellName === inputCellName) {
@@ -186,23 +186,25 @@ export function Table() {
         setSelectionStart(cellNode);
         setSelectionFinish(cellNode);
       };
-      const handleMouseMove = (ev: MouseEvent) => {
+      const handleMouseMove = (ev: MouseEvent | TouchEvent) => {
         if (selecting) {
-          const cellNode = getCellNodeForEventTarget(ev.target);
+          const x = ev instanceof TouchEvent ? ev.changedTouches[0].clientX : ev.clientX;
+          const y = ev instanceof TouchEvent ? ev.changedTouches[0].clientY : ev.clientY;
+          const isTouchEvent = ev instanceof TouchEvent;
+          const target = isTouchEvent ? document.elementFromPoint(x, y) : ev.target;
+          const cellNode = getCellNodeForEventTarget(target);
           const cellName = cellNode.dataset.cellName || '';
           isCorrectCells = isCorrectStartCell && cellName === selectionFinishCellName;
           setSelectionFinish(cellNode);
           finishCellName = cellName;
           setCorrect(isCorrectCells);
-          console.log('XXX', {
-            selecting,
-            x: ev.clientX,
-            y: ev.clientY,
-          });
-          memo.x = ev.clientX;
-          memo.y = ev.clientY;
+          memo.x = x;
+          memo.y = y;
           if (isSelectLookupRange && inputCellField) {
             inputCellField.value = inputCellField.value.replace(/:.*?$/, ':' + cellName);
+          }
+          if (isTouchEvent && isCorrectStartCell) {
+            ev.preventDefault();
           }
         }
       };
@@ -247,14 +249,20 @@ export function Table() {
         }
       };
       node.addEventListener('mousedown', handleStart);
+      node.addEventListener('touchstart', handleStart);
       node.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleDone);
+      node.addEventListener('touchmove', handleMouseMove);
       document.addEventListener('mouseleave', handleCancel);
+      document.addEventListener('mouseup', handleDone);
+      document.addEventListener('touchend', handleDone);
       return () => {
         node.removeEventListener('mousedown', handleStart);
+        node.removeEventListener('touchstart', handleStart);
         node.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleDone);
+        node.removeEventListener('touchmove', handleMouseMove);
         document.removeEventListener('mouseleave', handleCancel);
+        document.removeEventListener('mouseup', handleDone);
+        document.removeEventListener('touchend', handleDone);
       };
     }
   }, [

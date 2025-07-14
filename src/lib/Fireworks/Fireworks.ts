@@ -150,7 +150,7 @@ class Rocket extends Particle {
   constructor(x: number, y: number) {
     super({
       x: x,
-      y: y, // SCREEN_HEIGHT / 2,
+      y: y,
     });
     this.explosionColor = 0;
   }
@@ -235,15 +235,14 @@ export const Fireworks = {
       canvas.style.opacity = '1';
       canvas.style.zIndex = String(Z_INDEX);
       canvas.style.transition = 'opacity 1000ms';
-      // canvas.style.border = '1px solid red';
       context = canvas.getContext('2d');
 
       fireworksField?.appendChild(canvas);
 
       // Set width/height
       const setDimensions = () => {
-        const width = options.width || window.innerWidth; // document.body.clientWidth;
-        const height = options.height || window.innerHeight; // document.body.clientHeight;
+        const width = options.width || window.innerWidth;
+        const height = options.height || window.innerHeight;
         SCREEN_WIDTH = width;
         SCREEN_HEIGHT = height;
         canvas.style.width = SCREEN_WIDTH + 'px';
@@ -264,33 +263,22 @@ export const Fireworks = {
     const rocket = new Rocket(
       x + Math.round((Math.random() - 0.5) * maxOffset * count),
       y + Math.round((Math.random() - 0.5) * maxOffset * count),
-    ); // Math.random() * SCREEN_WIDTH);
+    );
     rocket.explosionColor = Math.floor((Math.random() * 360) / 10) * 10;
     rocket.vel.y = -1 * toNumber(opt.launch_speed);
     rocket.vel.x = Math.random() * 2 - 1;
     rocket.size = toNumber(opt.launch_particles_size);
     rocket.shrink = 1.008;
     rocket.gravity = 0.005;
-    // console.log('[Fireworks:createRocket]', rocket.explosionColor);
     return rocket;
   },
 
   initRockets() {
-    console.log('[Fireworks:initRockets]', { rockets });
     for (let i = rockets.length; i < MAX_ROCKETS; i++) {
-      // debugger;
       const rocket = this.createRocket();
-      console.log('[Fireworks:initRockets]', i, {
-        // pos0: { ...rocket.pos },
-        pos: Math.round(rocket.pos.x) + ',' + Math.round(rocket.pos.y),
-      });
       rockets.push(rocket);
       rocket.explode();
     }
-    console.log(
-      '[Fireworks:initRockets] final',
-      rockets.map(({ pos: { x, y } }) => Math.round(x) + ',' + Math.round(y)),
-    );
   },
 
   reload: function () {
@@ -324,7 +312,6 @@ export const Fireworks = {
         isContinuous &&
         (rockets[i].pos.y < height / 5 || rockets[i].vel.y >= 0 || distance < 50 || randomChance)
       ) {
-        console.log('explode', this.loopCount);
         rockets[i].explode();
       } else {
         existingRockets.push(rockets[i]);
@@ -366,22 +353,9 @@ export const Fireworks = {
     loopTimer = setInterval(this.loop.bind(this), 100);
     this.initRockets();
     canvas.style.opacity = '1';
-    /* console.log('[Fireworks:start]', {
-     *   canvas,
-     *   'canvas.width': canvas.width,
-     *   rockets,
-     *   particles,
-     * });
-     */
   },
 
   stop: function () {
-    /* console.log('[Fireworks:stop]', {
-     *   fireworksField,
-     *   canvas,
-     *   'canvas.width': canvas.width,
-     * });
-     */
     clearInterval(reloadTimer);
     reloadTimer = undefined;
     canvas.style.opacity = '0';
@@ -389,8 +363,5 @@ export const Fireworks = {
     loopTimer = undefined;
     rockets = [];
     particles = [];
-    // setTimeout(() => {
-    //   clearInterval(loopTimer);
-    // }, 20000);
   },
 };

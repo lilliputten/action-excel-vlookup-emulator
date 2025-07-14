@@ -59,5 +59,5 @@ export function getExpectedStepValue(step: ProgressSteps) {
 const __useDebug = true;
 export const initalProgressStep =
   __useDebug && isDev
-    ? ProgressSteps.StepEquationSemicolon // DEBUG: Inital step, for debug purposes
+    ? ProgressSteps.StepSelectLookupRange // DEBUG: Inital step, for debug purposes
     : ProgressSteps.StepStart;

@@ -148,6 +148,7 @@ export function TableCell(props: TTableCellProps) {
       data-row-index={rowIndex}
       className={cn(
         isDev && '__TableCell', // DEBUG
+        'TableCell',
         'relative',
         'px-1 py-[2px]',
         'cursor-default bg-white',
