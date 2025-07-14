@@ -1,9 +1,18 @@
 <!--
  @since 2025.07.08
- @changed 2025.07.14, 12:01
+ @changed 2025.07.14, 17:55
 -->
 
 # CHANGELOG
+
+## [v.0.0.4](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.4) - 2025.07.14
+
+[Issue #7: Add internalization.](https://github.com/lilliputten/action-excel-vlookup-emulator/issues/2)
+
+- Added language switch menu, basic i18n setup.
+- Added i18n translations.
+
+- [Compare](https://github.com/lilliputten/action-excel-vlookup-emulator/compare/v.0.0.3...v.0.0.4)
 
 ## [v.0.0.3](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.3) - 2025.07.14
 
