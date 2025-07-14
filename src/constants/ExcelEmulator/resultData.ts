@@ -1,4 +1,3 @@
-export const NA = '#Н/Д';
 export const resultDataRaw: (string | undefined | null)[] = [
   '3 758,00',
   '1 220,00',

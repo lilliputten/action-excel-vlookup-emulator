@@ -1,3 +1,4 @@
+import { useLanguage } from '@/config/lang';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { isDev } from '@/config';
 import { cn } from '@/lib';
@@ -7,7 +8,8 @@ import { TableCell } from './TableCell';
 
 export function TableHintCell(props: TTableCellProps) {
   const { className, colIndex, ...rest } = props;
-  const { hintCellClassName } = useStepData();
+  const lng = useLanguage();
+  const { hintCellClassName } = useStepData(lng);
   return (
     <TableCell
       {...rest}

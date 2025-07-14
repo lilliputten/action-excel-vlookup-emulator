@@ -12,7 +12,13 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import screenfull from 'screenfull';
 
-import { allowedLanguageSwitch, languageNames, TLang, usedLanguages } from '@/config/lang';
+import {
+  allowedLanguageSwitch,
+  languageNames,
+  TLng,
+  usedLanguages,
+  useLanguage,
+} from '@/config/lang';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { defaultToastOptions, isDev } from '@/config';
 import { helpMessageDelay } from '@/constants/ExcelEmulator';
@@ -43,14 +49,14 @@ export function ProgressNav(props: TProgressNavProps) {
   const [isFullscreen, setFullscreen] = React.useState(false);
 
   const { i18n } = useTranslation();
-  const { language } = i18n;
+  const lng = useLanguage();
 
   React.useEffect(() => {
     setShowHelp(true);
     setTimeout(() => setShowHelp(false), helpMessageDelay);
   }, [step]);
 
-  const { text, textClassName } = useStepData();
+  const { text, textClassName } = useStepData(lng);
 
   const handleShowHelp = () => {
     toast.info(helpMessage, { ...defaultToastOptions, autoClose: helpMessageDelay });
@@ -69,9 +75,10 @@ export function ProgressNav(props: TProgressNavProps) {
   const toggleFullscreen = () => setFullscreen((isFullscreen) => !isFullscreen);
 
   const switchLanguage = React.useCallback(
-    (lang: TLang) => {
+    (lng: TLng) => {
       closeLangMenu();
-      i18n.changeLanguage(lang);
+      i18n.changeLanguage(lng);
+      window.history.replaceState({}, '', '?' + lng); // A method to update location search string
     },
     [i18n, closeLangMenu],
   );
@@ -130,7 +137,7 @@ export function ProgressNav(props: TProgressNavProps) {
             className={cn(
               isDev && '__ProgressNav_LangMenu_Item', // DEBUG
               'btn btn-primary btn-plain btn-sm-text flex',
-              lang === language && 'disabled',
+              lang === lng && 'disabled',
             )}
             onClick={() => switchLanguage(lang)}
           >
@@ -139,7 +146,7 @@ export function ProgressNav(props: TProgressNavProps) {
         ))}
       </div>
     ),
-    [memo, isLangMenuOpen, language, switchLanguage],
+    [memo, isLangMenuOpen, lng, switchLanguage],
   );
 
   return (
@@ -211,7 +218,7 @@ export function ProgressNav(props: TProgressNavProps) {
             }
           }}
         >
-          <span className="text-lg text-white uppercase">{language}</span>
+          <span className="text-lg text-white uppercase">{lng}</span>
           {langMenu}
         </NavIcon>
       )}
@@ -283,6 +290,7 @@ interface TNavStatusProps {
   step: ProgressSteps;
 }
 function NavStatus(props: TNavStatusProps) {
+  const { t } = useTranslation();
   const { text, className, step } = props;
   return (
     <div
@@ -298,7 +306,10 @@ function NavStatus(props: TNavStatusProps) {
       title={text}
     >
       <div className="truncate">
-        <span className="pr-1 font-bold opacity-50">Шаг {step + 1}:</span> {text}
+        <span className="pr-1 font-bold opacity-50">
+          {t('step')} {step + 1}:
+        </span>{' '}
+        {text}
       </div>
     </div>
   );

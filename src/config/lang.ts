@@ -1,20 +1,24 @@
+import i18n from 'i18next';
+import { useTranslation } from 'react-i18next';
+
 export const usedLanguages = ['en', 'ru'] as const;
-export type TLang = (typeof usedLanguages)[number];
-export const languageNames: Record<TLang, string> = {
+export type TLng = (typeof usedLanguages)[number];
+export type TLngOpts = { lng: TLng };
+export const languageNames: Record<TLng, string> = {
   en: 'English',
   ru: 'Русский',
 };
-const hashLanguage = window.location.search.substring(1) as TLang;
+const hashLanguage = window.location.search.substring(1) as TLng;
 const isValidHashLanguage = usedLanguages.includes(hashLanguage);
-const failbackLanguage: TLang = 'ru';
-export const defaultLanguage: TLang = isValidHashLanguage ? hashLanguage : failbackLanguage;
+const failbackLanguage: TLng = 'ru';
+export const defaultLanguage: TLng = isValidHashLanguage ? hashLanguage : failbackLanguage;
 export const allowedLanguageSwitch = isValidHashLanguage;
 
-/* // DEBUG
- * console.log('[lang]', {
- *   hashLanguage,
- *   allowedLanguageSwitch,
- *   search: window.location.search,
- * });
- */
-// history.replaceState({}, '', '?xx'); // A method to update location search string
+export function useLanguage() {
+  const { i18n } = useTranslation();
+  return i18n.language as TLng;
+}
+
+export function getLanguage() {
+  return i18n.language as TLng;
+}

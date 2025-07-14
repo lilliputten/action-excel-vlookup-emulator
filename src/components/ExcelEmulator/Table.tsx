@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
+import { useLanguage } from '@/config/lang';
 import { getCellName } from '@/lib/ExcelEmulator';
 import { useStepData } from '@/hooks/ExcelEmulator/useStepData';
 import { ProgressNav } from '@/components/ProgressNav';
@@ -39,6 +41,8 @@ const wrongSelectionsLimit = 2;
 
 export function Table() {
   const nodeRef = React.useRef<HTMLDivElement>(null);
+  const lng = useLanguage();
+  const { t } = useTranslation();
 
   const { startFireworks } = useFireworksContext();
 
@@ -67,7 +71,7 @@ export function Table() {
     selectionSuccessMessage,
     selectionErrorMessage,
     clickCellName,
-  } = useStepData();
+  } = useStepData(lng);
   const [canGoForward, setCanGoForward] = React.useState(false);
 
   const isSelectingStep =
@@ -90,7 +94,7 @@ export function Table() {
     if (memo.step != step) {
       if (step === ProgressSteps.StepDone) {
         // Final step
-        toast.success('Поздравляем! Все задачи выполены!', defaultToastOptions);
+        toast.success(t('pozdravlyaem-vse-zadachi-vypoleny'), defaultToastOptions);
       }
       const cachedInputs = memo.cachedInputs;
       const prevStep = memo.step || ProgressSteps.StepStart;
@@ -108,7 +112,7 @@ export function Table() {
     if (onEnterMessage) {
       toast.info(onEnterMessage, { ...defaultToastOptions, autoClose: helpMessageDelay });
     }
-  }, [memo, step, onEnterMessage]);
+  }, [memo, step, onEnterMessage, t]);
 
   const handleGoForward = React.useCallback(() => {
     const inputCellField = memo.inputCellField;
@@ -235,18 +239,22 @@ export function Table() {
             setSelecting(selecting);
             setFinished(true);
             toast.success(
-              selectionSuccessMessage || 'Выделен диапазон: ' + range + '.',
+              selectionSuccessMessage || t('vydelen-diapazon') + range + '.',
               defaultToastOptions,
             );
           } else {
             const showTip = ++wrongSelectionsCount > wrongSelectionsLimit;
             toast.error(
-              selectionErrorMessage || 'Выделен неверный диапазон: ' + range + '.',
+              selectionErrorMessage || t('vydelen-nevernyi-diapazon') + range + '.',
               defaultToastOptions,
             );
             if (showTip) {
               toast.info(
-                'Выберите диапазон ' + selectionStartCellName + ':' + selectionFinishCellName + '.',
+                t('vyberite-diapazon') +
+                  selectionStartCellName +
+                  ':' +
+                  selectionFinishCellName +
+                  '.',
                 defaultToastOptions,
               );
             }
@@ -284,6 +292,7 @@ export function Table() {
     selectionErrorMessage,
     setCorrect,
     setFinished,
+    t,
   ]);
 
   const rows = React.useMemo(() => {
