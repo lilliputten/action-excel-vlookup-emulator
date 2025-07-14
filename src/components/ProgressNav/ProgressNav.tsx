@@ -48,7 +48,7 @@ export function ProgressNav(props: TProgressNavProps) {
 
   const [isFullscreen, setFullscreen] = React.useState(false);
 
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const lng = useLanguage();
 
   React.useEffect(() => {
@@ -135,13 +135,14 @@ export function ProgressNav(props: TProgressNavProps) {
           ev.stopPropagation();
           ev.preventDefault();
         }}
+        title={t('select-language')}
       >
         {usedLanguages.map((lang) => (
           <span
             key={lang}
             className={cn(
               isDev && '__ProgressNav_LangMenu_Item', // DEBUG
-              'btn btn-primary btn-plain btn-sm-text flex',
+              'btn btn-sm-text flex hover:bg-blue-600',
               lang === lng && 'disabled',
             )}
             onClick={() => switchLanguage(lang)}
@@ -151,7 +152,7 @@ export function ProgressNav(props: TProgressNavProps) {
         ))}
       </div>
     ),
-    [memo, isLangMenuOpen, lng, switchLanguage],
+    [memo, isLangMenuOpen, lng, switchLanguage, t],
   );
 
   return (
@@ -169,7 +170,7 @@ export function ProgressNav(props: TProgressNavProps) {
         <NavIcon
           className={cn(
             isDev && '__ProgressNav_PrevStep', // DEBUG
-            'bg-blue-500',
+            'bg-blue-500 hover:bg-blue-600',
           )}
           disabled={isFirstStep}
           title="Предыдущий шаг"
@@ -182,7 +183,7 @@ export function ProgressNav(props: TProgressNavProps) {
         <NavIcon
           className={cn(
             isDev && '__ProgressNav_Replay', // DEBUG
-            'bg-blue-500',
+            'bg-blue-500 hover:bg-blue-600',
           )}
           title="Начать сначала"
           onClick={setFirstStep}
@@ -202,7 +203,7 @@ export function ProgressNav(props: TProgressNavProps) {
       <NavIcon
         className={cn(
           isDev && '__ProgressNav_Fullscreen', // DEBUG
-          'bg-blue-500',
+          'bg-blue-500 hover:bg-blue-600',
         )}
         title="Полноэкранный режим"
         onClick={toggleFullscreen}
@@ -213,10 +214,10 @@ export function ProgressNav(props: TProgressNavProps) {
         <NavIcon
           className={cn(
             isDev && '__ProgressNav_Lang', // DEBUG
-            'bg-blue-500',
+            'bg-blue-500 hover:bg-blue-600',
             'relative',
           )}
-          title={isLangMenuOpen ? 'Hide language menu' : 'Show language menu'}
+          title={isLangMenuOpen ? t('hide-language-menu') : t('show-language-menu')}
           onClick={() => {
             if (!memo.preventClose) {
               toggleLangMenu(!isLangMenuOpen);
@@ -230,7 +231,7 @@ export function ProgressNav(props: TProgressNavProps) {
       <NavIcon
         className={cn(
           isDev && '__ProgressNav_Help', // DEBUG
-          'bg-teal-500',
+          'bg-teal-500 hover:bg-teal-600',
         )}
         disabled={!helpMessage || showHelp}
         title="Текст подсказки для данного шага"
@@ -242,7 +243,7 @@ export function ProgressNav(props: TProgressNavProps) {
         <NavIcon
           className={cn(
             isDev && '__ProgressNav_NextStep', // DEBUG
-            'bg-blue-500',
+            'bg-blue-500 hover:bg-blue-600',
           )}
           disabled={!canGoForward && !allowedNextStep}
           title="Следующий шаг"
@@ -276,7 +277,7 @@ function NavIcon(props: TIconProps) {
         'rounded-full shadow-lg/30',
         'transition',
         'cursor-pointer',
-        'hover:opacity-80',
+        // 'hover:opacity-80',
         'p-2',
         disabled && 'disabled pointer-events-none opacity-25',
         className,

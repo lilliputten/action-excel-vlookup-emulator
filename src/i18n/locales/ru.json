@@ -90,5 +90,8 @@
   "vyberite-diapazon": "Выберите диапазон: ",
   "vybrana-nevernaya-yacheika": "Выбрана неверная ячейка: ",
   "vyberite-yacheiku": "Выберите ячейку ",
-  "vybrana-yacheika": "Выбрана ячейка: "
+  "vybrana-yacheika": "Выбрана ячейка: ",
+  "select-language": "Выберите язык",
+  "hide-language-menu": "Скрыть языковое меню",
+  "show-language-menu": "Показать языковое меню"
 }
