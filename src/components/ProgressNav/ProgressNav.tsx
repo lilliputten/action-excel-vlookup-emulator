@@ -173,7 +173,7 @@ export function ProgressNav(props: TProgressNavProps) {
             'bg-blue-500 hover:bg-blue-600',
           )}
           disabled={isFirstStep}
-          title="Предыдущий шаг"
+          title={t('predydushii-shag')}
           onClick={setPrevStep}
         >
           <ChevronLeft size="2em" />
@@ -185,7 +185,7 @@ export function ProgressNav(props: TProgressNavProps) {
             isDev && '__ProgressNav_Replay', // DEBUG
             'bg-blue-500 hover:bg-blue-600',
           )}
-          title="Начать сначала"
+          title={t('nachat-snachala')}
           onClick={setFirstStep}
           disabled={isFirstStep}
         >
@@ -205,7 +205,7 @@ export function ProgressNav(props: TProgressNavProps) {
           isDev && '__ProgressNav_Fullscreen', // DEBUG
           'bg-blue-500 hover:bg-blue-600',
         )}
-        title="Полноэкранный режим"
+        title={t('polnoekrannyi-rezhim')}
         onClick={toggleFullscreen}
       >
         <FullScreenIcon size="2em" />
@@ -215,6 +215,7 @@ export function ProgressNav(props: TProgressNavProps) {
           className={cn(
             isDev && '__ProgressNav_Lang', // DEBUG
             'bg-blue-500 hover:bg-blue-600',
+            isLangMenuOpen && 'bg-blue-600',
             'relative',
           )}
           title={isLangMenuOpen ? t('hide-language-menu') : t('show-language-menu')}
@@ -234,7 +235,7 @@ export function ProgressNav(props: TProgressNavProps) {
           'bg-teal-500 hover:bg-teal-600',
         )}
         disabled={!helpMessage || showHelp}
-        title="Текст подсказки для данного шага"
+        title={t('tekst-podskazki-dlya-dannogo-shaga')}
         onClick={handleShowHelp}
       >
         <Info size="2em" />
@@ -246,7 +247,7 @@ export function ProgressNav(props: TProgressNavProps) {
             'bg-blue-500 hover:bg-blue-600',
           )}
           disabled={!canGoForward && !allowedNextStep}
-          title="Следующий шаг"
+          title={t('sleduyushii-shag')}
           onClick={onGoForward}
         >
           <ChevronRight size="2em" />

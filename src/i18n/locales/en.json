@@ -93,5 +93,10 @@
   "vybrana-yacheika": "The cell is chosen: ",
   "select-language": "Select language",
   "hide-language-menu": "Hide language menu",
-  "show-language-menu": "Show language menu"
+  "show-language-menu": "Show language menu",
+  "predydushii-shag": "Previous step",
+  "nachat-snachala": "Start over",
+  "polnoekrannyi-rezhim": "Full-screen mode",
+  "tekst-podskazki-dlya-dannogo-shaga": "Text of a hint for a given step",
+  "sleduyushii-shag": "The next step"
 }
