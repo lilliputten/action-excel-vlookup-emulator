@@ -6,9 +6,9 @@ export const defaultToastOptions: ToastOptions = {
   position: 'bottom-right',
   autoClose: toastAutoCloseTimeout,
   hideProgressBar: false,
-  closeOnClick: false,
+  closeOnClick: true,
   pauseOnHover: true,
-  draggable: true,
   theme: 'colored',
+  // draggable: true,
   // transition: Zoom,
 };

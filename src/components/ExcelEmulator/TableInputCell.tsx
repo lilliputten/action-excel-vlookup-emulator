@@ -155,6 +155,10 @@ export function TableInputCell(props: TTableCellProps) {
       const expectedValue = memo.expectedValue || '';
       const isCorrectValue = text === expectedValue;
       const isPartialValue = isCorrectValue || expectedValue.startsWith(text);
+      if (isInputSuccess) {
+        node.value = expectedValue;
+        return;
+      }
       if (!isPartialValue) {
         memo.inputErrorsCount++;
       }
@@ -280,7 +284,7 @@ export function TableInputCell(props: TTableCellProps) {
         }
       }
     },
-    [goToTheNextStep, memo, setErrorIncrement, setInputSuccess, step, t],
+    [goToTheNextStep, memo, setErrorIncrement, setInputSuccess, step, t, isInputSuccess],
   );
 
   const handleEnter = React.useCallback(
@@ -355,6 +359,7 @@ export function TableInputCell(props: TTableCellProps) {
             'bg-transparent',
             'text-black',
             'border-0 outline-none',
+            isInputSuccess && 'pointer-events-none',
             hideInput && 'invisible absolute',
           )}
           onInput={handleInput}

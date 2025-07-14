@@ -1,4 +1,6 @@
 {
+  "app-title": "Excel VLOOKUP Trainer",
+  "app-description": "Action: Excel VLOOKUP (Vertical Lookup) Function Training Application",
   "equationBegin": "=VLOOKUP(",
   "equationDelim": ",",
   "reconciliation-report": "Reconciliation Report",
@@ -26,7 +28,7 @@
   "dokument-1065027-0015-ot-06-07-2025": "Document(1065027/0015 dated 06.07.2025)",
   "document-1118105-0255-ot-06-07-2025": "Document(1118105/0255 dated 06.07.2025)",
   "vse-zadachi-vypolneny": "All tasks are completed!",
-  "vyberite-yacheiku-dlya-vvoda-formuly": "Select a formula for entering formula",
+  "vyberite-yacheiku-dlya-vvoda-formuly": "Select a cell for entering formula",
   "vyberite-yacheiku-v-kotoruyu-budete-vvodit-formulu": "Select the cell in which you will enter the formula.",
   "nachnite-vvodit-formulu-v-etu-yacheiku": "Start entering the formula into this cell",
   "nachnite-vvodit-formulu-v-yacheiku": "Start entering the formula into the cell",

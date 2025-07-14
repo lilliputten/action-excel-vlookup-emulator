@@ -1,11 +1,10 @@
+import { HelmetProvider } from 'react-helmet-async';
 import { ToastContainer } from 'react-toastify';
 
 import { TailwindIndicator } from '@/blocks/TailwindIndicator';
 import { ExcelEmulatorPage } from '@/pages/ExcelEmulatorPage';
 
 import '@/i18n/i18n';
-
-import React from 'react';
 
 /* // NOTE: Don't use routes for action projects: as they use relative paths for hosting apps
  * import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -21,7 +20,7 @@ import React from 'react';
 
 function App() {
   return (
-    <>
+    <HelmetProvider>
       {/* <AppNavBar /> */}
       <ExcelEmulatorPage />
       {/*
@@ -30,7 +29,7 @@ function App() {
       */}
       <ToastContainer />
       <TailwindIndicator />
-    </>
+    </HelmetProvider>
   );
 }
 
