@@ -1,9 +1,17 @@
 <!--
  @since 2025.07.08
- @changed 2025.07.14, 17:55
+ @changed 2025.07.15, 00:08
 -->
 
 # CHANGELOG
+
+## [v.0.0.5](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.5) - 2025.07.15
+
+[Issue #9: Add seo and og tags and resources](https://github.com/lilliputten/action-excel-vlookup-emulator/issues/9)
+
+- Added SEO and OpenGraph tags and resources.
+
+- [Compare](https://github.com/lilliputten/action-excel-vlookup-emulator/compare/v.0.0.4...v.0.0.5)
 
 ## [v.0.0.4](https://github.com/lilliputten/action-excel-vlookup-emulator/releases/tag/v.0.0.4) - 2025.07.14
 
