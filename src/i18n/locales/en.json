@@ -90,5 +90,8 @@
   "pozdravlyaem-vse-zadachi-vypoleny": "Congratulations! All tasks are completed!",
   "vybrana-nevernaya-yacheika": "The wrong cell is chosen: ",
   "vyberite-yacheiku": "Select the cell ",
-  "vybrana-yacheika": "The cell is chosen: "
+  "vybrana-yacheika": "The cell is chosen: ",
+  "select-language": "Select language",
+  "hide-language-menu": "Hide language menu",
+  "show-language-menu": "Show language menu"
 }

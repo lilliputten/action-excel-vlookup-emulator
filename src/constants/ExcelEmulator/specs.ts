@@ -28,8 +28,11 @@ export const mainRowSpecs: Record<number, TColSpec> = {
   18: { className: 'font-bold' },
 };
 
-export function getCellSpecs(lng: TLng) {
-  const cellSpecs: Record<TCellName, TColSpec> = {
+// Cache and generatore for cell specs data
+type TCellSpecData = Record<TCellName, TColSpec>;
+const cachedCellSpecs: Partial<Record<TLng, TCellSpecData>> = {};
+function createCellSpecs(lng: TLng) {
+  const cellSpecs: TCellSpecData = {
     A2: {
       colSpan: mainTableColsCount,
       className: 'text-black text-xl text-center font-bold',
@@ -56,6 +59,12 @@ export function getCellSpecs(lng: TLng) {
     },
   };
   return cellSpecs;
+}
+export function getCellSpecs(lng: TLng) {
+  if (!cachedCellSpecs[lng]) {
+    cachedCellSpecs[lng] = createCellSpecs(lng);
+  }
+  return cachedCellSpecs[lng] as TCellSpecData;
 }
 export function useCellSpecs(lng: TLng) {
   return getCellSpecs(lng);
