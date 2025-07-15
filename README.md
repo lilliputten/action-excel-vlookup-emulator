@@ -3,7 +3,7 @@
  @changed 2025.07.15, 14:44
 -->
 
-# Excel VLOOKUP (ВПР) Function Trainer Application
+# Excel VLOOKUP Function Trainer Application
 
 [The VLOOKUP trainer applicaiton](https://action-excel-vlookup-emulator.vercel.app/?en) is implemented via React, Vite, TS, and Tailwind, and deployed to Vercel. Developed for Russian company [Action Academy](https://academy.action-mcfr.ru/) (it supports both English and Russian localizations).
 
