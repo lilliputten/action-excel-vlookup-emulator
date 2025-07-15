@@ -5,11 +5,13 @@
 
 # Excel VLOOKUP (ВПР) Function Trainer Application
 
-The applicaiton is implemented via React, Vite, TS, and Tailwind, and deployed to Vercel. Developed for [Action Academy](https://academy.action-mcfr.ru/).
+[The VLOOKUP trainer applicaiton](https://action-excel-vlookup-emulator.vercel.app/?en) is implemented via React, Vite, TS, and Tailwind, and deployed to Vercel. Developed for Russian company [Action Academy](https://academy.action-mcfr.ru/) (it supports both English and Russian localizations).
 
 The goal is to help to understand a Vertical Lookup or VLOOKUP ("вертикальный просмотр", ВПР, in Russian) function in Miscrosoft Excel.
 
 ![Application banner](public/opengraph-image.jpg "Application banner")
+
+The application is a step-by-step simulator for practicing actions for comparing and searching for missing values in different columns of Excel tables.
 
 ## Build info (auto-generated)
 
@@ -17,7 +19,7 @@ The goal is to help to understand a Vertical Lookup or VLOOKUP ("вертика�
 
 ## Resources
 
-- Vercel deployed app: https://action-excel-vlookup-emulator.vercel.app/
+- Vercel deployed app: https://action-excel-vlookup-emulator.vercel.app/?en
 - Repository: https://github.com/lilliputten/action-excel-vlookup-emulator/
 
 ## Workspace
@@ -31,7 +33,7 @@ Core resources:
 
 ## Installation
 
-Just run `pnpm install` to install all the dependencies.
+Just run `pnpm install --frozen-lockfile` to install all the dependencies.
 
 Set up local [environent variables](#environent-variables) (not required).
 
@@ -52,8 +54,6 @@ pnpm dev
 ```
 
 -- It will start server app locally, on port 5173.
-
-It's possible to run servers separately, via:
 
 ## Maintenance tools
 
