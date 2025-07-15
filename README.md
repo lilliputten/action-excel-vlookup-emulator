@@ -45,7 +45,7 @@ The application environent variables could be provided by the environment (from 
 
 ## Local development
 
-Run both local servers via a command:
+Run local development server via a command:
 
 ```bash
 pnpm dev
