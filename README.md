@@ -1,11 +1,15 @@
 <!--
  @since 2025.07.08, 14:43
- @changed 2025.07.08, 14:43
+ @changed 2025.07.15, 14:44
 -->
 
-# Action Excel VLOOKUP Emulator Vite React Vercel hosted application
+# Excel VLOOKUP (ВПР) Function Trainer Application
 
-The applicaiton is implemented via React, Vite, TS, and Tailwind, and deployed to Vercel.
+The applicaiton is implemented via React, Vite, TS, and Tailwind, and deployed to Vercel. Developed for [Action Academy](https://academy.action-mcfr.ru/).
+
+The goal is to help to understand a Vertical Lookup or VLOOKUP ("вертикальный просмотр", ВПР, in Russian) function in Miscrosoft Excel.
+
+![Application banner](public/opengraph-image.jpg "Application banner")
 
 ## Build info (auto-generated)
 
@@ -22,13 +26,22 @@ Core resources:
 
 - Client entry point (react app): [src/main.tsx](src/main.tsx).
 - Client template: [index.html](index.html).
-- Client-side core data-handling component: [src/pages/Home/Home.tsx](src/pages/Home/Home.tsx).
+- Client-side core component: [src/components/ExcelEmulator/ExcelEmulatorScreen.tsx](src/components/ExcelEmulator/ExcelEmulatorScreen.tsx).
+- "Excel table" root component: [src/components/ExcelEmulator/Table.tsx](src/components/ExcelEmulator/Table.tsx).
 
 ## Installation
 
 Just run `pnpm install` to install all the dependencies.
 
-Set up local [environent variables](#environent-variables).
+Set up local [environent variables](#environent-variables) (not required).
+
+## Environent variables
+
+The application environent variables could be provided by the environment (from github actions or vercel environment setup) or be set in the local `.env` file (see a template in [.env.SAMPLE](.env.SAMPLE));
+
+- `VITE_NO_STRICT_MODE`: Disable react strict mode (causes double hooks' invocations).
+- `VITE_FIREWORKS_DEBRIS_NUM`:  Set "congrulation firework" particles amount.
+- `VITE_FIREWORKS_ROCKETS_NUM`: Set "congrulation firework" explosions count.
 
 ## Local development
 

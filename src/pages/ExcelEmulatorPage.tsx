@@ -12,7 +12,7 @@ export function ExcelEmulatorPage() {
   const lng = useLanguage();
   const title = t('app-title');
   const description = t('app-description');
-  const ogImage = '/opengraph-image-new.jpg';
+  const ogImage = '/opengraph-image.jpg';
   return (
     <>
       <Helmet htmlAttributes={{ lang: lng }}>
